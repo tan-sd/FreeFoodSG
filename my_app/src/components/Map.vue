@@ -1,10 +1,11 @@
 <template>
-    <div id="map" class="map">
+    <div id="map">
         <GMapMap
             :center="center"
             :zoom="14"
             map-type-id="terrain"
             :options="options"
+            class="map"
         >
         <GMapMarker
             :key="index"
