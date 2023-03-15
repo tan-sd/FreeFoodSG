@@ -1,6 +1,9 @@
 <template>
+  <div class="container-fluid p-0 fill-space position-relative">
     <Map/>
+
     <FoodList/>
+  </div>
   </template>
   
   <script>
@@ -15,3 +18,10 @@
     },
   };
   </script>
+
+
+<style scoped>
+  .fill-space{
+    height: 100%;
+  }
+</style>
