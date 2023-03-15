@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `food_table` (
   `post_name` varchar(60),
   `latitude` decimal(10,6),
   `longitude` decimal(10,6),
+  `address` varchar(128) NOT NULL,
   `description` varchar(1000) NULL,
   `allergens` varchar(8000) NULL, 
   `is_available` bit,
