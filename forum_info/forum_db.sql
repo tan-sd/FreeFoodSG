@@ -19,8 +19,8 @@ DROP TABLE IF EXISTS `forum_table`;
 CREATE TABLE IF NOT EXISTS `forum_table` (
   
   `forum_id` int(11) NOT NULL auto_increment,
-  `username` int(11) NOT NULL,
-  `title` varchar(60),
+  `username` varchar(64) NOT NULL,
+  `title` varchar(64),
   `description` varchar(1000) NULL,
   `datetime` datetime,
 

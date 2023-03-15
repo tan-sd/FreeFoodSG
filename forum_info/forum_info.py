@@ -17,8 +17,8 @@ db = SQLAlchemy(app)
 class forum_db(db.Model):
     __tablename__ = 'forum_table'
     forum_id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.Integer, nullable=False)
-    title =  db.Column(db.VARCHAR(60), nullable=False)
+    username = db.Column(db.VARCHAR(64), nullable=False)
+    title =  db.Column(db.VARCHAR(64), nullable=False)
     description = db.Column(db.VARCHAR(1000))
     datetime = db.Column(db.VARCHAR(19), nullable=False)
     
@@ -35,12 +35,11 @@ class forum_db(db.Model):
         forum = {
             'forum_id': self.forum_id,
             'username': self.username,
-            'forum_title': self.forum_title,
+            'title': self.title,
             'description': self.description,
             'datetime': self.datetime
         }
         return forum
-
 
 @app.route("/")
 def test():
@@ -67,7 +66,7 @@ def view_all():
     ), 404
 
 # RETRIEVE SPECIFIC POST
-@app.route("/search/<string:post_id>")
+@app.route("/search/<string:forum_id>")
 def find_post(forum_id):
     post = forum_db.query.filter_by(forum_id=forum_id).first()
 
@@ -89,7 +88,7 @@ def find_post(forum_id):
     ), 404
 
 # CREATE A POST
-@app.route("/create/<int:post_id>", methods=['POST'])
+@app.route("/create/<int:forum_id>", methods=['POST'])
 def create_forum(forum_id):
 
     #check if forum post is already in the db
@@ -114,14 +113,14 @@ def create_forum(forum_id):
         db.session.commit()
 
     #if post cannot be made, return error message
-    except:
+    except Exception as e:
         return jsonify(
             {
                 "code":500,
                 "data":{
                     "forum_id":forum_id
                 },
-                "message": "An error occurred when creating a post. Please check if all fields meet the constraints of the database."
+                "message": "An error occurred when creating a post. Please check if all fields meet the constraints of the database. Message: " + str(e)
             }
         ), 500
     
@@ -135,7 +134,7 @@ def create_forum(forum_id):
     ), 201
 
 # DELETE A POST
-@app.route("/delete/<int:post_id>", methods=['DELETE'])
+@app.route("/delete/<int:forum_id>", methods=['DELETE'])
 def delete(forum_id):
     post = forum_db.query.filter_by(forum_id=forum_id).first()
 
@@ -180,7 +179,7 @@ def delete(forum_id):
     )
 
 # EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
-@app.route("/edit/<int:post_id>", methods=['PUT'])
+@app.route("/edit/<int:forum_id>", methods=['PUT'])
 def edit(forum_id):
     
     post = forum_db.query.filter_by(forum_id=forum_id).first()
@@ -234,3 +233,6 @@ def edit(forum_id):
             "message": "Post not found."
         }
     ), 404
+
+if __name__ == '__main__':
+    app.run(port=1113, debug=True)
