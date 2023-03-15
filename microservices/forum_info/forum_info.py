@@ -45,9 +45,9 @@ class forum_db(db.Model):
 def test():
     return 'welcome to smu'
 
-# SHOW ALL POSTS
+# SHOW ALL FORUM POSTS
 @app.route("/all")
-def view_all():
+def all():
     forum_list = forum_db.query.all()
     if len(forum_list):
         return jsonify(
@@ -61,21 +61,21 @@ def view_all():
     return jsonify(
         {
             "code": 404,
-            "message": "There are no forums."
+            "message": "There are no forum posts."
         }
     ), 404
 
-# RETRIEVE SPECIFIC POST
+# RETRIEVE SPECIFIC FORUM POST
 @app.route("/search/<string:forum_id>")
-def find_post(forum_id):
-    post = forum_db.query.filter_by(forum_id=forum_id).first()
+def search(forum_id):
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
-    #if post exists, return post json
-    if post:
+    #if forum exists, return forum json
+    if forum:
         return jsonify(
             {
                 "code": 200,
-                "data": post.json()
+                "data": forum.json()
             }
         )
     
@@ -83,13 +83,13 @@ def find_post(forum_id):
     return jsonify(
         {
             "code": 404,
-            "message": "Posts not found."
+            "message": "Post not found."
         }
     ), 404
 
-# CREATE A POST
+# CREATE A FORUM POST
 @app.route("/create/<int:forum_id>", methods=['POST'])
-def create_forum(forum_id):
+def create(forum_id):
 
     #check if forum post is already in the db
     if(forum_db.query.filter_by(forum_id=forum_id).first()):
@@ -105,11 +105,11 @@ def create_forum(forum_id):
     
     #else, carry on making the post
     data = request.get_json()
-    post = forum_db(**data)
+    forum = forum_db(**data)
 
     #attempt to add post into db
     try:
-        db.session.add(post)
+        db.session.add(forum)
         db.session.commit()
 
     #if post cannot be made, return error message
@@ -120,7 +120,7 @@ def create_forum(forum_id):
                 "data":{
                     "forum_id":forum_id
                 },
-                "message": "An error occurred when creating a post. Please check if all fields meet the constraints of the database. Message: " + str(e)
+                "message": "An error occurred when creating a post. System Error Message: " + str(e)
             }
         ), 500
     
@@ -128,33 +128,33 @@ def create_forum(forum_id):
     return jsonify(
         {
             "code": 201,
-            "data": post.json(),
+            "data": forum.json(),
             "message": "Post created successfully."
         }
     ), 201
 
-# DELETE A POST
+# DELETE A FORUM POST
 @app.route("/delete/<int:forum_id>", methods=['DELETE'])
 def delete(forum_id):
-    post = forum_db.query.filter_by(forum_id=forum_id).first()
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
     #check if post exists
-    if post:
+    if forum:
 
         #attempt to delete post from db
         try:
-            db.session.delete(post)
+            db.session.delete(forum)
             db.session.commit()
 
         #if post cannot be deleted, return error message
-        except:
+        except Exception as e:
              return jsonify(
             {
                 "code": 500,
                 "data": {
                     "forum_id": forum_id
                 },
-                "message": "An error occurred when deleting the post. Please check if the post still exists."
+                "message": "An error occurred when deleting the post. System Error Message: " + str(e)
             }
         ), 500
 
@@ -162,7 +162,7 @@ def delete(forum_id):
         return jsonify(
             {
                 "code": 201,
-                "data": post.json(),
+                "data": forum.json(),
                 "message":"Post successfully deleted."
             }
         ), 201
@@ -182,22 +182,19 @@ def delete(forum_id):
 @app.route("/edit/<int:forum_id>", methods=['PUT'])
 def edit(forum_id):
     
-    post = forum_db.query.filter_by(forum_id=forum_id).first()
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
     #check if post exists
-    if post:
+    if forum:
 
         #attempt to edit
         try:
             data = request.get_json()
 
             #update fields
-            post.post_name = data['post_name']
-            post.latitude = data['latitude'] 
-            post.longitude = data['longitude'] 
-            post.description = data['description']  
-            post.allergens = data['allergens'] 
-            post.is_available = data['is_available'] 
+            forum.title = data['title']
+            forum.description = data['description'] 
+            forum.datetime = data['datetime'] 
 
             #commit changes
             db.session.commit()
@@ -206,7 +203,7 @@ def edit(forum_id):
             return jsonify(
                 {
                     "code": 200,
-                    "data": post.json(),
+                    "data": forum.json(),
                     "message": "Post edited successfully. See above for updated post details."
                 }
             ), 200
