@@ -1,10 +1,9 @@
 <template>
-    <div id="map">
+    <div id="map" class="map">
         <GMapMap
             :center="center"
             :zoom="14"
             map-type-id="terrain"
-            style="height: 50vh;"
             :options="options"
         >
         <GMapMarker
@@ -19,12 +18,32 @@
         </GMapMap>
     </div>
 
-    <GMapAutocomplete
-       placeholder="Location"
-       style="margin-top: 20px;"
-        >
-    </GMapAutocomplete>
+    <div class="autocomplete">
+            <div class="form-floating m-3">
+                <GMapAutocomplete
+                   placeholder=" "
+                   class="form-control bg-autocomplete"
+                   id="googleAutocomplete"
+                    >
+                </GMapAutocomplete>
+
+                <label for="googleAutocomplete" class="text-dark">
+                    <font-awesome-icon icon="fa-solid fa-pizza-slice" />&nbsp;&nbsp;Search Here
+                </label>
+            </div>
+        </div>
   </template>
+  
+  <!-- <script>
+  export default {
+    name: 'App',
+    data() {
+      return {
+        center: {lat: 51.093048, lng: 6.842120},
+      }
+    }
+  }
+  </script> -->
 
   <script>
     export default {
@@ -325,3 +344,34 @@
         }
     }
     </script>
+
+
+<style scoped>
+#map, .map{
+    height: 100%;
+}
+
+.bg-autocomplete{
+    background-color: white;
+    opacity: 90%;
+}
+
+/* Up to LG */
+@media (max-width: 769px) {
+    .autocomplete{
+        position: absolute;
+        top: 0;
+        width: 100vw;
+    }
+}
+
+/* Past LG */
+@media (min-width: 769px) {
+    .autocomplete{
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 50vw;
+    }
+}
+</style>
