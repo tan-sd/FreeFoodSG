@@ -348,9 +348,11 @@
 
 
 <style scoped>
-#map, .map{
+#map{
     height: 100%;
+    overflow: hidden;
 }
+
 
 .bg-autocomplete{
     background-color: white;
@@ -364,6 +366,13 @@
         top: 0;
         width: 100vw;
     }
+
+    .map{
+        height: calc(100% + 24px);
+        width: 100vw;
+        position: absolute;
+        z-index: -1;
+    }
 }
 
 /* Past LG */
@@ -372,7 +381,12 @@
         position: absolute;
         top: 0;
         right: 0;
-        width: 50vw;
+        width: 60vw;
+    }
+
+    .map{
+        height: 100%;
+        width: 140vw;
     }
 }
 </style>
