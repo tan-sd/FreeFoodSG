@@ -44,6 +44,6 @@
 
 <style scoped>
     .button-container{
-        width: 150px
+        width: 200px
     }
 </style>

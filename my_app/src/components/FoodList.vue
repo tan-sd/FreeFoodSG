@@ -1,5 +1,5 @@
 <template>
-    <div class="accordion accordion-flush text-extra-dark bg-extra-light" id="food_accordian">
+    <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
         <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
             <div class="col-6 d-flex justify-content-center">
@@ -21,15 +21,15 @@
                 <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="focus_on_buffet(index, true)">
                     <div class="row vw-100">
                         <!-- IMAGE -->
-                        <div class="col-5 col-md-4 col-lg-5">
+                        <div class="col-6 col-md-7 col-lg-8">
                             <img :src="require(`../assets/images/buffet_imgs/buffet${index%3+1}.jpg`)" class="img-fluid">
                         </div>
 
                         <!-- DETAILS -->
-                        <div class="col-7 col-md-8 col-lg-7">
+                        <div class="col-6 col-md-5 col-lg-4">
                             <div class="row">
                                 <!-- DIET RESTRICTIONS -->
-                                <div class="col-12 col-md-3">
+                                <div class="col-12">
                                     <h6>
                                         <i v-for="(e_diet, index) in e_buff.diet_res" :key="index">
                                             <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
@@ -38,7 +38,7 @@
                                 </div>
 
                                 <!-- TIME LEFT -->
-                                <div class="col-12 col-md-3">
+                                <div class="col-12">
                                     <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
                                 </div>
                             </div>
@@ -53,7 +53,7 @@
                 <div class="accordion-body bg-light-gradient">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-12 col-lg-8">
+                            <div class="col-12">
                                 <h6>
                                     <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.location }}
                                 </h6>
@@ -62,9 +62,9 @@
                                     {{ e_buff.description }}
                                 </p>
                             </div>
-                            <div class="col-12 col-lg-4 d-flex justify-content-center align-items-center">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
                                 <div>
-                                    <button class="btn btn-warning">
+                                    <button class="btn btn-warning btn-expand">
                                         <font-awesome-icon icon="fa-solid fa-circle-stop" />&nbsp;&nbsp;End Buffet
                                     </button>
                                 </div>
@@ -87,15 +87,15 @@
                 <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="focus_on_buffet(index, false)">
                     <div class="row vw-100">
                         <!-- IMAGE -->
-                        <div class="col-5 col-md-4 col-lg-5">
+                        <div class="col-6 col-md-7 col-lg-8">
                             <img :src="require(`../assets/images/buffet_imgs/buffet${index%3+1}.jpg`)" class="img-fluid">
                         </div>
 
                         <!-- DETAILS -->
-                        <div class="col-7 col-md-8 col-lg-7">
+                        <div class="col-6 col-md-5 col-lg-4">
                             <div class="row">
                                 <!-- DIET RESTRICTIONS -->
-                                <div class="col-12 col-sm-6 col-md-3">
+                                <div class="col-12">
                                     <h6>
                                         <i v-for="(e_diet, index) in e_buff.diet_res" :key="index">
                                             <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
@@ -104,12 +104,12 @@
                                 </div>
 
                                 <!-- TIME LEFT -->
-                                <div class="col-12 col-sm-6 col-md-3">
+                                <div class="col-12">
                                     <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
                                 </div>
 
                                 <!-- DISTANCE -->
-                                <div class="col-12 col-sm-6 col-md-3" v-if="user_lat">
+                                <div class="col-12" v-if="user_lat">
                                     <h6><font-awesome-icon icon="fa-solid fa-person-walking" /> {{ e_buff.distance }}</h6>
                                 </div>
                             </div>
@@ -124,7 +124,7 @@
                 <div class="accordion-body bg-light-gradient">
                     <div class="container-fluid">
                         <div class="row">
-                            <div class="col-12 col-lg-8">
+                            <div class="col-12">
                                 <h6>
                                     <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.location }}
                                 </h6>
@@ -133,7 +133,7 @@
                                     {{ e_buff.description }}
                                 </p>
                             </div>
-                            <div class="col-12 col-lg-4 d-flex justify-content-center align-items-center">
+                            <div class="col-12 d-flex justify-content-center align-items-center">
                                 <div>
                                     <button class="btn btn-main">
                                         <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
@@ -392,12 +392,12 @@
     /* Past LG */
     @media (min-width: 769px) {
         #food_accordian{
+            position: absolute;
             bottom: 0;
             left: 0;
             overflow-y: scroll;
             height: 100%;
             width: 50vw;
-            transition: all .8s ease-in-out;
         }
     }
 

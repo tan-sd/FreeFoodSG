@@ -1,21 +1,40 @@
 <template>
-  <NavBar/>
-  <!-- <Map/> -->
-  <!-- <FoodList/> -->
-  <router-view></router-view>
+  <div class="box">
+    <div class="child-top">
+      <NavBar/>
+    </div>
+
+    <div class="child-bottom">
+      <router-view></router-view>
+    </div>
+  </div>
+
 </template>
 
 <script>
-// import Map from "./components/Map.vue";
 import NavBar from "./components/NavBar.vue";
-// import FoodList from "./components/FoodList.vue";
 
 export default {
   name: "App",
   components: {
-    // Map,
     NavBar,
-    // FoodList
   },
 };
 </script>
+
+
+<style>
+.box{
+  display: flex;
+  flex-flow: column;
+  height: 100vh;
+}
+
+.child-top{
+  flex: 0 1 auto;
+}
+
+.child-bottom{
+  flex: 1 1 auto;
+}
+</style>
