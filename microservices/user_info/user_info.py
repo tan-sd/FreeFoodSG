@@ -7,6 +7,7 @@ import os, sys
 import haversine as hs
 import requests
 import bcrypt
+import re
 # from invokes import invoke_http
 
 # request.args for get param
@@ -69,7 +70,7 @@ class user_info(db.Model):
         
 @app.route('/')
 def nothing():
-    return render_template('login.html')
+    return render_template('register.html')
     
 # user create account
 @app.route("/register", methods=['POST', 'GET'])
@@ -78,30 +79,81 @@ def register_user():
     # im just changing the password here
     if request.method =='POST':
         status = False
+        error_msg = ''
         # these are the inputs
         username = request.form.get('username')
-        dietary = request.form.get('username')
-        travelappetite = request.form.get('username')
-        default_address = request.form.get('username')
-
+        name = request.form.get('name')
+        password = request.form.get('password')
+        dietary = request.form.get('dietary')
+        travel_appetite = request.form.get('travel_appetite')
+        default_address = request.form.get('default_address')
 
         # check if user name exists
-        user = user_info.query.filter_by(username=username).first()
+        if user_info.query.filter_by(username=username).first():
+            error_msg += 'user alr exists'
 
         # here will have all the checking done.
-        if True:
-            status = True
+        if (len(password)<=11):
+            error_msg += 'min length 12'
+            # return render_template('register_fail.html', msg = error_msg)
+            
+        if not re.search("[a-z]", password):
+            error_msg += '\n need at least 1 small alphabet'
+            # return render_template('register_fail.html', msg = error_msg)
+     
+        # elif not re.search("[A-Z]", password):
+     
+        if not re.search("[0-9]", password):
+            error_msg += '\n need min 1 number'
+            # return render_template('register_fail.html', msg = error_msg)
+      
+        if not re.search("[_@$]" , password):
+            error_msg += '\n need min 1 symbol'
+            # return render_template('register_fail.html', msg = error_msg)
+    
+        # elif re.search("\s" , password):
+        #     error_msg = 'min length 12'
+        #     return render_template('register_fail.html', msg = error_msg)
+   
+        
+        if error_msg:
+            print(error_msg)
+            return render_template('register_fail.html', msg = error_msg, dietary =dietary, travel_appetite=travel_appetite)
 
-        # pw that user keyed in
-        keyed_password = request.form.get('password')
-        keyed_password = keyed_password.encode('utf-8')
-
-        hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-
-        if status:
-            return render_template('after_login.html', username = username, keyed_password = keyed_password, hashed = hashed, status = status)
         else:
-            return 'Wrong password...', 400  # 400 Bad Request
+            status = True
+            # pw that user keyed in
+            keyed_password = request.form.get('password')
+            keyed_password = keyed_password.encode('utf-8')
+
+            hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+
+
+        
+        # data = request.get_json()
+        # user = user_info(name, **data)
+
+        # try:
+        #     db.session.add(user)
+        #     db.session.commit()
+        #     db.session.commit()
+        # except:
+        #     return jsonify(
+        #         {
+        #             "code": 500,
+        #             "data": {
+        #                 "name": name
+        #             },
+        #             "message": "An error occurred creating user info."
+        #         }
+        #     ), 500
+        if status:
+            # db.session.commit()
+            return render_template('register_success.html', name=name, username = username, password = password, status = status, dietary=dietary, travel_appetite=travel_appetite, default_address=default_address)
+
+        
+        # else:
+        #     return 'Wrong password...', 400  # 400 Bad Request
 
 # let user log in 
 @app.route("/login", methods=['POST', 'GET'])
