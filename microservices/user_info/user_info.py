@@ -7,6 +7,7 @@ import os, sys
 import haversine as hs
 import requests
 import bcrypt
+# import re
 # from invokes import invoke_http
 
 # request.args for get param
@@ -69,70 +70,90 @@ class user_info(db.Model):
         
 @app.route('/')
 def nothing():
-    return render_template('login.html')
+    return 'user homepage'
+    # return render_template('register.html')
     
-# user create account
-@app.route("/register", methods=['POST', 'GET'])
-def register_user():
+# to create user info when user first created account
+@app.route("/register/<string:name>", methods=['POST'])
+def create_user(name):
+    
+    if (user_info.query.filter_by(name=name).first()):
+        return jsonify(
+            {
+                "code": 400,
+                "data": {
+                    "name": name
+                },
+                "message": "user exists already"
+            }
+        ), 400
+    # 400 BAD request
 
-    # im just changing the password here
-    if request.method =='POST':
-        status = False
-        # these are the inputs
-        username = request.form.get('username')
-        dietary = request.form.get('username')
-        travelappetite = request.form.get('username')
-        default_address = request.form.get('username')
+    # store to db
+    data = request.get_json()
+    user = user_info(name, **data)
 
+    keyed_password = keyed_password.encode('utf-8')
+    hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+    user.password = hashed
 
-        # check if user name exists
-        user = user_info.query.filter_by(username=username).first()
+    # store the hash pw ah!!!
+    try:
+        db.session.add(user)
+        db.session.commit()
+        # to commit the change
 
-        # here will have all the checking done.
-        if True:
-            status = True
-
-        # pw that user keyed in
-        keyed_password = request.form.get('password')
-        keyed_password = keyed_password.encode('utf-8')
-
-        hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-
-        if status:
-            return render_template('after_login.html', username = username, keyed_password = keyed_password, hashed = hashed, status = status)
-        else:
-            return 'Wrong password...', 400  # 400 Bad Request
-
+    except:
+        return jsonify(
+            {
+                "code": 500,
+                "data": {
+                    "name": name
+                },
+                "message": "An error occurred creating user info."
+            }
+        ), 500
+    
 # let user log in 
-@app.route("/login", methods=['POST', 'GET'])
-def check_login_details():
+@app.route("/login/<string:username>", methods=['POST', 'GET'])
+def check_login_details(username):
 
-    if request.method =='POST':
-        status = False
-        # these are the inputs
-        username = request.form.get('username')
-        user = user_info.query.filter_by(username=username).first()
+    user = user_info.query.filter_by(username=username).first()
+    # check for pw 
+    password = user.password
 
-        # pw that user keyed in
-        keyed_password = request.form.get('password')
-        keyed_password = keyed_password.encode('utf-8')
+    # this one need to retrieve from ui side! now empty string
+    keyed_password = ''
+    hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
 
-        # pw that is stored in db
-        password =  user.password
-        password = password.encode('utf-8')
-        hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+    if bcrypt.checkpw(password, hashed):
+        print("login success")
+        
+    else:
+        print("incorrect password")
+        return jsonify(
+        {
+            "code": 404,
+            "message": "Wrong password."
+        }
+        ), 404
 
-        if bcrypt.checkpw(keyed_password, hashed):
-            print("login success")
-            status = True
-        else:
-            print("incorrect password")
-
-        if status:
-            return render_template('after_login.html', username = username, keyed_password = keyed_password, password = password, hashed = hashed, status = status)
-        else:
-            return 'Wrong password...', 400  # 400 Bad Request
-
+    #if user exists and correct pw, return user json
+    if user:
+        return jsonify(
+            {
+                "code": 200,
+                "data": user.json()
+            }
+        )
+    
+    #else, return error message
+    return jsonify(
+        {
+            "code": 404,
+            "message": "User not found."
+        }
+    ), 404
 
 # to diplay profile of all users
 @app.route("/allusers")
@@ -152,45 +173,20 @@ def getUserInfo():
     # if HTTP status code not specified at the end, 
     # then 200 OK returned
 
-    # the else comes here
+    # else comes here
     return jsonify(
         {
             "code": 404,
             "message": "No information to be displayed."
         }
-    ), 404
-
-# search user by username
-@app.route("/search/user", methods=['POST', 'GET'])
-def find_user():
-    if request.method =='POST':
-        # these are the inputs
-        name = request.form.get('name')
-        latitude = request.form.get('latitude')
-        longitude = request.form.get('longitude')
-        form = request.form
-        user = user_info.query.filter_by(name=name).first()
-        all = user_info.query.all()
-
-        
-        # over here i updating the db lat lng 
-        user.longitude = longitude
-        user.latitude = latitude
-        # here then commit
-        db.session.commit()
-
-        if name and user:
-            return render_template('search_user.html', all=all, name=name, data=user, form=form, longitude=longitude, latitude=latitude)
-        else:
-            return 'Please go back and enter a valid name...', 400  # 400 Bad Request
-    
+    ), 404   
 
 # to display user info
-@app.route("/profile/<int:user_id>", methods=['GET'])
-def find_by_user_id(user_id):
+@app.route("/profile/<string:name>", methods=['GET'])
+def find_by_user_id(name):
 
     # shd display user profile
-    user = user_info.query.filter_by(user_id=user_id).first()
+    user = user_info.query.filter_by(name=name).first()
     if user:
         return jsonify(
             {
@@ -225,61 +221,6 @@ def update_by_user_id(name):
         }
     ), 404
 
-# to create user info when user first created account
-@app.route("/createprofile/<string:name>", methods=['POST'])
-def create_user(name):
-
-    # focus on name of boxes not id
-    # name = request.form.get('name1')
-    # dietary = request.form.get('dietary')
-    # address = request.form.get('address')
-    # travel = request.form.get('travel')
-
-    # if user dont exist, ill create user
-    # if name:
-    #     return render_template('create_user.html', name=name, travel=travel)
-    # else:
-    #     return 'Please go back and enter your name...', 400  # 400 Bad Request
-    
-
-    if (user_info.query.filter_by(name=name).first()):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "name": name
-                },
-                "message": "user exists already"
-            }
-        ), 400
-    # 400 BAD request
-
-    data = request.get_json()
-    user = user_info(name, **data)
-    #  ** means allow arbitrary number of arguments to a function
-
-    try:
-        db.session.add(user)
-        db.session.commit()
-        # to commit the change
-
-    except:
-        return jsonify(
-            {
-                "code": 500,
-                "data": {
-                    "name": name
-                },
-                "message": "An error occurred creating user info."
-            }
-        ), 500
-
-    return jsonify(
-        {
-            "code": 201,
-            "data": user.json()
-        }
-    ), 201
 
 '''
 Details for wrapper function below
@@ -342,3 +283,135 @@ def filter_user():
 
 if __name__ == '__main__':
     app.run(port=1111, debug=True)
+
+
+# # user create account
+# @app.route("/register", methods=['POST', 'GET'])
+# def register_user():
+
+#     if request.method =='POST':
+#         status = False
+#         error_msg = ''
+#         username = request.form.get('username')
+#         name = request.form.get('name')
+#         password = request.form.get('password')
+#         dietary = request.form.get('dietary')
+#         travel_appetite = request.form.get('travel_appetite')
+#         default_address = request.form.get('default_address')
+
+#         # check if user name exists
+        # if user_info.query.filter_by(username=username).first():
+        #     error_msg += 'user alr exists'
+
+        # # here will have all the checking done.
+        # if (len(password)<=11):
+        #     error_msg += 'min length 12'
+        #     # return render_template('register_fail.html', msg = error_msg)
+            
+        # if not re.search("[a-z]", password):
+        #     error_msg += '\n need at least 1 small alphabet'
+        #     # return render_template('register_fail.html', msg = error_msg)
+     
+        # # elif not re.search("[A-Z]", password):
+     
+        # if not re.search("[0-9]", password):
+        #     error_msg += '\n need min 1 number'
+        #     # return render_template('register_fail.html', msg = error_msg)
+      
+        # if not re.search("[_@$]" , password):
+        #     error_msg += '\n need min 1 symbol'
+            # return render_template('register_fail.html', msg = error_msg)
+    
+        # elif re.search("\s" , password):
+        #     error_msg = 'min length 12'
+        #     return render_template('register_fail.html', msg = error_msg)
+   
+        
+        # if error_msg:
+        #     print(error_msg)
+        #     return render_template('register_fail.html', msg = error_msg, dietary =dietary, travel_appetite=travel_appetite)
+
+        # else:
+        #     status = True
+        #     # pw that user keyed in
+        #     keyed_password = request.form.get('password')
+        #     keyed_password = keyed_password.encode('utf-8')
+
+        #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+
+
+        
+        # data = request.get_json()
+        # user = user_info(name, **data)
+
+        # try:
+        #     db.session.add(user)
+        #     db.session.commit()
+        #     db.session.commit()
+        # except:
+        #     return jsonify(
+        #         {
+        #             "code": 500,
+        #             "data": {
+        #                 "name": name
+        #             },
+        #             "message": "An error occurred creating user info."
+        #         }
+        # #     ), 500
+        # if status:
+        #     # db.session.commit()
+        #     return render_template('register_success.html', name=name, username = username, password = password, status = status, dietary=dietary, travel_appetite=travel_appetite, default_address=default_address)
+
+        
+        # else:
+        #     return 'Wrong password...', 400  # 400 Bad Request
+
+# if request.method =='POST':
+#         status = False
+#         # these are the inputs
+#         username = request.form.get('username')
+#         user = user_info.query.filter_by(username=username).first()
+
+#         # pw that user keyed in
+#         keyed_password = request.form.get('password')
+#         keyed_password = keyed_password.encode('utf-8')
+
+#         # pw that is stored in db
+#         password =  user.password
+#         password = password.encode('utf-8')
+#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+
+#         if bcrypt.checkpw(keyed_password, hashed):
+#             print("login success")
+#             status = True
+#         else:
+#             print("incorrect password")
+
+#         if status:
+#             return render_template('after_login.html', username = username, keyed_password = keyed_password, password = password, hashed = hashed, status = status)
+#         else:
+#             return 'Wrong password...', 400  # 400 Bad Request
+
+# search user by username
+# @app.route("/search/user", methods=['POST', 'GET'])
+# def find_user():
+#     if request.method =='POST':
+#         # these are the inputs
+#         name = request.form.get('name')
+#         latitude = request.form.get('latitude')
+#         longitude = request.form.get('longitude')
+#         form = request.form
+#         user = user_info.query.filter_by(name=name).first()
+#         all = user_info.query.all()
+        
+#         # over here i updating the db lat lng 
+#         user.longitude = longitude
+#         user.latitude = latitude
+#         # here then commit
+#         db.session.commit()
+
+#         if name and user:
+#             return render_template('search_user.html', all=all, name=name, data=user, form=form, longitude=longitude, latitude=latitude)
+#         else:
+#             return 'Please go back and enter a valid name...', 400  # 400 Bad Request
+ 
