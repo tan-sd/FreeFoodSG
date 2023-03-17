@@ -25,16 +25,18 @@ class food_db(db.Model):
     post_name = db.Column(db.VARCHAR(64), nullable=False)
     latitude =  db.Column(db.Float(precision=6), nullable=False)
     longitude = db.Column(db.Float(precision=6), nullable=False)
+    address = db.Column(db.VARCHAR(128), nullable=False)
     description = db.Column(db.VARCHAR(300))
     allergens = db.Column(db.VARCHAR(64))
     is_available = db.Column(db.Integer(), nullable=False)
 
-    def __init__(self, post_id, creator_id, post_name, latitude, longitude, description, allergens, is_available):
+    def __init__(self, post_id, creator_id, post_name, latitude, longitude, address, description, allergens, is_available):
         self.post_id = post_id
         self.creator_id = creator_id
         self.post_name = post_name
         self.latitude = latitude
         self.longitude = longitude
+        self.address = address
         self.description = description
         self.allergens = allergens
         self.is_available = is_available
@@ -46,6 +48,7 @@ class food_db(db.Model):
             'post_name': self.post_name,
             'latitude': self.latitude,
             'longitude': self.longitude,
+            'address': self.address,
             'description': self.description,
             'allergens' : self.allergens,
             'is_available' : self.is_available 
@@ -95,7 +98,7 @@ def find_post(post_id):
     return jsonify(
         {
             "code": 404,
-            "message": "Book not found."
+            "message": "Post not found."
         }
     ), 404
 
