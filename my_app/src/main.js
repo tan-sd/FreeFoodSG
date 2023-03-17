@@ -2,6 +2,7 @@ import { createApp } from "vue";
 import App from "./App.vue";
 import router from './router';
 import VueGoogleMaps from '@fawmi/vue-google-maps';
+import { GoogleSignInPlugin } from "vue3-google-signin";
 import "../styling/sass/main.min.css";
 import "../styling/style.css";
 
@@ -25,6 +26,10 @@ app.use(router).use(VueGoogleMaps, {
         key: 'AIzaSyB_XNrepzj7pUf2-dp9vSkpAfjXkAB9yHI',
         libraries: 'places'
     },
+})
+
+app.use(GoogleSignInPlugin, {
+    clientId: "407206605140-bssenou8lkjkhcbagqf95nqem39prulh.apps.googleusercontent.com"
 });
 
 app.component('font-awesome-icon', FontAwesomeIcon);
