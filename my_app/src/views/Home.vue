@@ -39,6 +39,7 @@
 
   .child-foodlist{
     flex: 0 1 auto;
+    z-index: 1;
   }
 
   /* .map-main{

@@ -371,7 +371,6 @@
         height: calc(100% + 24px);
         width: 100vw;
         position: absolute;
-        z-index: -1;
     }
 }
 
