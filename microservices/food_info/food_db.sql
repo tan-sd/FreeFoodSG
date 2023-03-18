@@ -20,24 +20,26 @@ CREATE TABLE IF NOT EXISTS `food_table` (
   
   `post_id` int(11) NOT NULL auto_increment,
   `username` varchar(64) NOT NULL,
-  `post_name` varchar(60),
+  `post_name` varchar(64),
   `latitude` decimal(10,6),
   `longitude` decimal(10,6),
   `address` varchar(128) NOT NULL,
-  `description` varchar(1000) NULL,
-  `allergens` varchar(8000) NULL, 
+  `description` varchar(1000),
+  `allergens` varchar(8000), 
   `is_available` bit,
   `end_time` datetime,
+
+  -- if post has photo, store photo into food_images folder, then store file path in SQL table
+  `photo_name` varchar(64),
+  `photo_path` varchar(128),
 
   PRIMARY KEY (`post_id`)
 );
 
-INSERT INTO `food_table` (`username`, `post_name`, `latitude`, `longitude`, `description`,
- `allergens`, `is_available`, `end_time`) 
+INSERT INTO `food_table` (`username`, `post_name`, `latitude`, `longitude`, `address`, `description`,
+ `is_available`, `end_time`, `photo_name`, `photo_path`) 
 VALUES
-( 'faez' ,'laichifan', 1.283125, 103.868825 , 'u broke u come', 'na', 'yes', '2023-03-12 22:00:00'),
-( 'rachel' ,'laichimian', 1.183195, 103.898825 , 'a lot indomee pls clear', 'na', 'yes','2023-03-12 22:00:00'),
-( 'shengda' ,'di san ge', 1.283374, 103.860726, 'plain water', 'na', 'yes', '2023-03-12 22:00:00');
+( 'test_username' ,'test_post_name', 1.283125, 103.868825 ,'81 Victoria St, Singapore 188065' , 'test_description', 'yes', '2023-03-12 22:00:00', 'buffet', 'food_images/buffet.jpg');
 COMMIT;
 
 SELECT * FROM food_table;

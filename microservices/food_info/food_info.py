@@ -30,8 +30,10 @@ class food_db(db.Model):
     allergens = db.Column(db.VARCHAR(64))
     is_available = db.Column(db.Integer(), nullable=False)
     end_time = db.Column(db.DateTime(), nullable=False)
+    photo_name = db.Column(db.VARCHAR(64))
+    photo_path = db.Column(db.VARCHAR(128))
 
-    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, allergens, is_available, end_time):
+    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, allergens, is_available, end_time, photo_name, photo_path):
         self.post_id = post_id
         self.username = username # username of creator
         self.post_name = post_name
@@ -42,6 +44,8 @@ class food_db(db.Model):
         self.allergens = allergens
         self.is_available = is_available
         self.end_time = end_time
+        self.photo_name = photo_name
+        self.photo_path = photo_path
 
     def json(self):
         post = {
@@ -52,9 +56,11 @@ class food_db(db.Model):
             'longitude': self.longitude,
             'address': self.address,
             'description': self.description,
-            'allergens' : self.allergens,
+            'allergens' : self.allergens, 
             'is_available' : self.is_available,
-            'end_time' : self.end_time
+            'end_time' : self.end_time,
+            'photo_name' : self.photo_name,
+            'photo_path' : self.photo_path
         }
         return post
 
