@@ -21,16 +21,20 @@
                 </ul>
 
                 <div class="d-flex justify-content-center button-container mx-auto mx-lg-0">
-                    <router-link to="/createfoodpost"><button class="btn btn-main"> <font-awesome-icon icon="fa-solid fa-utensils" /> Create Post</button></router-link>
+                    <FoodForm class="btn btn-main"/>
                 </div>
             </div>
         </div>
     </nav>
 </template>
 
-
 <script>
+import FoodForm from '../components/FoodForm.vue';
+
     export default{
+        components: {
+            FoodForm
+        },
         props: [],
 
         data() {

@@ -3,7 +3,6 @@ import Home from '../views/Home.vue'
 import Login from '../views/LoginPage.vue'
 import User from '../views/UserProfile.vue'
 import Signup from '../views/SignUp.vue'
-import CreateFoodPost from '../views/CreateFoodPost.vue'
 
 const routes = [
     {
@@ -26,11 +25,6 @@ const routes = [
         name: 'Sign Up',
         component: Signup
     },
-    {
-        path: '/createfoodpost',
-        name: 'Create Food Post',
-        component: CreateFoodPost
-    }
 ]
 
 const router = createRouter({
