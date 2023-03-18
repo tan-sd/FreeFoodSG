@@ -9,25 +9,59 @@ from invokes import invoke_http
 app = Flask(__name__)
 CORS(app)
 
-user_URL = 'http://localhost:5000/user_info'
+# related to user_info.py
+user_URL = 'http://localhost:1111/all'
 
-# book_URL = "http://localhost:5000/book"
-# order_URL = "http://localhost:5001/order"
-# shipping_record_URL = "http://localhost:5002/shipping_record"
-# activity_log_URL = "http://localhost:5003/activity_log"
-# error_URL = "http://localhost:5004/error"
+# rmb to check w ui side if this can work!!!!!
+verify_user_URL = 'http://localhost:1111/login/<string:username>'
 
 
-@app.route("/distance", methods=['POST'])
-def place_order():
+food_URL = 'http://localhost:1112/filter_post'
+
+# for guest users
+nearby_food_URL = 'http://localhost:1112/nearby_food'
+
+forum_URL = 'http://localhost:1113/all'
+
+
+# do error microservice
+error_URL = ''
+
+# scenario 1: user retrieves a list of nearby buffets
+
+# - give preset TA
+# - rej -> no current location and no saved location sooooo
+# give empty sg map and 
+# - allow users to enter location 
+#      'pls input a location here'
+
+# 1a: registered user
+# 1b: user guest
+# users enter web
+# - user login
+    # check pw 
+# - get user lat lng through google api
+# - food mgmt -> user info to get details 
+# - and TA
+# - send to food info
+# - food info do filtering (w saved location)
+# - food info provides food that are near the user location
+#       if they reject get latlng from wifi
+#                 then use saved location
+
+# get username n pw first -> will use verification function
+@app.route("/login", methods=['GET'])
+def get_available_food():
+
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
-            order = request.get_json()
-            print("\nReceived an order in JSON:", order)
+            # may need to sep login and displaying??
+            user_login_details = request.get_json()
+            print("\nReceived username and password in JSON:", user_login_details)
 
             # do the actual work
-            result = processPlaceOrder(order)
+            result = verfication(user_login_details)
             return jsonify(result), result["code"]
 
         except Exception as e:
@@ -39,7 +73,141 @@ def place_order():
 
             return jsonify({
                 "code": 500,
-                "message": "place_order.py internal error: " + ex_str
+                "message": "food_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+# if there is account details -> will use filtered_food function
+@app.route("/available_food", methods=['POST'])
+def get_available_food():
+
+    # Simple check of input format and data of the request are JSON
+    if request.is_json:
+        try:
+            wifi_location = request.get_json()
+            print("\nReceived wifi lat and long in JSON:", wifi_location)
+
+            # do the actual work
+            result = filtered_food(wifi_location)
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "food_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+def verfication(user_details):
+
+    print('\n-----Invoking user_info microservice-----')
+    verification_result = invoke_http(verify_user_URL, method='POST', json=user_details)
+    print('verification_result:', verification_result)
+
+    code = verification_result["code"]
+    if code not in range(200, 300):
+
+        # Inform the error microservice
+        print('\n\n-----Invoking error microservice as order fails-----')
+        invoke_http(error_URL, method="POST", json=verification_result)
+        # - reply from the invocation is not used; 
+        # continue even if this invocation fails
+        print("Order status ({:d}) sent to the error microservice:".format(
+            code), verification_result)
+
+        # 7. Return error
+        return {
+            "code": 500,
+            "data": {"order_result": verification_result},
+            "message": "Order creation failure sent for error handling."
+        }
+    return {
+        "code": 201,
+        "data": {
+            "verification_result": verification_result,
+        }
+    }
+
+# after verify, get users wifi location
+# get user travel app
+# filter food posts
+
+# cuz of the wifi thing we need another request aft login from ui side... i think
+def filtered_food(location):
+
+    # we already have the location, so we check w food m/s
+    print('\n-----Invoking food_info microservice-----')
+    food_result = invoke_http(food_URL, method='POST', json=location)
+    print('food_result:', food_result)
+
+    # itll filter according to user TA and allergy
+
+    code = food_result["code"]
+    if code not in range(200, 300):
+
+        # Inform the error microservice
+        print('\n\n-----Invoking error microservice as order fails-----')
+        invoke_http(error_URL, method="POST", json=food_result)
+        # - reply from the invocation is not used; 
+        # continue even if this invocation fails
+        print("Food status ({:d}) sent to the error microservice:".format(
+            code), food_result)
+
+        # 7. Return error
+        return {
+            "code": 500,
+            "data": {"food_result": food_result},
+            "message": "Food Retrieval failure sent for error handling."
+        }
+
+    # 7. Return food result -> all the food to be displayed
+    return {
+        "code": 201,
+        "data": {
+            "food_result": food_result
+        }
+    }
+
+
+# 3rd route
+# if there is no user credentials (for guest)
+@app.route("/guest/available_food", methods=['POST'])
+def get_available_food2():
+    if request.is_json:
+        try:
+            guest_details = request.get_json()
+            print("\nReceived latitude and longitude in JSON:", guest_details)
+
+            # do the actual work
+            result = show_available_food(guest_details)
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "food_management.py internal error: " + ex_str
             }), 500
 
     # if reached here, not a JSON request.
@@ -49,77 +217,40 @@ def place_order():
     }), 400
 
 
-def processPlaceOrder(order):
-    # 2. Send the order info {cart items}
-    # Invoke the order microservice
-    print('\n-----Invoking order microservice-----')
-    order_result = invoke_http(order_URL, method='POST', json=order)
-    print('order_result:', order_result)
+# show available food for guest users
+def show_available_food(location):
 
-    # 4. Record new order
-    # record the activity log anyway
-    print('\n\n-----Invoking activity_log microservice-----')
-    invoke_http(activity_log_URL, method="POST", json=order_result)
-    print("\nOrder sent to activity log.\n")
-    # - reply from the invocation is not used;
-    # continue even if this invocation fails
+    print('\n-----Invoking food microservice-----')
+    food_result = invoke_http(food_URL, method='GET', json=location)
+    print('food_result:', food_result)
 
-    # Check the order result; if a failure, send it to the error microservice.
-    code = order_result["code"]
+    # Check the food result; if a failure, send it to the error microservice.
+    code = food_result["code"]
     if code not in range(200, 300):
 
     # Inform the error microservice
         print('\n\n-----Invoking error microservice as order fails-----')
-        invoke_http(error_URL, method="POST", json=order_result)
-        # - reply from the invocation is not used; 
-        # continue even if this invocation fails
-        print("Order status ({:d}) sent to the error microservice:".format(
-            code), order_result)
+        invoke_http(error_URL, method="POST", json=food_result)
+  
+        print("Food status ({:d}) sent to the error microservice:".format(
+            code), food_result)
 
     # 7. Return error
         return {
             "code": 500,
-            "data": {"order_result": order_result},
-            "message": "Order creation failure sent for error handling."
+            "data": {"food_result": food_result},
+            "message": "Retrieve food failure sent for error handling."
         }
-
-    # 5. Send new order to shipping
-    # Invoke the shipping record microservice
-    print('\n\n-----Invoking shipping_record microservice-----')
-    shipping_result = invoke_http(
-        shipping_record_URL, method="POST", json=order_result['data'])
-    print("shipping_result:", shipping_result, '\n')
-
-    # Check the shipping result;
-    # if a failure, send it to the error microservice.
-    code = shipping_result["code"]
-    if code not in range(200, 300):
-
-    # Inform the error microservice
-        print('\n\n-----Invoking error microservice as shipping fails-----')
-        invoke_http(error_URL, method="POST", json=shipping_result)
-        print("Shipping status ({:d}) sent to the error microservice:".format(
-            code), shipping_result)
-
-    # 7. Return error
-        return {
-            "code": 400,
-            "data": {
-                "order_result": order_result,
-                "shipping_result": shipping_result
-            },
-            "message": "Simulated shipping record error sent for error handling."
-        }
-
-    # 7. Return created order, shipping record
+    
     return {
         "code": 201,
         "data": {
-            "order_result": order_result,
-            "shipping_result": shipping_result
+            "food_result": food_result
         }
-
     }
+
+
+################## END OF SCENARIO 1 ####################
 
 
 # Execute this program if it is run as a main script (not by 'import')
