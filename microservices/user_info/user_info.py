@@ -156,7 +156,7 @@ def check_login_details(username):
     ), 404
 
 # to diplay profile of all users
-@app.route("/allusers")
+@app.route("/all")
 def getUserInfo():
 
     all_user_info = user_info.query.all()
