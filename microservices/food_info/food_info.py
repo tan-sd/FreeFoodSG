@@ -256,6 +256,7 @@ Function: search for food posts which are within a specified user's travel appet
 Input: user JSON object
 Output: array of food post JSON objects that fulfill the criteria
 '''
+# NEED TO FILTER ACCORDING TO ALLERGY TOO
 @app.route("/filter_post", methods=['GET'])
 # search for users that are within the distance
 def filter_post():
@@ -264,7 +265,7 @@ def filter_post():
         try:
             # get query info
             query = request.get_json()
-            print("\nReceived an order in JSON:", query)
+            print("\nReceived a query in JSON:", query)
 
             # do the actual checking
             # return list of food post objects from food_dB
@@ -302,6 +303,57 @@ def filter_post():
                 ), 404
         except:
             pass
+
+# for guest users
+@app.route("/nearby_food", methods=['GET'])
+# search for users that are within the distance
+def guest_display():
+    # check input format and data is JSON
+    if request.is_json:
+        try:
+            # get query info
+            query = request.get_json()
+            print("\nReceived a query in JSON:", query)
+
+            # do the actual checking
+            # return list of food post objects from food_dB
+            all_food_info = food_db.query.all()
+            filtered_food = []
+            if len(all_food_info):
+                # filter for posts within specified user's travel appetite
+                for food in all_food_info:
+                    food_latitude = food.latitude
+                    food_longitude = food.longitude
+                    user_latitude = query['latitude']
+                    user_longitude = query['longitude']
+
+                    # preset the TA to 2km here
+                    user_travel_appetite = 2
+                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
+
+                    if distance <= user_travel_appetite:
+                        filtered_food.append(food)
+                # return list of food post objects where the post is within the user's travel appetite
+                return jsonify(
+                    {
+                        "code": 200,
+                        "data": {
+                            "user": [info.json() for info in filtered_food]
+                        }
+                    }
+                )
+            
+            else:
+                # the else comes here
+                return jsonify(
+                    {
+                        "code": 404,
+                        "message": "No information to be displayed."
+                    }
+                ), 404
+        except:
+            pass
+
 
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
