@@ -119,7 +119,7 @@
             register_user() {
                 let json_data = JSON.stringify({
                     "name": "rachel",
-                    "username": "Daniel",
+                    "username": "rach123",
                     "number": "12312414",
                     "email": "dontemailme@gmail.com",
                     "password": "Password12345!",

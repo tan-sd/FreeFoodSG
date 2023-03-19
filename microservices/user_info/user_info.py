@@ -147,42 +147,52 @@ def create_user(name):
 @app.route("/login/<string:username>", methods=['POST', 'GET'])
 def check_login_details(username):
 
-    user = user_info.query.filter_by(username=username).first()
+    user = User.query.filter_by(username=username).first()
     # check for pw 
     password = user.password
+    print(user.username)
+    print(password)
+
+    data = request.get_json()
+    print(data)
+
+    if password == data["password"] and user.username == data["username"]:
+        print('Success')
+    else:
+        print('Failed')
 
     # this one need to retrieve from ui side! now empty string
-    keyed_password = ''
-    hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+    # keyed_password = ''
+    # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
 
-    if bcrypt.checkpw(password, hashed):
-        print("login success")
+    # if bcrypt.checkpw(password, hashed):
+    #     print("login success")
         
-    else:
-        print("incorrect password")
-        return jsonify(
-        {
-            "code": 404,
-            "message": "Wrong password."
-        }
-        ), 404
+    # else:
+    #     print("incorrect password")
+    #     return jsonify(
+    #     {
+    #         "code": 404,
+    #         "message": "Wrong password."
+    #     }
+    #     ), 404
 
     #if user exists and correct pw, return user json
-    if user:
-        return jsonify(
-            {
-                "code": 200,
-                "data": user.json()
-            }
-        )
+    # if user:
+    #     return jsonify(
+    #         {
+    #             "code": 200,
+    #             "data": user.json()
+    #         }
+    #     )
     
     #else, return error message
-    return jsonify(
-        {
-            "code": 404,
-            "message": "User not found."
-        }
-    ), 404
+    # return jsonify(
+    #     {
+    #         "code": 404,
+    #         "message": "User not found."
+    #     }
+    # ), 404
 
 # to diplay profile of all users
 @app.route("/users")
