@@ -80,7 +80,7 @@
         <!-- OTHER BUFFETS -->
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
+            <div class="accordion-item" v-for="(e_buff, index) in buffets" :key="index" >
                 <h2 class="accordion-header" :id="`flush-heading${index}`">
     
                 <!-- HEADER GOES HERE v -->
@@ -393,10 +393,10 @@
     /* Up to LG */
     @media (max-width: 769px) {
         #food_accordian{
-            position: fixed;
+            /* position: fixed;
             bottom: 0;
             right: 0;
-            left: 0;
+            left: 0; */
             overflow-y: scroll;
             max-height: 40vh;
             transition: all .8s ease-in-out;
@@ -416,7 +416,7 @@
             left: 0;
             overflow-y: scroll;
             height: 100%;
-            width: 50vw;
+            width: 40vw;
         }
     }
     img{

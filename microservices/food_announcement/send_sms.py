@@ -5,7 +5,7 @@ import requests
 import os
 import amqp_setup
 
-monitor_binding_key = "*.sms"
+monitor_binding_key = "*.sms.#"
 
 def receive_sms():
     amqp_setup.check_setup()
@@ -22,6 +22,7 @@ def callback(channel, method, properties, body):
     sendClientUpdate(json.loads(body))
     print()
 
+# am assuming here that the JSON will contain food JSON and an array of users who match
 def sendClientUpdate(food,user):
     # twilio account id
     account_sid = "ACa19a8bdec26a1726665512c7cdd46b8b"
@@ -29,15 +30,18 @@ def sendClientUpdate(food,user):
     auth_token = "129c79176dd301a34abc383562c80f5b"
 
     client = Client(account_sid, auth_token)
-
-    recipient = user['number']
-    msg = "There is a buffet located at {food['location'] that is within your travel appetite.}"
-    # create your text message
-    message = client.messages.create(
-        to=recipient,
-        from_="+15077075060",
-        body=msg)
-    return message.sid
+    for each_user in user:
+        recipient_number = each_user['number']
+        recipient_name = each_user['name']
+        food_location = food['location']
+        msg = f"Dear {recipient_name}, there is a buffet located at {food_location} that is within your travel appetite."
+        # create your text message
+        message = client.messages.create(
+            to=recipient_number,
+            from_="+15077075060",
+            body=msg)
+        print(f"SMS to {recipient_name} has been sent to the following number : {recipient_number}")
+    return "All messages sent!"
 
 if __name__ == "__main__":
     print("\nThis is " + os.path.basename(__file__), end='')
