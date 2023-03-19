@@ -11,18 +11,18 @@
         </div>
 
         <div class="small form-floating mt-3 mb-3 text-dark">
-            <input type="text" class="form-control" id="floatingInput"
+            <input v-model="user_name" type="text" class="form-control" id="floatingInput"
             placeholder="name@example.com">
             <label for="floatingInput">Username</label>
         </div>
         
         <div class="small form-floating text-dark">
-            <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+            <input v-model="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
             <label for="floatingPassword">Password</label>
         </div>
 
         <div class="d-flex justify-content-center">
-            <button class="btn btn-main mt-3">Log in</button>
+            <button class="btn btn-main mt-3" @click="login">Log in</button>
         </div>
 
         <hr class="mt-3" style="width: 340px">
@@ -50,7 +50,9 @@
 
 
 <script>
-import GoogleSignIn from '../components/GoogleSignIn.vue';
+    import axios from 'axios'
+    import GoogleSignIn from '../components/GoogleSignIn.vue';
+    const login_URL = 'http://localhost:1111/login'
 
     export default{
         components: {
@@ -58,7 +60,28 @@ import GoogleSignIn from '../components/GoogleSignIn.vue';
         },
         data() {
             return {
+                user_name: '',
+                password:''
+            }
+        },
+        methods: {
+            login(){
 
+                // user: rach123
+                // pw: Password12345!
+
+                axios.post(`${login_URL}/${this.user_name}/${this.password}`, {
+                     
+                        username:  this.user_name,
+                        password: this.password
+                    
+                })
+                    .then(response => {
+                        console.log(response.data);
+                    })
+                    .catch( error => {
+                        console.log(error.message);
+                    });
             }
         }
     }
