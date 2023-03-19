@@ -6,7 +6,9 @@ import os
 import amqp_setup
 
 monitor_binding_key = "*.sms.#"
-
+'''
+Function: initiate the queue
+'''
 def receive_sms():
     amqp_setup.check_setup()
     queue_name = 'SMS'
@@ -17,13 +19,29 @@ def receive_sms():
     amqp_setup.channel.start_consuming()
     # need to terminate using Ctrl+C
 
+'''
+Function: callback function when receiving a message
+Input: Input: JSON object -> {
+    "food" : JSON object,
+    "user" : array of JSON objects
+}
+'''
 def callback(channel, method, properties, body):
     print("\nReceived an sms from " + __file__)
     sendClientUpdate(json.loads(body))
     print()
 
-# am assuming here that the JSON will contain food JSON and an array of users who match
-def sendClientUpdate(food,user):
+'''
+Function: sending an SMS to related users
+Input: JSON object -> {
+    "food" : JSON object,
+    "user" : array of JSON objects
+}
+Output: SMS sent to users + a line printing the result of each SMS + success line when code completes
+'''
+def sendClientUpdate(body):
+    food = body['food']
+    user = body['user']
     # twilio account id
     account_sid = "ACa19a8bdec26a1726665512c7cdd46b8b"
     # twilio auth token
