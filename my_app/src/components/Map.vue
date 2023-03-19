@@ -1,10 +1,12 @@
 <template>
     <div id="map">
         <GMapMap
+            ref="map"
+            v-bind="$attrs"
             :center="center"
             :zoom="14"
             map-type-id="terrain"
-            :options="options"
+            :options="GMapOptions"
             class="map"
         >
         <GMapMarker
@@ -19,12 +21,18 @@
         </GMapMap>
     </div>
 
-    <div class="autocomplete">
-            <div class="form-floating m-3">
+    <div class="autocomplete d-flex">
+            <div class="form-floating mt-3 ms-3">
                 <GMapAutocomplete
-                   placeholder=" "
-                   class="form-control bg-autocomplete"
-                   id="googleAutocomplete"
+                    ref="autocomplete"
+                    type="text"
+                    @place_changed="setPlace"
+                    :options="autoCompleteOptions"
+                    :value="this.search"
+                    placeholder=" "
+                    class="form-control bg-autocomplete"
+                    id="googleAutocomplete"
+                    @input="onInput"
                     >
                 </GMapAutocomplete>
 
@@ -32,23 +40,42 @@
                     <font-awesome-icon icon="fa-solid fa-pizza-slice" />&nbsp;&nbsp;Search Here
                 </label>
             </div>
+
+            <button
+                id="clear-button"
+                class="text-dark"
+                @click="clear_search"
+                v-if="showClearButton">
+                <font-awesome-icon icon="fa-solid fa-xmark" />
+            </button>
+            <button @click="re_center()" class="text-dark bg-recenter ms-1 mt-4 rounded btn">
+                <font-awesome-icon icon="fa-solid fa-crosshairs" />
+            </button>
         </div>
   </template>
-  
-  <!-- <script>
-  export default {
-    name: 'App',
-    data() {
-      return {
-        center: {lat: 51.093048, lng: 6.842120},
-      }
-    }
-  }
-  </script> -->
 
   <script>
     export default {
+        inheritAttrs: true,
         methods: {
+            onInput() {
+                this.showClearButton = this.$refs.autocomplete.$refs.input.value.length > 0;
+            },
+            re_center() {
+                const map = this.$refs.map
+                map.panTo(this.currentLocation)
+            },
+            clear_search() {
+                this.$refs.autocomplete.$refs.input.value = '';
+                this.showClearButton = false
+            },
+            setPlace(place) {
+                // this.actLocation = place.name;
+                this.center = {
+                    lat: place.geometry.location.lat(),
+                    lng: place.geometry.location.lng(),
+                }
+            },
             async get_location() {
                 return new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject);
@@ -61,10 +88,21 @@
                 this.markers[0].position.lng = position.coords.longitude;
                 this.center.lat = position.coords.latitude;
                 this.center.lng = position.coords.longitude;
+                this.currentLocation.lat = position.coords.latitude;
+                this.currentLocation.lng = position.coords.longitude;
             });
         },
         data() {
             return {
+                showClearButton: false,
+                search: '',
+                actLocation: "",
+                currentLocation: {
+                    lat: 1.300270,
+                    lng: 103.851959,
+                },
+                currentLat: "",
+                currentLng: "",
                 center: {lat: 1.300270, lng: 103.851959},
                 markers:
                 [
@@ -75,7 +113,12 @@
                         },
                     }
                 ],
-                options: {
+                autoCompleteOptions: {
+                    componentRestrictions: {
+                        country: ["sg"],
+                    }
+                },
+                GMapOptions: {
                     zoomControl: false,
                     mapTypeControl: false,
                     scaleControl: false,
@@ -342,19 +385,36 @@
                     ]
                 }
             }
-        }
+        },
     }
     </script>
 
 
 <style scoped>
-#map, .map{
+#map{
     height: 100%;
+    overflow: hidden;
 }
 
 .bg-autocomplete{
     background-color: white;
     opacity: 90%;
+    width: 86vw;
+}
+
+.bg-recenter {
+    background-color: white;
+    opacity: 90%;
+    width: 40px;
+    height: 40px;
+}
+
+#clear-button {
+    position: absolute;
+    outline: none;
+    border: none;
+    background-color: transparent;
+    top: 32px;
 }
 
 /* Up to LG */
@@ -362,7 +422,16 @@
     .autocomplete{
         position: absolute;
         top: 0;
+    }
+
+    .map{
+        height: calc(100% + 24px);
         width: 100vw;
+        position: absolute;
+    }
+
+    #clear-button {
+        right: 60px;
     }
 }
 
@@ -371,8 +440,23 @@
     .autocomplete{
         position: absolute;
         top: 0;
-        right: 0;
-        width: 50vw;
+        width: 100vw;
+        margin-left: 40%;
+    }
+
+    .bg-autocomplete{
+        background-color: white;
+        opacity: 90%;
+        width: 53vw;
+    }
+
+    .map{
+        height: 100%;
+        width: 140vw;
+    }
+
+    #clear-button {
+        right: 47%;
     }
 }
 </style>

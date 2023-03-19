@@ -2,7 +2,6 @@ from flask import Flask, request, jsonify, redirect, url_for, render_template
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from os import environ
-
 import os, sys
 import haversine as hs
 import requests
@@ -15,10 +14,16 @@ import bcrypt
 # request.values for the abv 2
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/user_info'
+
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+if os.name == 'nt':
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/user_info'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/user_info'
+
 db = SQLAlchemy(app)
+CORS(app)
 
 class user_info(db.Model):
     __tablename__ = 'user_info'
