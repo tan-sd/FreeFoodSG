@@ -10,14 +10,16 @@
             class="map"
         >
         <GMapMarker
+            class="current-location-marker"
             :key="index"
             v-for="(m, index) in markers"
             :position="m.position"
         />
-        <!-- <GMapCircle
+        <GMapCircle
             :radius="500"
-            :center="center"
-        /> -->
+            :center="currentLocation"
+            :options="circleOptions"
+        />
         </GMapMap>
     </div>
 
@@ -48,7 +50,7 @@
                 v-if="showClearButton">
                 <font-awesome-icon icon="fa-solid fa-xmark" />
             </button>
-            <button @click="re_center()" class="text-dark bg-recenter ms-1 mt-4 rounded btn">
+            <button @click="re_center()" class="text-dark bg-recenter ms-1 mt-4 rounded btn btn-light">
                 <font-awesome-icon icon="fa-solid fa-crosshairs" />
             </button>
         </div>
@@ -383,7 +385,14 @@
                             ]
                         }
                     ]
-                }
+                },
+                circleOptions: {
+                    strokeWeight: 0,
+                    fillColor: "#4285F4",
+                    fillOpacity: 0.2,
+                    clickable: false,
+                    zIndex: -1,
+                },
             }
         },
     }
@@ -440,7 +449,6 @@
     .autocomplete{
         position: absolute;
         top: 0;
-        width: 100vw;
         margin-left: 40%;
     }
 
@@ -456,7 +464,23 @@
     }
 
     #clear-button {
-        right: 47%;
+        right: 60px;
     }
 }
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.7;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+
 </style>
