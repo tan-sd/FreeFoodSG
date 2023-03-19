@@ -26,7 +26,7 @@ def gmail_send_message():
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content('u legend if u see this')
+        message.set_content('lol')
 
         message['To'] = 'sethyap.2021@scis.smu.edu.sg'
         message['From'] = 'yapseth@gmail.com'

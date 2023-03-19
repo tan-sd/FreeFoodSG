@@ -58,10 +58,10 @@ def main():
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content('u legend if u see this')
+        message.set_content('hm hope this sends from another email')
 
         message['To'] = 'sethyap.2021@scis.smu.edu.sg'
-        message['From'] = 'yapseth@gmail.com'
+        message['From'] = 'contactmakanboleh@gmail.com'
         message['Subject'] = 'pls work'
 
         # encoded message
