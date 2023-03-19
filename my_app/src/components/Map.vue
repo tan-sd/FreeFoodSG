@@ -4,7 +4,7 @@
             ref="map"
             v-bind="$attrs"
             :center="center"
-            :zoom="14"
+            :zoom="zoomValue"
             map-type-id="terrain"
             :options="GMapOptions"
             class="map"
@@ -66,6 +66,7 @@
             re_center() {
                 const map = this.$refs.map
                 map.panTo(this.currentLocation)
+                this.zoomValue = 15
             },
             clear_search() {
                 this.$refs.autocomplete.$refs.input.value = '';
@@ -105,6 +106,7 @@
                 },
                 currentLat: "",
                 currentLng: "",
+                zoomValue: 14,
                 center: {lat: 1.300270, lng: 103.851959},
                 markers:
                 [

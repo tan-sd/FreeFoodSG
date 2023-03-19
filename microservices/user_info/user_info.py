@@ -16,6 +16,7 @@ import bcrypt
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+# app.config['SQLALCHEMY_ECHO'] = True
 
 if os.name == 'nt':
     app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/user_info'
@@ -25,13 +26,13 @@ else:
 db = SQLAlchemy(app)
 CORS(app)
 
-class user_info(db.Model):
+class User(db.Model):
     __tablename__ = 'user_info'
 
 # for ref if want to change the format in sqlworkbench
 # https://stackoverflow.com/questions/17371639/how-to-store-arrays-in-mysql
 
-    user_id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     name = db.Column(db.VARCHAR(64), nullable=False)
     username = db.Column(db.VARCHAR(64), nullable=False)
     number = db.Column(db.VARCHAR(12), nullable=False)
@@ -44,7 +45,6 @@ class user_info(db.Model):
     travel_appetite = db.Column(db.VARCHAR(64))
 
     def __init__(self, user_id, name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
-        self.user_id = user_id
         self.name = name
         self.username = username
         self.number = number
@@ -57,7 +57,19 @@ class user_info(db.Model):
         self.travel_appetite = travel_appetite
 
     def json(self):
-        return {"user_id": self.user_id, "name": self.name, "address": self.address, "latitude": self.latitude, "longitude":self.longitude, "travel_appetite": self.travel_appetite}
+        return {
+            "user_id": self.user_id,
+            "name": self.name,
+            "username": self.username,
+            "number": self.number,
+            "email": self.email,
+            "password": self.password,
+            "address": self.address,
+            "latitude": self.latitude,
+            "longitude":self.longitude,
+            "dietary_type": self.dietary_type,
+            "travel_appetite": self.travel_appetite
+            }
 
     def get_distance(self, Location):
         '''
@@ -79,35 +91,40 @@ def nothing():
     # return render_template('register.html')
     
 # to create user info when user first created account
-@app.route("/register/<string:name>", methods=['POST'])
+@app.route("/users/<string:name>", methods=['POST'])
 def create_user(name):
-    
-    if (user_info.query.filter_by(name=name).first()):
+    if (User.query.filter_by(name=name).first()):
         return jsonify(
             {
                 "code": 400,
                 "data": {
                     "name": name
                 },
-                "message": "user exists already"
+                "message": "User already exist."
             }
         ), 400
     # 400 BAD request
 
     # store to db
     data = request.get_json()
-    user = user_info(name, **data)
+    new_user = User(name, **data)
 
-    keyed_password = keyed_password.encode('utf-8')
-    hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-    user.password = hashed
+    # keyed_password = keyed_password.encode('utf-8')
+    # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+    # user.password = hashed
 
     # store the hash pw ah!!!
     try:
-        db.session.add(user)
+        db.session.add(new_user)
         db.session.commit()
         # to commit the change
-
+        return jsonify(
+            {
+                "code": 201,
+                "data": new_user.json(),
+                "message": "User created successfully."
+            }
+        ), 201
     except:
         return jsonify(
             {
@@ -115,9 +132,16 @@ def create_user(name):
                 "data": {
                     "name": name
                 },
-                "message": "An error occurred creating user info."
+                "message": "An error occured creating the user."
             }
         ), 500
+    
+    return jsonify(
+        {
+            "code": 201,
+            "data": new_user.json()
+        }
+    ), 201
     
 # let user log in 
 @app.route("/login/<string:username>", methods=['POST', 'GET'])
@@ -161,10 +185,9 @@ def check_login_details(username):
     ), 404
 
 # to diplay profile of all users
-@app.route("/all")
+@app.route("/users")
 def getUserInfo():
-
-    all_user_info = user_info.query.all()
+    all_user_info = User.query.all()
     if len(all_user_info):
         return jsonify(
             {
