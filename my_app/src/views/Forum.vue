@@ -1,6 +1,6 @@
 <template>
     <div class="fill-space bg-light">
-        <div class="forum-body">
+        <div class="forum-body pb-5">
             <div class="card mx-3 mx-md-auto text-dark my-3" v-for="e_post in forum_data" :key="e_post.forum_id">
                 <!-- HEADER -->
                 <div class="card-header bg-dark text-extra-light">
@@ -21,7 +21,7 @@
                     <p class="card-text">{{ e_post.description }}</p>
         
                     <button class="btn btn-main py-1 px-2" type="button" data-bs-toggle="collapse" :data-bs-target="`#collapse-${e_post.forum_id}`" aria-expanded="false" :aria-controls="`#collapse-${e_post.forum_id}`" :disabled="e_post.comments.length <= 0">
-                        <small class="fw-bold"><font-awesome-icon icon="fa-solid fa-comments" /> {{ e_post.comments.length }}</small>
+                        <small class="fw-bold"><font-awesome-icon icon="fa-solid fa-comments" />&nbsp;{{ e_post.comments.length }}</small>
                     </button>
                 </div>
                 
@@ -46,6 +46,35 @@
                             <button class="btn btn-secondary" type="button" :id="`forum-${e_post.forum_id}-add-comment`">Reply</button>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment"><font-awesome-icon icon="fa-solid fa-plus" /><span> New Post</span></button>
+    </div>
+
+    <div class="modal fade" id="new-comment" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">New Post</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
+                <div class="modal-body">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="post-title" placeholder=" ">
+                        <label for="post-title">Title</label>
+                    </div>
+
+                    <div class="form-floating mt-4">
+                        <textarea class="form-control" placeholder=" " id="post-content" style="height: 100px"></textarea>
+                        <label for="post-content">What do you want to tell people about?</label>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center">
+                    <button class="btn btn-main"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
                 </div>
             </div>
         </div>
@@ -108,9 +137,17 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 
 <style scoped>
+
     .fill-space{
         height: 100%;
         position: relative;
+    }
+
+    .post-btn{
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        margin: 20px 30px;
     }
 
     .forum-body{
@@ -135,12 +172,18 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
         margin-left: 20px;
     }
 
-    /* @media (max-width: 769px) {
-        .card{
-            width: 80vw;
+    /* SMALLER THAN 769 */
+    @media (max-width: 769px) {
+        .post-btn{
+            border-radius: 50%;
         }
-    } */
 
+        .post-btn > span{
+            display: none;
+        }
+    }
+
+    /* LARGER THAN 769 */
     @media (min-width: 769px) {
         .card{
             width: 80vw;
