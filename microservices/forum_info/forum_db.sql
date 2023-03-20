@@ -35,5 +35,6 @@ CREATE TABLE IF NOT EXISTS `comments_table` (
   `comment` varchar(1000),
   `datetime` datetime,
 
+  PRIMARY KEY (`forum_id`, `commentor_username`,`datetime`),
   FOREIGN KEY (`forum_id`)
 );
