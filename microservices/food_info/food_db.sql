@@ -24,8 +24,7 @@ CREATE TABLE IF NOT EXISTS `food_table` (
   `latitude` decimal(10,6),
   `longitude` decimal(10,6),
   `address` varchar(128) NOT NULL,
-  `description` varchar(1000),
-  `dietary_type` varchar(8000), 
+  `description` varchar(248),
   `is_available` bit,
   `end_time` datetime,
 
@@ -40,7 +39,7 @@ DROP TABLE IF EXISTS `dietary_table`;
 CREATE TABLE IF NOT EXISTS `dietary_table` (
   
   `post_id` int(11) NOT NULL auto_increment,
-  `dietary_type` varchar(8000), 
+  `dietary_type` varchar(128), 
 
   PRIMARY KEY (`post_id`, `dietary_type`),
   FOREIGN KEY (`post_id`) REFERENCES food_table (`post_id`)
