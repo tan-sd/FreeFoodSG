@@ -363,7 +363,7 @@ def create_post(post_details):
     # url = create_forum_URL + '/create/' + str(post_details['post_id'])
     url = create_forum_URL + '/create'
 
-    forum_result = invoke_http(url, method='POST')
+    forum_result = invoke_http(url, method='POST', json=post_details)
     print('forum_result:', forum_result)
 
     # Check the food result; if a failure, send it to the error microservice.
