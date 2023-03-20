@@ -325,7 +325,7 @@ def get_posts():
 # to create a post in forum
 # input: comment, commentor_username, datetime, post_id
 # output: get all posts in json object with key forum:
-@app.route("/posts", methods=['POST'])
+@app.route("/create_post", methods=['POST'])
 def create_forum_post():
     if request.is_json:
         try:
