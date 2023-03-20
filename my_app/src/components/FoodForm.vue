@@ -5,7 +5,7 @@
       <div class="modal-dialog">
         <div class="modal-content bg-light text-dark">
           <div class="modal-header bg-dark text-extra-light">
-            <h5 class="modal-title" id="modal-title-foodform">Create Food Post</h5>
+            <h5 class="modal-title" id="modal-title-foodform"><font-awesome-icon icon="fa-solid fa-utensils" /> Create Food Post</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
@@ -22,8 +22,16 @@
               </div>
   
               <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="floatingPassword" placeholder="Location">
-                  <label for="floatingInput"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
+                  <GMapAutocomplete
+                      class="form-control"
+                      placeholder=" "
+                      @place_changed="setPlace"
+                      id="googlemap_autocomplete_foodform"
+                      type="text"
+                      :options="autoCompleteOptions"
+                  >
+                  </GMapAutocomplete>
+                  <label for="googlemap_autocomplete_foodform"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
               </div>
   
               <!-- Dietary Restrictions START -->    
@@ -68,14 +76,17 @@
 </template>
 
 <script>
-export default {
-  data() {
-    return {
-    };
-  },
-  methods: {
-  },
-};
+  export default{
+    data() {
+      return{
+        autoCompleteOptions: {
+            componentRestrictions: {
+                country: ["sg"],
+            }
+        },
+      }
+    }
+  }
 </script>
 
 <style scoped>
@@ -95,4 +106,10 @@ export default {
   .custom-file-button input[type="file"]::file-selector-button {
       display: none;
   }
+</style>
+
+<style>
+  .pac-container {
+        z-index: 10000 !important;
+    }
 </style>

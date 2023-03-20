@@ -57,7 +57,7 @@
         <div class="modal-dialog">
             <div class="modal-content bg-light text-dark">
                 <div class="modal-header bg-dark text-extra-light">
-                    <h5 class="modal-title" id="modal-title">Create Forum Post</h5>
+                    <h5 class="modal-title" id="modal-title"><font-awesome-icon icon="fa-solid fa-comments" /> Create Forum Post</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
@@ -72,7 +72,7 @@
                         <label for="post-content">What do you want to tell people about?</label>
 
                     </div>
-                    
+
                     <div class="d-flex justify-content-center mt-3">
                         <button class="btn btn-main"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
                     </div>
