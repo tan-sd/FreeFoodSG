@@ -87,12 +87,19 @@ class User(db.Model):
         
 @app.route('/')
 def nothing():
+    print('here')
     return 'user homepage'
     # return render_template('register.html')
     
+
 # to create user info when user first created account
-@app.route("/users/<string:name>", methods=['POST'])
+@app.route("/user/<string:name>", methods=['GET','POST'])
 def create_user(name):
+    print(name)
+
+    new_user = User.query.filter_by(name=name).first()
+    print(new_user)
+
     if (User.query.filter_by(name=name).first()):
         return jsonify(
             {
@@ -108,6 +115,7 @@ def create_user(name):
     # store to db
     data = request.get_json()
     new_user = User(name, **data)
+    # print(new_user)
 
     # keyed_password = keyed_password.encode('utf-8')
     # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
@@ -136,63 +144,82 @@ def create_user(name):
             }
         ), 500
     
-    return jsonify(
-        {
-            "code": 201,
-            "data": new_user.json()
-        }
-    ), 201
+    # return jsonify(
+    #     {
+    #         "code": 201,
+    #         "data": name
+    #     }
+    # ), 201
     
 # let user log in 
-@app.route("/login/<string:username>", methods=['POST', 'GET'])
-def check_login_details(username):
+@app.route("/login/<string:username>/<string:password>", methods=['POST', 'GET'])
+def check_login_details(username, password):
+
+    # possible username: DA123
 
     user = User.query.filter_by(username=username).first()
     # check for pw 
     password = user.password
-    print(user.username)
-    print(password)
+    password = password.encode('utf-8')
+    hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
 
+    correct = user.password.encode('utf_8').decode()
+    # print(user.username)
+    # print(password)
+
+    print(correct)
     data = request.get_json()
     print(data)
 
-    if password == data["password"] and user.username == data["username"]:
-        print('Success')
-    else:
-        print('Failed')
+    # if password == data["password"] and user.username == data["username"]:
+    #     print('Success')
+    # else:
+    #     print('Failed')
 
     # this one need to retrieve from ui side! now empty string
-    # keyed_password = ''
-    # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
 
-    # if bcrypt.checkpw(password, hashed):
-    #     print("login success")
+    # pw that user keyed in
+#         keyed_password = request.form.get('password')
+#         keyed_password = keyed_password.encode('utf-8')
+
+#         # pw that is stored in db
+#         password =  user.password
+#         password = password.encode('utf-8')
+#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+
+    keyed_password = data['password']
+    keyed_password = keyed_password.encode('utf-8')
+    print(keyed_password)
+
+
+    if bcrypt.checkpw(keyed_password, hashed):
+        print("login success")
         
-    # else:
-    #     print("incorrect password")
-    #     return jsonify(
-    #     {
-    #         "code": 404,
-    #         "message": "Wrong password."
-    #     }
-    #     ), 404
+    else:
+        print("incorrect password")
+        return jsonify(
+        {
+            "code": 404,
+            "message": "Wrong password."
+        }
+        ), 404
 
     #if user exists and correct pw, return user json
-    # if user:
-    #     return jsonify(
-    #         {
-    #             "code": 200,
-    #             "data": user.json()
-    #         }
-    #     )
+    if user:
+        return jsonify(
+            {
+                "code": 200,
+                "data": user.json()
+            }
+        )
     
     #else, return error message
-    # return jsonify(
-    #     {
-    #         "code": 404,
-    #         "message": "User not found."
-    #     }
-    # ), 404
+    return jsonify(
+        {
+            "code": 404,
+            "message": "User not found."
+        }
+    ), 404
 
 # to diplay profile of all users
 @app.route("/users")
@@ -221,10 +248,10 @@ def getUserInfo():
 
 # to display user info
 @app.route("/profile/<string:name>", methods=['GET'])
-def find_by_user_id(name):
+def find_user(name):
 
     # shd display user profile
-    user = user_info.query.filter_by(name=name).first()
+    user = User.query.filter_by(name=name).first()
     if user:
         return jsonify(
             {
@@ -243,7 +270,7 @@ def find_by_user_id(name):
 @app.route("/profile/<string:name>/update", methods=['PUT'])
 def update_by_user_id(name):
     
-    user = user_info.query.filter_by(name=name).first()
+    user = User.query.filter_by(name=name).first()
     if user:
         return jsonify(
             {
@@ -281,7 +308,7 @@ def filter_user():
 
             # do the actual checking
             # return list of user objects from userdB
-            all_user_info = user_info.query.all()
+            all_user_info = User.query.all()
             filtered_users = []
             if len(all_user_info):
 
@@ -376,8 +403,6 @@ if __name__ == '__main__':
         #     keyed_password = keyed_password.encode('utf-8')
 
         #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-
-
         
         # data = request.get_json()
         # user = user_info(name, **data)

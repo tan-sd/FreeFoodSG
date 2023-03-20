@@ -93,7 +93,9 @@
 
 
 <script>
-    const register_user_URL = "http://localhost:1111/users";
+
+    import axios from 'axios'
+    const register_user_URL = "http://localhost:1111/user";
 
     // "user_id": self.user_id,
     // "name": self.name,
@@ -117,7 +119,7 @@
         },
         methods: {
             register_user() {
-                let json_data = JSON.stringify({
+                let json_data = {
                     "name": "rachel",
                     "username": "rach123",
                     "number": "12312414",
@@ -128,22 +130,31 @@
                     "longitude": 2.4421412414,
                     "dietary_type": "halal",
                     "travel_appetite": "far"
-                });
+                };
 
-                fetch(`${register_user_URL}/${this.new_user}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json"
-                        },
-                        body: json_data
+                axios.post(`${register_user_URL}/${this.user_name}`,
+                 json_data
+                )
+                    .then(response => {
+                        console.log(response.data);
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        var result = data.data;
-                        console.log(result)
-                    })
+                    .catch( error => {
+                        console.log(error.message);
+                    });
+                // fetch(`${register_user_URL}/${this.new_user}`,
+                //     {
+                //         method: "POST",
+                //         headers: {
+                //             "Content-type": "application/json"
+                //         },
+                //         body: json_data
+                //     })
+                //     .then(response => response.json())
+                //     .then(data => {
+                //         console.log(data);
+                //         var result = data.data;
+                //         console.log(result)
+                //     })
 
                 
             }

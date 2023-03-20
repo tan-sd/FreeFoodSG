@@ -19,6 +19,14 @@
       FoodList
     },
   };
+
+// if is existing users
+// food_url is'http://localhost:5100/available_food'
+// use axios post food_url
+// with params lat: lng:
+
+// if cnot find username in caache -> guest
+// guest_URL = 'http://localhost:5100/guest/available_food'
   </script>
 
 
