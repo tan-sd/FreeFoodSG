@@ -52,7 +52,7 @@
 <script>
     import axios from 'axios'
     import GoogleSignIn from '../components/GoogleSignIn.vue';
-    const login_URL = 'http://localhost:1111/login'
+    const login_URL = 'http://localhost:5100/login'
 
     export default{
         components: {
@@ -61,7 +61,8 @@
         data() {
             return {
                 user_name: '',
-                password:''
+                password:'',
+                user_details:''
             }
         },
         methods: {
@@ -70,14 +71,18 @@
                 // user: rach123
                 // pw: Password12345!
 
-                axios.post(`${login_URL}/${this.user_name}/${this.password}`, {
+                axios.post(`${login_URL}`, {
                      
                         username:  this.user_name,
                         password: this.password
                     
                 })
                     .then(response => {
+
+                        // this response will give all user details
+                        // store this to session or sth
                         console.log(response.data);
+                        this.user_details = response.data
                     })
                     .catch( error => {
                         console.log(error.message);

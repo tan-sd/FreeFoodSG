@@ -13,7 +13,7 @@ CORS(app)
 user_URL = 'http://localhost:1111/all'
 
 # rmb to check w ui side if this can work!!!!!
-verify_user_URL = 'http://localhost:1111/login/<string:username>'
+verify_user_URL = 'http://localhost:1111/login'
 
 
 food_URL = 'http://localhost:1112/filter_post'
@@ -29,31 +29,16 @@ error_URL = ''
 
 # scenario 1: user retrieves a list of nearby buffets
 
-# - give preset TA
-# - rej -> no current location and no saved location sooooo
-# give empty sg map and 
-# - allow users to enter location 
-#      'pls input a location here'
+# just verification
+@app.route("/login", methods=['GET', 'POST'])
+def user_login():
 
-# 1a: registered user
-# 1b: user guest
-# users enter web
-# - user login
-    # check pw 
-# - get user lat lng through google api
-# - food mgmt -> user info to get details 
-# - and TA
-# - send to food info
-# - food info do filtering (w saved location)
-# - food info provides food that are near the user location
-#       if they reject get latlng from wifi
-#                 then use saved location
-
-# get username n pw first -> will use verification function
-@app.route("/login", methods=['GET'])
-def get_available_food():
+    # input is {username : lala,
+    #           password: 123}    
+    # }
 
     # Simple check of input format and data of the request are JSON
+    print('in login function')
     if request.is_json:
         try:
             # may need to sep login and displaying??
@@ -82,18 +67,55 @@ def get_available_food():
         "message": "Invalid JSON input: " + str(request.get_data())
     }), 400
 
-# if there is account details -> will use filtered_food function
-@app.route("/available_food", methods=['POST'])
+def verfication(user_details):
+
+    print('\n-----Invoking user_info microservice-----')
+    print(user_details)
+    # print(verify_user_URL)
+    # verify_user_URL += user_details['username'] + '/' + user_details['password']
+    url = verify_user_URL +'/'+ str(user_details['username']) + '/'+ str(user_details['password'])
+    verification_result = invoke_http(url, method='POST', json=user_details)
+    print('verification_result:', verification_result)
+
+    code = verification_result["code"]
+
+    # DO ERROR MS!
+    # if code not in range(200, 300):
+
+    #     # Inform the error microservice
+    #     print('\n\n-----Invoking error microservice as order fails-----')
+    #     invoke_http(error_URL, method="POST", json=verification_result)
+    #     # - reply from the invocation is not used; 
+    #     # continue even if this invocation fails
+    #     print("Order status ({:d}) sent to the error microservice:".format(
+    #         code), verification_result)
+
+    #     # 7. Return error
+    #     return {
+    #         "code": 500,
+    #         "data": {"order_result": verification_result},
+    #         "message": "Order creation failure sent for error handling."
+    #     }
+    return {
+        "code": 201,
+        "data": {
+            "verification_result": verification_result,
+        }
+    }
+# END OF VERIFICATION FUNCTION AND M/S
+
+# dn to care lat long is from where. js take in lat lng
+@app.route("/available_food", methods=['GET'])
 def get_available_food():
 
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
-            wifi_location = request.get_json()
-            print("\nReceived wifi lat and long in JSON:", wifi_location)
+            location = request.get_json()
+            print("\nReceived lat and long in JSON:", location)
 
             # do the actual work
-            result = filtered_food(wifi_location)
+            result = filtered_food(location)
             return jsonify(result), result["code"]
 
         except Exception as e:
@@ -114,41 +136,9 @@ def get_available_food():
         "message": "Invalid JSON input: " + str(request.get_data())
     }), 400
 
-def verfication(user_details):
 
-    print('\n-----Invoking user_info microservice-----')
-    verification_result = invoke_http(verify_user_URL, method='POST', json=user_details)
-    print('verification_result:', verification_result)
-
-    code = verification_result["code"]
-    if code not in range(200, 300):
-
-        # Inform the error microservice
-        print('\n\n-----Invoking error microservice as order fails-----')
-        invoke_http(error_URL, method="POST", json=verification_result)
-        # - reply from the invocation is not used; 
-        # continue even if this invocation fails
-        print("Order status ({:d}) sent to the error microservice:".format(
-            code), verification_result)
-
-        # 7. Return error
-        return {
-            "code": 500,
-            "data": {"order_result": verification_result},
-            "message": "Order creation failure sent for error handling."
-        }
-    return {
-        "code": 201,
-        "data": {
-            "verification_result": verification_result,
-        }
-    }
-
-# after verify, get users wifi location
-# get user travel app
-# filter food posts
-
-# cuz of the wifi thing we need another request aft login from ui side... i think
+# input: location json obj to food url
+#  output: list of all nearby food. this is a json with a list
 def filtered_food(location):
 
     # we already have the location, so we check w food m/s
@@ -185,7 +175,10 @@ def filtered_food(location):
     }
 
 
-# 3rd route
+# 2nd route for scenario 1
+# input: lat long of user (from wifi)
+# output: json obj of all nearby food in a list
+
 # if there is no user credentials (for guest)
 @app.route("/guest/available_food", methods=['POST'])
 def get_available_food2():

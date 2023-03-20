@@ -248,7 +248,7 @@ def getUserInfo():
 
 # to display user info
 @app.route("/profile/<string:name>", methods=['GET'])
-def find_by_user_id(name):
+def find_user(name):
 
     # shd display user profile
     user = User.query.filter_by(name=name).first()
