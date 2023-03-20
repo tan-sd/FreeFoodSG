@@ -25,9 +25,11 @@ nearby_food_URL = 'http://localhost:1112/nearby_food'
 
 
 
-# SCENARIO 3: CREATE POST ON FORUM
+# SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS
 
 forum_URL = 'http://localhost:1113/all'
+create_forum_URL = 'http://localhost:1113'
+
 
 
 # do error microservice
@@ -251,6 +253,146 @@ def show_available_food(location):
 
 ################## END OF SCENARIO 1 ####################
 
+
+
+
+####################### START OF SCENARIO 3 ############################
+# to view all posts in forum
+# input: nth
+# output: get all posts in json object with key forum:
+@app.route("/posts", methods=['GET'])
+def get_forum_posts():
+    if request.is_json:
+        try:
+            # guest_details = request.get_json()
+            # print("\nReceived latitude and longitude in JSON:", guest_details)
+
+            # do the actual work
+            result = get_posts()
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "food_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+
+# show all forum posts 
+def get_posts():
+
+    print('\n-----Invoking forum microservice-----')
+    forum_result = invoke_http(forum_URL, method='GET')
+    print('forum_result:', forum_result)
+
+    # Check the food result; if a failure, send it to the error microservice.
+    code = forum_result["code"]
+    if code not in range(200, 300):
+
+    # # Inform the error microservice
+    #     print('\n\n-----Invoking error microservice as order fails-----')
+    #     invoke_http(error_URL, method="POST", json=forum_result)
+  
+    #     print("Forum status ({:d}) sent to the error microservice:".format(
+    #         code), forum_result)
+
+    # 7. Return error
+        return {
+            "code": 500,
+            "data": {"forum_result": forum_result},
+            "message": "Retrieve forum failure sent for error handling."
+        }
+    
+    return {
+        "code": 201,
+        "data": {
+            "forum_result": forum_result
+        }
+    }
+
+# to create a post in forum
+# input: comment, commentor_username, datetime, post_id
+# output: get all posts in json object with key forum:
+@app.route("/posts", methods=['POST'])
+def create_forum_post():
+    if request.is_json:
+        try:
+            post_details = request.get_json()
+            print("\nReceived post details in JSON:", post_details)
+
+            # do the actual work
+            result = create_post(post_details)
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "forum_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+
+# create forum post function
+def create_post(post_details):
+
+    print('\n-----Invoking forum microservice-----')
+    
+    # url = create_forum_URL + '/create/' + str(post_details['post_id'])
+    url = create_forum_URL + '/create'
+
+    forum_result = invoke_http(url, method='POST')
+    print('forum_result:', forum_result)
+
+    # Check the food result; if a failure, send it to the error microservice.
+    code = forum_result["code"]
+    if code not in range(200, 300):
+
+    # # Inform the error microservice
+    #     print('\n\n-----Invoking error microservice as order fails-----')
+    #     invoke_http(error_URL, method="POST", json=forum_result)
+  
+    #     print("Forum status ({:d}) sent to the error microservice:".format(
+    #         code), forum_result)
+
+    # 7. Return error
+        return {
+            "code": 500,
+            "data": {"forum_result": forum_result},
+            "message": "Retrieve forum failure sent for error handling."
+        }
+    
+    return {
+        "code": 201,
+        "data": {
+            "forum_result": forum_result
+        }
+    }
+
+
+####################### END OF SCENARIO 3 ####################
 
 # Execute this program if it is run as a main script (not by 'import')
 if __name__ == "__main__":

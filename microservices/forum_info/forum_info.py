@@ -95,20 +95,21 @@ def search(forum_id):
     ), 404
 
 # CREATE A FORUM POST
-@app.route("/create/<int:forum_id>", methods=['POST'])
+@app.route("/create", methods=['POST'])
 def create(forum_id):
 
+    # think can ignore
     #check if forum post is already in the db
-    if(forum_db.query.filter_by(forum_id=forum_id).first()):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "forum_id": forum_id
-                },
-                "message": "Post already exists."
-            }
-        ), 400
+    # if(forum_db.query.filter_by(forum_id=forum_id).first()):
+    #     return jsonify(
+    #         {
+    #             "code": 400,
+    #             "data": {
+    #                 "forum_id": forum_id
+    #             },
+    #             "message": "Post already exists."
+    #         }
+    #     ), 400
     
     #else, carry on making the post
     data = request.get_json()

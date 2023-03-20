@@ -403,8 +403,6 @@ if __name__ == '__main__':
         #     keyed_password = keyed_password.encode('utf-8')
 
         #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-
-
         
         # data = request.get_json()
         # user = user_info(name, **data)
