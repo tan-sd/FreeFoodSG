@@ -36,5 +36,5 @@ CREATE TABLE IF NOT EXISTS `comments_table` (
   `datetime` datetime,
 
   PRIMARY KEY (`forum_id`, `commentor_username`,`datetime`),
-  FOREIGN KEY (`forum_id`)
+  FOREIGN KEY (`forum_id`) REFERENCES forum_table ( `forum_id`)
 );
