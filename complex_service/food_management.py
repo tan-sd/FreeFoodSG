@@ -9,17 +9,23 @@ from invokes import invoke_http
 app = Flask(__name__)
 CORS(app)
 
-# related to user_info.py
-user_URL = 'http://localhost:1111/all'
-
-# rmb to check w ui side if this can work!!!!!
+# to login user 
 verify_user_URL = 'http://localhost:1111/login'
 
 
+# SCENARIO 1: GET FOOD
+# related to user_info.py
+user_URL = 'http://localhost:1111/users'
+
+# for current users
 food_URL = 'http://localhost:1112/filter_post'
 
 # for guest users
 nearby_food_URL = 'http://localhost:1112/nearby_food'
+
+
+
+# SCENARIO 3: CREATE POST ON FORUM
 
 forum_URL = 'http://localhost:1113/all'
 
@@ -71,10 +77,10 @@ def verfication(user_details):
 
     print('\n-----Invoking user_info microservice-----')
     print(user_details)
-    # print(verify_user_URL)
-    # verify_user_URL += user_details['username'] + '/' + user_details['password']
+
     url = verify_user_URL +'/'+ str(user_details['username']) + '/'+ str(user_details['password'])
     verification_result = invoke_http(url, method='POST', json=user_details)
+    
     print('verification_result:', verification_result)
 
     code = verification_result["code"]
@@ -138,7 +144,7 @@ def get_available_food():
 
 
 # input: location json obj to food url
-#  output: list of all nearby food. this is a json with a list
+# output: list of all nearby food. this is a json with a list
 def filtered_food(location):
 
     # we already have the location, so we check w food m/s
