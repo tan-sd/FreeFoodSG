@@ -3,6 +3,7 @@ import Home from '../views/Home.vue'
 import Login from '../views/LoginPage.vue'
 import User from '../views/UserProfile.vue'
 import Signup from '../views/SignUpPage.vue'
+import Forum from '../views/Forum.vue'
 
 const routes = [
     {
@@ -28,6 +29,11 @@ const routes = [
         name: 'Sign Up',
         component: Signup
     },
+    {
+        path: '/forum',
+        name: 'Forum',
+        component: Forum
+    }
 ]
 
 const router = createRouter({
