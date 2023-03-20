@@ -55,8 +55,8 @@
 
     <div class="modal fade" id="new-comment" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
         <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
+            <div class="modal-content bg-light text-dark">
+                <div class="modal-header bg-dark text-extra-light">
                     <h5 class="modal-title" id="modal-title">New Post</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
