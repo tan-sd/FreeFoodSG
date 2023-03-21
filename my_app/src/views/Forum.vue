@@ -50,7 +50,7 @@
             </div>
         </div>
 
-        <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment"><font-awesome-icon icon="fa-solid fa-plus" /><span> New Post</span></button>
+        <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Forum Post</span></button>
     </div>
 
     <div class="modal fade" id="new-comment" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
