@@ -47,10 +47,33 @@ class forum_db(db.Model):
             'datetime': self.datetime
         }
         return forum
+    
+class comments_table(db.Model):
+    tablename = 'comments_table'
+    forum_id = db.Column(db.Integer, db.ForeignKey('forum_table.forum_id'), primary_key=True)
+    commentor_username = db.Column(db.VARCHAR(64), nullable=False, primary_key=True)
+    comment =  db.Column(db.VARCHAR(1000), nullable=False)
+    datetime = db.Column(db.DateTime, nullable=False, primary_key=True)
+    
+    def init(self, forum_id, commentor_username, comment, datetime):
+        self.forum_id = forum_id
+        self.commentor_username = commentor_username
+        self.comment = comment
+        self.datetime = datetime
 
+
+    def json(self):
+        forum = {
+            'forum_id': self.forum_id,
+            'commentor_username': self.commentor_username,
+            'comment': self.comment,
+            'datetime': self.datetime
+        }
+        return forum
+    
 @app.route("/")
 def test():
-    return 'welcome to smu'
+    return 'welcome to forum page'
 
 # SHOW ALL FORUM POSTS
 @app.route("/all")
@@ -73,7 +96,7 @@ def all():
     ), 404
 
 # RETRIEVE SPECIFIC FORUM POST
-@app.route("/search/<string:forum_id>")
+@app.route("/search/<int:forum_id>")
 def search(forum_id):
     forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
@@ -238,6 +261,59 @@ def edit(forum_id):
             "message": "Post not found."
         }
     ), 404
+
+
+
+# FOR COMMENTS ROUTES
+# this is to add comments to the specific post
+@app.route("/comment/<int:forum_id>", methods=['GET','POST'])
+def create_comment(forum_id):
+
+    print(forum_id)
+    #check if forum post is already in the db
+    if(comments_table.query.filter_by(forum_id=forum_id).first()):
+    
+        data = request.get_json()
+        forum = comments_table(**data)
+
+        #attempt to add post into comment table
+        try:
+            db.session.add(forum)
+            db.session.commit()
+
+        #if post cannot be made, return error message
+        except Exception as e:
+            return jsonify(
+                {
+                    "code":500,
+                    "data":{
+                        "forum_id":forum_id
+                    },
+                    "message": "An error occurred when creating comment. System Error Message: " + str(e)
+                }
+            ), 500
+        
+        #if no errors, return success message
+        return jsonify(
+            {
+                "code": 201,
+                "data": forum.json(),
+                "message": "Comment created successfully."
+            }
+        ), 201
+        
+    else:
+        # forum post do not exist so ERROR 
+        #else, carry on making the post
+        return jsonify(
+            {
+                "code": 404,
+                "data": {
+                    "forum_id": forum_id
+                },
+                "message": "The forum post exists."
+            }
+        ), 404
 
 if __name__ == '__main__':
     app.run(port=1113, debug=True)
