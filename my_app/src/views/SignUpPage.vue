@@ -7,13 +7,13 @@
                 <div class="row">
                     <div class="col-md-6">
                         <div class="small form-floating mb-3 text-dark">
-                            <input type="text" class="form-control" id="floatingInput" placeholder="First Name">
+                            <input v-model="first_name" type="text" class="form-control" id="floatingInput" placeholder="First Name">
                             <label for="floatingInput">First Name</label>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="small form-floating mb-3 text-dark">
-                            <input type="text" class="form-control" id="floatingInput" placeholder="Last Name">
+                            <input v-model="last_name" type="text" class="form-control" id="floatingInput" placeholder="Last Name">
                             <label for="floatingInput">Last Name</label>
                         </div>
                     </div>
@@ -25,12 +25,12 @@
                 </div>
 
                 <div class="small form-floating mb-3 text-dark">
-                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                    <input v-model="password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
                     <label for="floatingPassword">Password</label>
                 </div>
 
                 <div class="small form-floating text-dark mb-3">
-                    <input type="password" class="form-control" id="floatingPassword" placeholder="Password">
+                    <input v-model="confirm_password" type="password" class="form-control" id="floatingPassword" placeholder="Password">
                     <label for="floatingPassword">Confirm Password</label>
                 </div>
 
@@ -93,7 +93,9 @@
 
 
 <script>
-    const register_user_URL = "http://localhost:1111/users";
+    import axios from 'axios'
+    // import bcrypt from 'bcryptjs';
+    const register_user_URL = "http://localhost:1111/user";
 
     // "user_id": self.user_id,
     // "name": self.name,
@@ -110,40 +112,59 @@
     export default{
         data() {
             return {
+                first_name: '',
+                last_name: '',
                 user_name: '',
+                password: '',
+                confirm_password: '',
                 phone_number: '',
                 user_email: '',
             }
         },
         methods: {
             register_user() {
-                let json_data = JSON.stringify({
-                    "name": "rachel",
-                    "username": "rach123",
-                    "number": "12312414",
-                    "email": "dontemailme@gmail.com",
-                    "password": "Password12345!",
+                // const salt = bcrypt.genSaltSync(10)
+                // var hashed_password = bcrypt.hashSync(this.password, salt)
+
+                let json_data = {
+                    "first_name": this.first_name,
+                    "last_name": this.last_name,
+                    "username": this.user_name,
+                    "number": this.phone_number,
+                    "email": this.user_email,
+                    "password": this.password,
                     "address": "Singapore Management University",
                     "latitude": 1.2312412,
                     "longitude": 2.4421412414,
                     "dietary_type": "halal",
                     "travel_appetite": "far"
-                });
+                };
 
-                fetch(`${register_user_URL}/${this.new_user}`,
-                    {
-                        method: "POST",
-                        headers: {
-                            "Content-type": "application/json"
-                        },
-                        body: json_data
+                console.log(`${register_user_URL}/${this.user_name}`)
+
+                axios.post(`${register_user_URL}/${this.user_name}`,
+                 json_data
+                )
+                    .then(response => {
+                        console.log(response.data);
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log(data);
-                        var result = data.data;
-                        console.log(result)
-                    })
+                    .catch( error => {
+                        console.log(error.message);
+                    });
+                // fetch(`${register_user_URL}/${this.new_user}`,
+                //     {
+                //         method: "POST",
+                //         headers: {
+                //             "Content-type": "application/json"
+                //         },
+                //         body: json_data
+                //     })
+                //     .then(response => response.json())
+                //     .then(data => {
+                //         console.log(data);
+                //         var result = data.data;
+                //         console.log(result)
+                //     })
 
                 
             }

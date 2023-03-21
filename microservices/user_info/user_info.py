@@ -33,7 +33,8 @@ class User(db.Model):
 # https://stackoverflow.com/questions/17371639/how-to-store-arrays-in-mysql
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.VARCHAR(64), nullable=False)
+    first_name = db.Column(db.VARCHAR(64), nullable=False)
+    last_name = db.Column(db.VARCHAR(64), nullable=False)
     username = db.Column(db.VARCHAR(64), nullable=False)
     number = db.Column(db.VARCHAR(12), nullable=False)
     email = db.Column(db.VARCHAR(128), nullable=False)
@@ -44,8 +45,9 @@ class User(db.Model):
     dietary_type = db.Column(db.VARCHAR(64))
     travel_appetite = db.Column(db.VARCHAR(64))
 
-    def __init__(self, user_id, name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
-        self.name = name
+    def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
+        self.first_name = first_name
+        self.last_name = last_name
         self.username = username
         self.number = number
         self.email = email
@@ -59,7 +61,8 @@ class User(db.Model):
     def json(self):
         return {
             "user_id": self.user_id,
-            "name": self.name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "username": self.username,
             "number": self.number,
             "email": self.email,
@@ -69,7 +72,7 @@ class User(db.Model):
             "longitude":self.longitude,
             "dietary_type": self.dietary_type,
             "travel_appetite": self.travel_appetite
-            }
+        }
 
     def get_distance(self, Location):
         '''
@@ -87,27 +90,39 @@ class User(db.Model):
         
 @app.route('/')
 def nothing():
+    print('here')
     return 'user homepage'
     # return render_template('register.html')
     
+
 # to create user info when user first created account
-@app.route("/users/<string:name>", methods=['POST'])
-def create_user(name):
-    if (User.query.filter_by(name=name).first()):
+@app.route("/user/<string:username>", methods=['GET','POST'])
+def create_user(username):
+    print(username)
+
+    new_user = User.query.filter_by(username=username).first()
+    print(new_user)
+
+    if (User.query.filter_by(username=username).first()):
         return jsonify(
             {
-                "code": 400,
+                "code": 404,
                 "data": {
-                    "name": name
+                    "name": username
                 },
                 "message": "User already exist."
             }
-        ), 400
+        ), 404
     # 400 BAD request
 
     # store to db
     data = request.get_json()
-    new_user = User(name, **data)
+
+    data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt(10))
+    data['password'] = data['password'].decode('utf-8')
+
+    new_user = User(username, **data)
+    # print(new_user)
 
     # keyed_password = keyed_password.encode('utf-8')
     # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
@@ -130,42 +145,79 @@ def create_user(name):
             {
                 "code": 500,
                 "data": {
-                    "name": name
+                    "name": username
                 },
                 "message": "An error occured creating the user."
             }
         ), 500
     
-    return jsonify(
-        {
-            "code": 201,
-            "data": new_user.json()
-        }
-    ), 201
+    # return jsonify(
+    #     {
+    #         "code": 201,
+    #         "data": name
+    #     }
+    # ), 201
     
 # let user log in 
-@app.route("/login/<string:username>", methods=['POST', 'GET'])
-def check_login_details(username):
+@app.route("/login", methods=['POST', 'GET'])
+def login():
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
 
     user = User.query.filter_by(username=username).first()
+
+    if user == None:
+        print("[LOGIN] User signed in with wrong username or password.")
+        return jsonify({
+            "code": 404,
+            "msg": "Username or password are wrong",
+        }), 404
+    
+    elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+        print("[LOGIN] User logged in successfully.")
+        return jsonify({
+            "code": 201,
+            "msg": "Login Successfully",
+        }), 201
+
+    # else:
+    #     return jsonify({
+    #         "code": 404,
+    #         "msg": "Error",
+    #     }), 404 
+  
     # check for pw 
-    password = user.password
-    print(user.username)
-    print(password)
+    # password = user.password
+    # password = password.encode('utf-8')
+    # hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
 
-    data = request.get_json()
-    print(data)
+    # correct = user.password.encode('utf_8').decode()
+    # print(user.username)
+    # print(password)
 
-    if password == data["password"] and user.username == data["username"]:
-        print('Success')
-    else:
-        print('Failed')
+    # print(correct)
+    # if password == data["password"] and user.username == data["username"]:
+    #     print('Success')
+    # else:
+    #     print('Failed')
 
     # this one need to retrieve from ui side! now empty string
-    # keyed_password = ''
-    # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
 
-    # if bcrypt.checkpw(password, hashed):
+    # pw that user keyed in
+#         keyed_password = request.form.get('password')
+#         keyed_password = keyed_password.encode('utf-8')
+
+#         # pw that is stored in db
+#         password =  user.password
+#         password = password.encode('utf-8')
+#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+
+    # keyed_password = data['password']
+    # keyed_password = keyed_password.encode('utf-8')
+    # print(keyed_password)
+
+
+    # if bcrypt.checkpw(keyed_password, hashed):
     #     print("login success")
         
     # else:
@@ -177,7 +229,7 @@ def check_login_details(username):
     #     }
     #     ), 404
 
-    #if user exists and correct pw, return user json
+    # #if user exists and correct pw, return user json
     # if user:
     #     return jsonify(
     #         {
@@ -186,7 +238,7 @@ def check_login_details(username):
     #         }
     #     )
     
-    #else, return error message
+    # #else, return error message
     # return jsonify(
     #     {
     #         "code": 404,
@@ -221,10 +273,10 @@ def getUserInfo():
 
 # to display user info
 @app.route("/profile/<string:name>", methods=['GET'])
-def find_by_user_id(name):
+def find_user(name):
 
     # shd display user profile
-    user = user_info.query.filter_by(name=name).first()
+    user = User.query.filter_by(name=name).first()
     if user:
         return jsonify(
             {
@@ -243,7 +295,7 @@ def find_by_user_id(name):
 @app.route("/profile/<string:name>/update", methods=['PUT'])
 def update_by_user_id(name):
     
-    user = user_info.query.filter_by(name=name).first()
+    user = User.query.filter_by(name=name).first()
     if user:
         return jsonify(
             {
@@ -281,7 +333,7 @@ def filter_user():
 
             # do the actual checking
             # return list of user objects from userdB
-            all_user_info = user_info.query.all()
+            all_user_info = User.query.all()
             filtered_users = []
             if len(all_user_info):
 
@@ -376,8 +428,6 @@ if __name__ == '__main__':
         #     keyed_password = keyed_password.encode('utf-8')
 
         #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-
-
         
         # data = request.get_json()
         # user = user_info(name, **data)
