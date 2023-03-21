@@ -1,5 +1,5 @@
 <template>
-    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Create Food Post</button>
+    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
     <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
       <div class="modal-dialog">
