@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `user_id` int(11) NOT NULL auto_increment,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
+  `first_name` varchar(64) NOT NULL,
+  `last_name` varchar(64) NOT NULL,
   `username` varchar(20) NOT NULL,
   `number` varchar(12) NOT NULL,
   `email` varchar(128) NOT NULL,
@@ -23,7 +25,12 @@ CREATE TABLE IF NOT EXISTS `user_info` (
 --
 
 INSERT INTO `user_info` (`first_name`, `last_name`, `username`, `number`, `email`, `password`, `address`, `latitude`,`longitude`,`dietary_type`, `travel_appetite`) 
+INSERT INTO `user_info` (`first_name`, `last_name`, `username`, `number`, `email`, `password`, `address`, `latitude`,`longitude`,`dietary_type`, `travel_appetite`) 
 VALUES
+
+('ShengJing', 'Bing', 'SJB123', '+6590229185' , 'contactmakanboleh@gmail.com', 'Password12345!', 'Singapore Marina Bay Sands', 1.283375, 103.860725 , 'na', 'far'),
+('Dancer', 'Adam', 'DA123', '+6590229185', 'dancer@gmail.com', 'Password12345!', 'Singapore Management University', 41.023472, -91.967133 , 'na', 'far');
+
 
 ('ShengJing', 'Bing', 'SJB123', '+6590229185' , 'contactmakanboleh@gmail.com', 'Password12345!', 'Singapore Marina Bay Sands', 1.283375, 103.860725 , 'na', 'far'),
 ('Dancer', 'Adam', 'DA123', '+6590229185', 'dancer@gmail.com', 'Password12345!', 'Singapore Management University', 41.023472, -91.967133 , 'na', 'far');
