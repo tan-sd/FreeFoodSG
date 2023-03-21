@@ -9,7 +9,7 @@
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
-          <div class="modal-body">
+          <div class="modal-body justify-content-center">
             <form>
               <div class="form-floating mb-3">
                   <input type="text" class="form-control" id="floatingInput" placeholder="Title">
@@ -34,27 +34,29 @@
                   <label for="googlemap_autocomplete_foodform"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
               </div>
   
-              <!-- Dietary Restrictions START -->    
-              <div class="form-check form-check-inline mt-3">
-                  <input class="form-check-input" type="checkbox" value="halal" id="foodform-halal-checkbox">
-                  <label class="form-check-label" for="foodform-halal-checkbox">
-                    <font-awesome-icon icon="fa-solid fa-star-and-crescent" />&nbsp;Halal
-                  </label>
-              </div>
-  
-              <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" value="vegetarian" id="foodform-vege-checkbox">
-                  <label class="form-check-label" for="foodform-vege-checkbox">
-                    <font-awesome-icon icon="fa-solid fa-leaf" />&nbsp;Vegetarian
-                  </label>
-              </div>
-  
-              <div class="form-check form-check-inline">
-                  <input class="form-check-input" type="checkbox" value="" id="foodform-nobeef-checkbox">
-                  <label class="form-check-label" for="foodform-nobeef-checkbox">
-                    <font-awesome-icon icon="fa-solid fa-cow" />&nbsp;No Beef
-                  </label>
-              </div>
+              <!-- Dietary Restrictions START -->
+              <div class="d-flex justify-content-center mt-3">
+                <div class="form-check mx-2">
+                    <input class="form-check-input" type="checkbox" value="halal" id="foodform-halal-checkbox">
+                    <label class="form-check-label" for="foodform-halal-checkbox">
+                      <font-awesome-icon icon="fa-solid fa-star-and-crescent" />&nbsp;Halal
+                    </label>
+                </div>
+    
+                <div class="form-check mx-2">
+                    <input class="form-check-input" type="checkbox" value="vegetarian" id="foodform-vege-checkbox">
+                    <label class="form-check-label" for="foodform-vege-checkbox">
+                      <font-awesome-icon icon="fa-solid fa-leaf" />&nbsp;Vegetarian
+                    </label>
+                </div>
+    
+                <div class="form-check mx-2">
+                    <input class="form-check-input" type="checkbox" value="" id="foodform-nobeef-checkbox">
+                    <label class="form-check-label" for="foodform-nobeef-checkbox">
+                      <font-awesome-icon icon="fa-solid fa-cow" />&nbsp;No Beef
+                    </label>
+                </div>
+              </div>  
               <!-- Dietary Restrictions END -->
   
               <div class="input-group custom-file-button my-4">
