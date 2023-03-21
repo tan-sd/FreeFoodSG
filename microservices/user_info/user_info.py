@@ -33,7 +33,8 @@ class User(db.Model):
 # https://stackoverflow.com/questions/17371639/how-to-store-arrays-in-mysql
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column(db.VARCHAR(64), nullable=False)
+    first_name = db.Column(db.VARCHAR(64), nullable=False)
+    last_name = db.Column(db.VARCHAR(64), nullable=False)
     username = db.Column(db.VARCHAR(64), nullable=False)
     number = db.Column(db.VARCHAR(12), nullable=False)
     email = db.Column(db.VARCHAR(128), nullable=False)
@@ -44,8 +45,9 @@ class User(db.Model):
     dietary_type = db.Column(db.VARCHAR(64))
     travel_appetite = db.Column(db.VARCHAR(64))
 
-    def __init__(self, user_id, name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
-        self.name = name
+    def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
+        self.first_name = first_name
+        self.last_name = last_name
         self.username = username
         self.number = number
         self.email = email
@@ -59,7 +61,8 @@ class User(db.Model):
     def json(self):
         return {
             "user_id": self.user_id,
-            "name": self.name,
+            "first_name": self.first_name,
+            "last_name": self.last_name,
             "username": self.username,
             "number": self.number,
             "email": self.email,
@@ -69,7 +72,7 @@ class User(db.Model):
             "longitude":self.longitude,
             "dietary_type": self.dietary_type,
             "travel_appetite": self.travel_appetite
-            }
+        }
 
     def get_distance(self, Location):
         '''
@@ -93,19 +96,19 @@ def nothing():
     
 
 # to create user info when user first created account
-@app.route("/user/<string:name>", methods=['GET','POST'])
-def create_user(name):
-    print(name)
+@app.route("/user/<string:username>", methods=['GET','POST'])
+def create_user(username):
+    print(username)
 
-    new_user = User.query.filter_by(name=name).first()
+    new_user = User.query.filter_by(username=username).first()
     print(new_user)
 
-    if (User.query.filter_by(name=name).first()):
+    if (User.query.filter_by(username=username).first()):
         return jsonify(
             {
                 "code": 404,
                 "data": {
-                    "name": name
+                    "name": username
                 },
                 "message": "User already exist."
             }
@@ -114,7 +117,11 @@ def create_user(name):
 
     # store to db
     data = request.get_json()
-    new_user = User(name, **data)
+
+    data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt(10))
+    data['password'] = data['password'].decode('utf-8')
+
+    new_user = User(username, **data)
     # print(new_user)
 
     # keyed_password = keyed_password.encode('utf-8')
@@ -138,7 +145,7 @@ def create_user(name):
             {
                 "code": 500,
                 "data": {
-                    "name": name
+                    "name": username
                 },
                 "message": "An error occured creating the user."
             }
@@ -152,25 +159,43 @@ def create_user(name):
     # ), 201
     
 # let user log in 
-@app.route("/login/<string:username>/<string:password>", methods=['POST', 'GET'])
-def check_login_details(username, password):
-
-    # possible username: DA123
+@app.route("/login", methods=['POST', 'GET'])
+def login():
+    username = request.json.get('username', None)
+    password = request.json.get('password', None)
 
     user = User.query.filter_by(username=username).first()
-    # check for pw 
-    password = user.password
-    password = password.encode('utf-8')
-    hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
 
-    correct = user.password.encode('utf_8').decode()
+    if user == None:
+        print("[LOGIN] User signed in with wrong username or password.")
+        return jsonify({
+            "code": 404,
+            "msg": "Username or password are wrong",
+        }), 404
+    
+    elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+        print("[LOGIN] User logged in successfully.")
+        return jsonify({
+            "code": 201,
+            "msg": "Login Successfully",
+        }), 201
+
+    # else:
+    #     return jsonify({
+    #         "code": 404,
+    #         "msg": "Error",
+    #     }), 404 
+  
+    # check for pw 
+    # password = user.password
+    # password = password.encode('utf-8')
+    # hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+
+    # correct = user.password.encode('utf_8').decode()
     # print(user.username)
     # print(password)
 
-    print(correct)
-    data = request.get_json()
-    print(data)
-
+    # print(correct)
     # if password == data["password"] and user.username == data["username"]:
     #     print('Success')
     # else:
@@ -187,39 +212,39 @@ def check_login_details(username, password):
 #         password = password.encode('utf-8')
 #         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
 
-    keyed_password = data['password']
-    keyed_password = keyed_password.encode('utf-8')
-    print(keyed_password)
+    # keyed_password = data['password']
+    # keyed_password = keyed_password.encode('utf-8')
+    # print(keyed_password)
 
 
-    if bcrypt.checkpw(keyed_password, hashed):
-        print("login success")
+    # if bcrypt.checkpw(keyed_password, hashed):
+    #     print("login success")
         
-    else:
-        print("incorrect password")
-        return jsonify(
-        {
-            "code": 404,
-            "message": "Wrong password."
-        }
-        ), 404
+    # else:
+    #     print("incorrect password")
+    #     return jsonify(
+    #     {
+    #         "code": 404,
+    #         "message": "Wrong password."
+    #     }
+    #     ), 404
 
-    #if user exists and correct pw, return user json
-    if user:
-        return jsonify(
-            {
-                "code": 200,
-                "data": user.json()
-            }
-        )
+    # #if user exists and correct pw, return user json
+    # if user:
+    #     return jsonify(
+    #         {
+    #             "code": 200,
+    #             "data": user.json()
+    #         }
+    #     )
     
-    #else, return error message
-    return jsonify(
-        {
-            "code": 404,
-            "message": "User not found."
-        }
-    ), 404
+    # #else, return error message
+    # return jsonify(
+    #     {
+    #         "code": 404,
+    #         "message": "User not found."
+    #     }
+    # ), 404
 
 # to diplay profile of all users
 @app.route("/users")
