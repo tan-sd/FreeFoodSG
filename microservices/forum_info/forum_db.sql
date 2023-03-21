@@ -26,3 +26,14 @@ CREATE TABLE IF NOT EXISTS `forum_table` (
 
   PRIMARY KEY (`forum_id`)
 );
+
+DROP TABLE IF EXISTS `comments_table`;
+CREATE TABLE IF NOT EXISTS `comments_table` (
+  
+  `forum_id` int(11) NOT NULL,
+  `commentor_username` varchar(64) NOT NULL,
+  `comment` varchar(1000),
+  `datetime` datetime,
+
+  FOREIGN KEY (`forum_id`)
+);

@@ -1,8 +1,10 @@
 <template>
-  <div class="container-fluid p-0 fill-space position-relative">
-    <Map/>
+  <div class="container-fluid p-0 fill-space position-relative flex-wrapper">
+    <div class="child-map">
+      <Map class="map-main"/>
+    </div>
 
-    <FoodList/>
+    <FoodList class="child-foodlist"/>
   </div>
   </template>
   
@@ -17,6 +19,14 @@
       FoodList
     },
   };
+
+// if is existing users
+// food_url is'http://localhost:5100/available_food'
+// use axios post food_url
+// with params lat: lng:
+
+// if cnot find username in caache -> guest
+// guest_URL = 'http://localhost:5100/guest/available_food'
   </script>
 
 
@@ -24,4 +34,25 @@
   .fill-space{
     height: 100%;
   }
+
+  .flex-wrapper{
+    display: flex;
+    flex-direction: column;
+  }
+
+  .child-map{
+    flex: 1 1 auto;
+    position: relative;
+  }
+
+  .child-foodlist{
+    flex: 0 1 auto;
+    z-index: 1;
+  }
+
+  /* .map-main{
+    position: absolute;
+    height: 105%;
+    top: 0;
+  } */
 </style>

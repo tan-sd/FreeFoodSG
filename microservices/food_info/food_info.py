@@ -9,8 +9,14 @@ from datetime import datetime
 
 # INITIALISING APP
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/food_db'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/food_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+if os.name == "nt":
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/food_db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/food_db'
+
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
 db = SQLAlchemy(app)
@@ -21,7 +27,7 @@ class food_db(db.Model):
     __tablename__ = 'food_table'
 
     post_id = db.Column(db.Integer, primary_key=True)
-    creator_id = db.Column(db.Integer, nullable=False)
+    username = db.Column(db.VARCHAR(64), nullable=False) # username of creator
     post_name = db.Column(db.VARCHAR(64), nullable=False)
     latitude =  db.Column(db.Float(precision=6), nullable=False)
     longitude = db.Column(db.Float(precision=6), nullable=False)
@@ -29,10 +35,13 @@ class food_db(db.Model):
     description = db.Column(db.VARCHAR(300))
     allergens = db.Column(db.VARCHAR(64))
     is_available = db.Column(db.Integer(), nullable=False)
+    end_time = db.Column(db.DateTime(), nullable=False)
+    photo_name = db.Column(db.VARCHAR(64))
+    photo_path = db.Column(db.VARCHAR(128))
 
-    def __init__(self, post_id, creator_id, post_name, latitude, longitude, address, description, allergens, is_available):
+    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, allergens, is_available, end_time, photo_name, photo_path):
         self.post_id = post_id
-        self.creator_id = creator_id
+        self.username = username # username of creator
         self.post_name = post_name
         self.latitude = latitude
         self.longitude = longitude
@@ -40,29 +49,35 @@ class food_db(db.Model):
         self.description = description
         self.allergens = allergens
         self.is_available = is_available
+        self.end_time = end_time
+        self.photo_name = photo_name
+        self.photo_path = photo_path
 
     def json(self):
         post = {
             'post_id': self.post_id,
-            'creator_id': self.creator_id,
+            'username': self.username, # username of creator
             'post_name': self.post_name,
             'latitude': self.latitude,
             'longitude': self.longitude,
             'address': self.address,
             'description': self.description,
-            'allergens' : self.allergens,
-            'is_available' : self.is_available 
+            'allergens' : self.allergens, 
+            'is_available' : self.is_available,
+            'end_time' : self.end_time,
+            'photo_name' : self.photo_name,
+            'photo_path' : self.photo_path
         }
         return post
 
 # SHOW ALL POSTS
 
 @app.route("/")
-def faez():
-    return 'welcome to smu'
+def main_page():
+    return 'this is the main page'
 
 @app.route("/all")
-def test():
+def all():
     food_list = food_db.query.all()
     if len(food_list):
         return jsonify(
@@ -120,7 +135,7 @@ def create_post(post_id):
     
     #else, carry on making the post
     data = request.get_json()
-    post = food_db(**data)
+    post = food_db(**data, is_available=1)
 
     #attempt to add post into db
     try:
@@ -256,6 +271,7 @@ Function: search for food posts which are within a specified user's travel appet
 Input: user JSON object
 Output: array of food post JSON objects that fulfill the criteria
 '''
+# NEED TO FILTER ACCORDING TO ALLERGY TOO
 @app.route("/filter_post", methods=['GET'])
 # search for users that are within the distance
 def filter_post():
@@ -264,7 +280,7 @@ def filter_post():
         try:
             # get query info
             query = request.get_json()
-            print("\nReceived an order in JSON:", query)
+            print("\nReceived a query in JSON:", query)
 
             # do the actual checking
             # return list of food post objects from food_dB
@@ -302,6 +318,57 @@ def filter_post():
                 ), 404
         except:
             pass
+
+# for guest users
+@app.route("/nearby_food", methods=['GET'])
+# search for users that are within the distance
+def guest_display():
+    # check input format and data is JSON
+    if request.is_json:
+        try:
+            # get query info
+            query = request.get_json()
+            print("\nReceived a query in JSON:", query)
+
+            # do the actual checking
+            # return list of food post objects from food_dB
+            all_food_info = food_db.query.all()
+            filtered_food = []
+            if len(all_food_info):
+                # filter for posts within specified user's travel appetite
+                for food in all_food_info:
+                    food_latitude = food.latitude
+                    food_longitude = food.longitude
+                    user_latitude = query['latitude']
+                    user_longitude = query['longitude']
+
+                    # preset the TA to 2km here
+                    user_travel_appetite = 2
+                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
+
+                    if distance <= user_travel_appetite:
+                        filtered_food.append(food)
+                # return list of food post objects where the post is within the user's travel appetite
+                return jsonify(
+                    {
+                        "code": 200,
+                        "data": {
+                            "user": [info.json() for info in filtered_food]
+                        }
+                    }
+                )
+            
+            else:
+                # the else comes here
+                return jsonify(
+                    {
+                        "code": 404,
+                        "message": "No information to be displayed."
+                    }
+                ), 404
+        except:
+            pass
+
 
 if __name__ == '__main__':
     app.run(port=1112, debug=True)

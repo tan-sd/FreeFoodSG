@@ -4,14 +4,21 @@ import os
 import haversine as hs
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from flask_cors import CORS
 
 # INITIALISING APP
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/forum_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+if os.name == "nt":
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/forum_db'
+else:
+    app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:root@localhost:3306/forum_db'
+
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
 db = SQLAlchemy(app)
+CORS(app)
 
 # DECLARING DATABASE CLASS
 class forum_db(db.Model):
@@ -88,20 +95,21 @@ def search(forum_id):
     ), 404
 
 # CREATE A FORUM POST
-@app.route("/create/<int:forum_id>", methods=['POST'])
+@app.route("/create", methods=['POST'])
 def create(forum_id):
 
+    # think can ignore
     #check if forum post is already in the db
-    if(forum_db.query.filter_by(forum_id=forum_id).first()):
-        return jsonify(
-            {
-                "code": 400,
-                "data": {
-                    "forum_id": forum_id
-                },
-                "message": "Post already exists."
-            }
-        ), 400
+    # if(forum_db.query.filter_by(forum_id=forum_id).first()):
+    #     return jsonify(
+    #         {
+    #             "code": 400,
+    #             "data": {
+    #                 "forum_id": forum_id
+    #             },
+    #             "message": "Post already exists."
+    #         }
+    #     ), 400
     
     #else, carry on making the post
     data = request.get_json()
