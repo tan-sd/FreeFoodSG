@@ -36,3 +36,30 @@ function get_routing_url(destination) {
     var url = "https://maps.google.com?saddr=Current+Location&daddr=" + destination
     document.getElementById("routing_url").innerHTML = "<a href='" + url + "'>click me</a>"
 }
+
+// data-login_uri="login.html"
+
+// function onSignIn(googleUser) {
+//     var profile = googleUser.getBasicProfile();
+//     console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+//     console.log('Name: ' + profile.getName());
+//     console.log('Image URL: ' + profile.getImageUrl());
+//     console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+//   } 
+
+function decodeJwtResponse(jwt) {
+    return jwt_decode(jwt);
+}
+
+function onSignIn(response) {
+    console.log(decodeJwtResponse(response.credential))
+    
+    responsePayload = decodeJwtResponse(response.credential)
+
+    console.log("ID: " + responsePayload.sub);
+    console.log('Full Name: ' + responsePayload.name);
+    console.log('Given Name: ' + responsePayload.given_name);
+    console.log('Family Name: ' + responsePayload.family_name);
+    console.log("Image URL: " + responsePayload.picture);
+    console.log("Email: " + responsePayload.email);
+  } 

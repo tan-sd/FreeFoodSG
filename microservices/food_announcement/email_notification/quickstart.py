@@ -1,4 +1,6 @@
 # we using gmail api now, fk sendgrid and mailgun and courier
+
+# ------------ Dependencies to call the Gmail and Google API ------------------
 from __future__ import print_function
 
 import os.path
@@ -10,6 +12,12 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from email.message import EmailMessage
+# -----------------------------------------------------------------------------
+
+# Variables to adjust who the message is sent to and how to address the sender
+user_email = "sethyap.2021@scis.smu.edu.sg"
+username = "shengadamez boonsng"
+
 
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
@@ -58,11 +66,11 @@ def main():
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content('hm hope this sends from another email')
+        message.set_content(f'Hello {username},\n\nThere is a new food offering near your default location!\nSee the posting on MakanBoleh at this url: https://makanboleh.com !\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
 
-        message['To'] = 'sethyap.2021@scis.smu.edu.sg'
+        message['To'] = user_email
         message['From'] = 'contactmakanboleh@gmail.com'
-        message['Subject'] = 'pls work'
+        message['Subject'] = 'MakanBoleh: New Food Offer Near You!'
 
         # encoded message
         encoded_message = base64.urlsafe_b64encode(message.as_bytes()) \
