@@ -333,7 +333,6 @@ def filter_post():
                     if distance <= user_travel_appetite and user_dietary_type in diet_list:
                         filtered_food.append(food)
                 
-                for food in filtered_food:
                     
 
                 return jsonify(
