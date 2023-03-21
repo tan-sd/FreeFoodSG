@@ -11,7 +11,7 @@ Function: initiate the queue
 '''
 def receive_sms():
     amqp_setup.check_setup()
-    queue_name = 'SMS'
+    queue_name = 'sms'
 
     # set up queue and look for incoming messages
     amqp_setup.channel.basic_consume(
@@ -23,7 +23,7 @@ def receive_sms():
 Function: callback function when receiving a message
 Input: Input: JSON object -> {
     "food" : JSON object,
-    "user" : array of JSON objects
+    "user" : JSON object
 }
 '''
 def callback(channel, method, properties, body):
@@ -35,7 +35,7 @@ def callback(channel, method, properties, body):
 Function: sending an SMS to related users
 Input: JSON object -> {
     "food" : JSON object,
-    "user" : array of JSON objects
+    "user" : JSON object
 }
 Output: SMS sent to users + a line printing the result of each SMS + success line when code completes
 '''
@@ -48,18 +48,40 @@ def sendClientUpdate(body):
     auth_token = "129c79176dd301a34abc383562c80f5b"
 
     client = Client(account_sid, auth_token)
-    for each_user in user:
-        recipient_number = each_user['number']
-        recipient_name = each_user['name']
-        food_location = food['location']
-        msg = f"Dear {recipient_name}, there is a buffet located at {food_location} that is within your travel appetite."
-        # create your text message
-        message = client.messages.create(
-            to=recipient_number,
-            from_="+15077075060",
-            body=msg)
-        print(f"SMS to {recipient_name} has been sent to the following number : {recipient_number}")
-    return "All messages sent!"
+    # for sending to one person
+
+    recipient_number = user['number']
+    recipient_name = user['name']
+    food_location = food['address']
+    food_name = food['post_name']
+    food_latitude = food['latitude']
+    food_longitude = food['longitude']
+    food_description = food['description']
+    food_allergens = food['allergens']
+    food_end_time = food['end_time']
+    
+    msg = f"Dear {recipient_name}, there's food nearby!\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Lat, Long: {food_latitude}, {food_longitude}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}"
+    # create your text message
+    message = client.messages.create(
+        to=recipient_number,
+        from_="+15077075060",
+        body=msg)
+    print(f"SMS to {recipient_name} has been sent to the following number : {recipient_number}")
+
+    # for sending to multiple people
+
+    # for each_user in user:
+    #     recipient_number = each_user['number']
+    #     recipient_name = each_user['name']
+    #     food_location = food['location']
+    #     msg = f"Dear {recipient_name}, there is a buffet located at {food_location} that is within your travel appetite."
+    #     # create your text message
+    #     message = client.messages.create(
+    #         to=recipient_number,
+    #         from_="+15077075060",
+    #         body=msg)
+    #     print(f"SMS to {recipient_name} has been sent to the following number : {recipient_number}")
+    # return "All messages sent!"
 
 if __name__ == "__main__":
     print("\nThis is " + os.path.basename(__file__), end='')
