@@ -15,8 +15,12 @@
                         <router-link to="/login" class="nav-link">Login</router-link>
                     </li>
 
-                    <li class="nav-item" v-if="!isLoggedIn">
+                    <li class="nav-item" v-if="isLoggedIn">
                         <router-link to="/user" class="nav-link">User Profile</router-link>
+                    </li>
+
+                    <li class="nav-item">
+                        <router-link to="/forum" class="nav-link">Forum</router-link>
                     </li>
                 </ul>
 
@@ -39,7 +43,7 @@ import FoodForm from '../components/FoodForm.vue';
 
         data() {
             return {
-                isLoggedIn: true
+                isLoggedIn: false
             }
         }
     }
