@@ -17,7 +17,7 @@
               </div>
               
               <div class="form-floating mb-3">
-                  <textarea class="form-control" id="floatingInput"   placeholder="Description" style="height: 80px; resize: none;"></textarea>
+                  <textarea class="form-control" id="floatingInput" placeholder="Description" style="height: 80px; resize: none;"></textarea>
                   <label for="floatingInput">Description</label>
               </div>
   

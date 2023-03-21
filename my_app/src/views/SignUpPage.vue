@@ -36,10 +36,24 @@
 
                 <div class="input-group">
                     <span class="input-group-text mb-3">+65</span>
-                <div class="small form-floating text-dark mb-3">
-                    <input v-model="phone_number" type="number" class="form-control" id="floatingInputGroup1" placeholder="Phone Number">
-                    <label for="floatingInputGroup1">Phone Number</label>
+                    <div class="small form-floating text-dark mb-3">
+                        <input v-model="phone_number" type="number" class="form-control" id="floatingInputGroup1" placeholder="Phone Number">
+                        <label for="floatingInputGroup1">Phone Number</label>
+                    </div>
                 </div>
+
+                <div class="small form-floating text-dark mb-3">
+                  <GMapAutocomplete
+                    ref="gmap_autocomplete"
+                    class="form-control"
+                    placeholder=" "
+                    id="googlemap_autocomplete_foodform"
+                    type="text"
+                    :options="autoCompleteOptions"
+                    :value="location"
+                  >
+                  </GMapAutocomplete>
+                  <label for="googlemap_autocomplete_foodform">Location</label>
                 </div>
 
                 <div class="small form-floating text-dark mb-3">
@@ -47,20 +61,40 @@
                     <label for="floatingInput">Email address</label>
                 </div>
 
+                <div class="bg-white rounded ps-3 pt-3 pb-3 text-dark mb-3">
+                    <label class="small form-label">Dietary Type</label>
+                    <div class="d-flex justify-content-around">
+                        <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="Halal" v-model="dietary_type">
+                            <label class="small form-check-label" for="inlineCheckbox1">Halal</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="Vegetarian"
+                            v-model="dietary_type">
+                            <label class="small form-check-label" for="inlineCheckbox2">Vegetarian</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="No beef"
+                            v-model="dietary_type">
+                            <label class="small form-check-label" for="inlineCheckbox3">No beef</label>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="bg-white rounded ps-3 pt-3 pb-3 text-dark">
                     <label class="small form-label">Travel Appetite</label>
                     <br>
                     <div class="d-flex justify-content-around">
                         <div class="form-check form-check-inline">
-                            <input class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="option1">
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="Near" checked>
                             <label class="small form-check-label" for="inlineRadio1">Near</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="option2">
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="Medium">
                             <label class="small form-check-label" for="inlineRadio2">Medium</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="option3">
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="Far">
                             <label class="small form-check-label" for="inlineRadio3">Far</label>
                         </div>
                     </div>
@@ -73,7 +107,7 @@
         </div>
 
         <hr class="mt-3" style="width: 340px">
-        <div class="mt-3 text-center">
+        <div class="mt-3 mb-5 text-center">
             Have an account? <router-link to="/login">Log in</router-link>
         </div>
 
@@ -118,7 +152,10 @@
                 password: '',
                 confirm_password: '',
                 phone_number: '',
+                location: '',
                 user_email: '',
+                dietary_type: [],
+                travel_appetite: ''
             }
         },
         methods: {
@@ -126,31 +163,52 @@
                 // const salt = bcrypt.genSaltSync(10)
                 // var hashed_password = bcrypt.hashSync(this.password, salt)
 
-                let json_data = {
+                console.log(this.dietary_type)
+
+                var json_data = {
                     "first_name": this.first_name,
                     "last_name": this.last_name,
                     "username": this.user_name,
                     "number": this.phone_number,
                     "email": this.user_email,
                     "password": this.password,
-                    "address": "Singapore Management University",
-                    "latitude": 1.2312412,
-                    "longitude": 2.4421412414,
-                    "dietary_type": "halal",
-                    "travel_appetite": "far"
+                    "address": this.$refs.gmap_autocomplete.$refs.input.value,
+                    "latitude": null,
+                    "longitude": null,
+                    "dietary_type": this.dietary_type,
+                    "travel_appetite": this.travel_appetite
                 };
 
-                console.log(`${register_user_URL}/${this.user_name}`)
+                console.log(this.$refs.gmap_autocomplete.$refs.input.value)
 
-                axios.post(`${register_user_URL}/${this.user_name}`,
-                 json_data
-                )
-                    .then(response => {
-                        console.log(response.data);
-                    })
-                    .catch( error => {
-                        console.log(error.message);
-                    });
+                fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.$refs.gmap_autocomplete.$refs.input.value}&key=AIzaSyB_XNrepzj7pUf2-dp9vSkpAfjXkAB9yHI`)
+                .then((response) => {
+                    return response.json();
+                }).then(jsonData => {
+                    console.log(jsonData.results[0].geometry.location); // {lat: 45.425152, lng: -75.6998028}
+                    json_data['latitude'] = jsonData.results[0].geometry.location.lat
+                    json_data['longitude'] = jsonData.results[0].geometry.location.lng
+                    console.log(json_data)
+
+                    console.log(json_data)
+
+                    console.log(`${register_user_URL}/${this.user_name}`)
+
+                    axios.post(`${register_user_URL}/${this.user_name}`,
+                    json_data
+                    )
+                        .then(response => {
+                            
+                            console.log(response.data);
+                        })
+                        .catch( error => {
+                            console.log(error.message);
+                        });
+                })
+                .catch(error => {
+                    console.log(error);
+                })
+
                 // fetch(`${register_user_URL}/${this.new_user}`,
                 //     {
                 //         method: "POST",
@@ -166,7 +224,6 @@
                 //         console.log(result)
                 //     })
 
-                
             }
         }
     }

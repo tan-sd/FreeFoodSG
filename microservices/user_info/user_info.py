@@ -6,6 +6,7 @@ import os, sys
 import haversine as hs
 import requests
 import bcrypt
+import json
 # import re
 # from invokes import invoke_http
 
@@ -120,6 +121,7 @@ def create_user(username):
 
     data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt(10))
     data['password'] = data['password'].decode('utf-8')
+    data['dietary_type'] = ','.join(data['dietary_type'])
 
     new_user = User(username, **data)
     # print(new_user)
