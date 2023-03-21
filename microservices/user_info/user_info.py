@@ -103,13 +103,13 @@ def create_user(name):
     if (User.query.filter_by(name=name).first()):
         return jsonify(
             {
-                "code": 400,
+                "code": 404,
                 "data": {
                     "name": name
                 },
                 "message": "User already exist."
             }
-        ), 400
+        ), 404
     # 400 BAD request
 
     # store to db
