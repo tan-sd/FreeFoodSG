@@ -6,6 +6,7 @@ import os, sys
 import haversine as hs
 import requests
 import bcrypt
+import json
 # import re
 # from invokes import invoke_http
 
@@ -120,6 +121,7 @@ def create_user(username):
 
     data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt(10))
     data['password'] = data['password'].decode('utf-8')
+    data['dietary_type'] = ','.join(data['dietary_type'])
 
     new_user = User(username, **data)
     # print(new_user)
@@ -166,11 +168,13 @@ def login():
 
     user = User.query.filter_by(username=username).first()
 
+    print(user)
+
     if user == None:
         print("[LOGIN] User signed in with wrong username or password.")
         return jsonify({
             "code": 404,
-            "msg": "Username or password are wrong",
+            "msg": "Username or password is wrong",
         }), 404
     
     elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
@@ -179,6 +183,13 @@ def login():
             "code": 201,
             "msg": "Login Successfully",
         }), 201
+    
+    else:
+        print("[LOGIN] User signed in with wrong username or password.")
+        return jsonify({
+            "code": 404,
+            "msg": "Username or password is wrong",
+        }), 404
 
     # else:
     #     return jsonify({

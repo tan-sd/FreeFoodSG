@@ -89,6 +89,7 @@
                         setTimeout(username.classList.remove("errShake", 200));
                     };
                     username_invalid.classList.remove("d-none")
+                    document.getElementById("errors").innerHTML = ''
                 } else if(this.password.length == 0) {
                     username.classList = "form-control";
                     username_invalid.classList.add("d-none");
@@ -98,6 +99,7 @@
                         setTimeout(password.classList.remove("errShake", 200));
                     };
                     password_invalid.classList.remove("d-none")
+                    document.getElementById("errors").innerHTML = ''
                 }
                 else {
                     username.classList = "form-control";
@@ -121,7 +123,7 @@
                     .catch(error => {
                         console.log(error.message);
                         console.log(error.response.data.code == 404)
-                        document.getElementById("errors").innerHTML = "Username or password is wrong"
+                        document.getElementById("errors").innerHTML = error.response.data.msg
                     });
                 }
             }

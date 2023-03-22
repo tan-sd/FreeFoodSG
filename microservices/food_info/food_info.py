@@ -40,7 +40,7 @@ class diet_table(db.Model):
     def json(self):
         diet = {
             'post_id': self.post_id,
-            'dietary_type' : self.dietary_type
+            'dietary_type': self.dietary_type
         }
         return diet
 
@@ -170,7 +170,7 @@ def create_post():
 # DELETE A POST
 @app.route("/delete/<int:post_id>", methods=['DELETE'])
 def delete(post_id):
-    post = food_db.query.filter_by(post_id=post_id).first()
+    post = food_table.query.filter_by(post_id=post_id).first()
 
     #check if post exists
     if post:
@@ -216,7 +216,7 @@ def delete(post_id):
 @app.route("/edit/<int:post_id>", methods=['PUT'])
 def edit(post_id):
     
-    post = food_db.query.filter_by(post_id=post_id).first()
+    post = food_table.query.filter_by(post_id=post_id).first()
 
     #check if post exists
     if post:
@@ -331,16 +331,18 @@ def filter_post():
                         diet_list.append(diets.dietary_type)
 
                     if distance <= user_travel_appetite and user_dietary_type in diet_list:
-                        filtered_food.append(food)
-                
-                for food in filtered_food:
+                        food.json()["allergy"] = diet_list
+                        filtered_food.append(food.json())
                     
+                    # for post in filtered_food:
+                    #     p = post.json()
+                    #     p["allergy"] = diet_list
 
                 return jsonify(
                     {
                         "code":200,
                         "data":{
-                            "filtered_food": [x.json() for x in filtered_food]
+                            "filtered_food": [x for x in filtered_food]
                         }
                     }
                 )
@@ -374,7 +376,7 @@ def guest_display():
 
             # do the actual checking
             # return list of food post objects from food_dB
-            all_food_info = food_db.query.all()
+            all_food_info = food_table.query.all()
             filtered_food = []
             if len(all_food_info):
                 # filter for posts within specified user's travel appetite
