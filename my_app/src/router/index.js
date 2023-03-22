@@ -1,9 +1,10 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Home from '../views/Home.vue'
-import Login from '../views/LoginPage.vue'
-import User from '../views/UserProfile.vue'
-import Signup from '../views/SignUpPage.vue'
-import Forum from '../views/Forum.vue'
+import Home from '../views/Home.vue';
+import Login from '../views/LoginPage.vue';
+import User from '../views/UserProfile.vue';
+import Signup from '../views/SignUpPage.vue';
+import Forum from '../views/Forum.vue';
+import FoodForm from '../components/FoodForm.vue';
 
 const routes = [
     {
@@ -20,9 +21,6 @@ const routes = [
         path: '/user',
         name: 'User Profile',
         component: User,
-        meta: {
-            requiresAuth: true
-        }
     },
     {
         path: '/signup',
@@ -33,6 +31,15 @@ const routes = [
         path: '/forum',
         name: 'Forum',
         component: Forum
+    },
+    {
+        path: '/foodform',
+        name: 'FoodForm',
+        components: FoodForm,
+        meta: {
+            needsAuth: true,
+            showModal: false,
+        }
     }
 ]
 
@@ -43,7 +50,11 @@ const router = createRouter({
 
 router.beforeEach((to, from, next) => {
     document.title = to.name;
-    next();
+    if (to.meta.needsAuth) {
+        next('/login');
+    } else {
+        next();
+    }
 });
 
 export default router
