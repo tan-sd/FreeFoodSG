@@ -5,6 +5,7 @@ import haversine as hs
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+import json
 
 # INITIALISING APP
 app = Flask(__name__)
@@ -265,11 +266,55 @@ def edit(forum_id):
 
 
 # FOR COMMENTS ROUTES
+
+# this is to get all the comments from all the posts
+@app.route("/comment", methods=['GET'])
+def all_comments():
+
+   comments_list = comments_table.query.all()
+   if len(comments_list):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "comments": [comment.json() for comment in comments_list]
+                }
+            }
+        )
+   return jsonify(
+        {
+            "code": 404,
+            "message": "There are no comments."
+        }
+    ), 404
+
+
+# this is to get all the comments from 1 post
+@app.route("/comment/<int:forum_id>", methods=['GET'])
+def show_comments(forum_id):
+
+   comments = comments_table.query.filter_by(forum_id=forum_id).all()
+   if len(comments):
+       return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "user": [info.json() for info in comments]
+                }
+            }
+        )
+    
+   return jsonify(
+        {
+            "code": 404,
+            "message": "There are no comments."
+        }
+    ), 404
+
 # this is to add comments to the specific post
-@app.route("/comment/<int:forum_id>", methods=['GET','POST'])
+@app.route("/create_comment/<int:forum_id>", methods=['GET','POST'])
 def create_comment(forum_id):
 
-    print(forum_id)
     #check if forum post is already in the db
     if(comments_table.query.filter_by(forum_id=forum_id).first()):
     
