@@ -5,6 +5,7 @@ import User from '../views/UserProfile.vue';
 import Signup from '../views/SignUpPage.vue';
 import Forum from '../views/Forum.vue';
 import FoodForm from '../components/FoodForm.vue';
+import store from '../store';
 
 const routes = [
     {
@@ -51,7 +52,11 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
     document.title = to.name;
     if (to.meta.needsAuth) {
-        next('/login');
+        if(store.getters.isAuthenticated) {
+            next();
+        } else {
+            next('/login')
+        }
     } else {
         next();
     }
