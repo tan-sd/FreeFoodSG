@@ -1,7 +1,7 @@
 <template>
-    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
+    <button @click="showModal = true" class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
-    <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
+    <div v-if="showModal && isAuthenticated" @close="showModal = false" class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content bg-light text-dark">
           <div class="modal-header bg-dark text-extra-light">
@@ -25,7 +25,6 @@
                   <GMapAutocomplete
                       class="form-control"
                       placeholder=" "
-                      @place_changed="setPlace"
                       id="googlemap_autocomplete_foodform"
                       type="text"
                       :options="autoCompleteOptions"
@@ -81,11 +80,17 @@
   export default{
     data() {
       return{
+        showModal: false,
         autoCompleteOptions: {
             componentRestrictions: {
                 country: ["sg"],
             }
         },
+      }
+    },
+    computed: {
+      isAuthenticated() {
+        return this.$store.getters.isAuthenticated;
       }
     }
   }

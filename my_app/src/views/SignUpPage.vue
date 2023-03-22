@@ -192,6 +192,11 @@
                 dietary_type: [],
                 travel_appetite: 'Near',
                 errors: 0,
+                autoCompleteOptions: {
+                    componentRestrictions: {
+                        country: ["sg"],
+                    }
+                },
             }
         },
         methods: {

@@ -25,7 +25,7 @@
                 </ul>
 
                 <div class="d-flex justify-content-center button-container mx-auto mx-lg-0">
-                    <FoodForm class="btn btn-main"/>
+                    <router-link to='/foodform'><FoodForm class="btn btn-main"/></router-link>
                 </div>
             </div>
         </div>
