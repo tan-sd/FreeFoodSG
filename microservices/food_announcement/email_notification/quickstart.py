@@ -15,8 +15,14 @@ from email.message import EmailMessage
 # -----------------------------------------------------------------------------
 
 # Variables to adjust who the message is sent to and how to address the sender
-user_email = "sethyap.2021@scis.smu.edu.sg"
-username = "shengadamez boonsng"
+
+recipient_email = "sethyap.2021@scis.smu.edu.sg"
+recipient_name = "shengadamez boonsng"
+food_location = "VivoCity Level 3 Outside Burger King"
+food_name = "free burgers n fries"
+food_description = "we overordered, pls help take some of our food"
+food_allergens = "got beef"
+food_end_time = "2030"
 
 
 # If modifying these scopes, delete the file token.json.
@@ -46,19 +52,7 @@ def main():
             token.write(creds.to_json())
 
     try:
-        # Call the Gmail API to print mail labels
-        # service = build('gmail', 'v1', credentials=creds)
-        # results = service.users().labels().list(userId='me').execute()
-        # labels = results.get('labels', [])
-
-        # if not labels:
-        #     print('No labels found.')
-        #     return
-        # print('Labels:')
-        # for label in labels:
-        #     print(label['name'])
-
-        # THIS CODE IS TAKEN FROM send_email.py, THIS IS THE CODE THAT SENDS THE MAIL
+        # THIS IS THE CODE THAT SENDS THE MAIL
         # ABOVE IS THE CODE THAT HANDLES THE CREDENTIALS AND AUTHORIZATION!!
         # ADJUST MAIL PARAMETERS BELOW
         # WE CAN EVEN CREATE A DRAFT MESSAGE TO SEND OUT.
@@ -66,9 +60,9 @@ def main():
         service = build('gmail', 'v1', credentials=creds)
         message = EmailMessage()
 
-        message.set_content(f'Hello {username},\n\nThere is a new food offering near your default location!\nSee the posting on MakanBoleh at this url: https://makanboleh.com !\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
+        message.set_content(f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
 
-        message['To'] = user_email
+        message['To'] = recipient_email
         message['From'] = 'contactmakanboleh@gmail.com'
         message['Subject'] = 'MakanBoleh: New Food Offer Near You!'
 
