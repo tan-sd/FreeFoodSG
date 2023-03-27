@@ -5,6 +5,7 @@ import VueGoogleMaps from '@fawmi/vue-google-maps';
 import { GoogleSignInPlugin } from "vue3-google-signin";
 import "../styling/sass/main.min.css";
 import "../styling/style.css";
+import store from './store';
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -27,6 +28,8 @@ app.use(router).use(VueGoogleMaps, {
         libraries: 'places'
     },
 })
+
+app.use(store)
 
 app.use(GoogleSignInPlugin, {
     clientId: "407206605140-bssenou8lkjkhcbagqf95nqem39prulh.apps.googleusercontent.com"

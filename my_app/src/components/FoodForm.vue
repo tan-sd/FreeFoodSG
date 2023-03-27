@@ -1,7 +1,7 @@
 <template>
-    <button @click="showModal = true" class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
+    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
-    <div v-if="showModal && isAuthenticated" @close="showModal = false" class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
+    <div v-if="isAuthenticated" class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content bg-light text-dark">
           <div class="modal-header bg-dark text-extra-light">
@@ -80,7 +80,6 @@
   export default{
     data() {
       return{
-        showModal: false,
         autoCompleteOptions: {
             componentRestrictions: {
                 country: ["sg"],
@@ -90,6 +89,7 @@
     },
     computed: {
       isAuthenticated() {
+        console.log(this.$store.getters.isAuthenticated)
         return this.$store.getters.isAuthenticated;
       }
     }
