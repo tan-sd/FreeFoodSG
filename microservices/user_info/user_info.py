@@ -169,7 +169,10 @@ def login():
     user = User.query.filter_by(username=username).first()
 
     print(user)
+    print(username)
+    print(password)
 
+    # print(user.password)
     if user == None:
         print("[LOGIN] User signed in with wrong username or password.")
         return jsonify({
@@ -178,12 +181,16 @@ def login():
         }), 404
     
     elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+    # elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
+        user_info_return = user.json()
+        del user_info_return['password']
+
         print("[LOGIN] User logged in successfully.")
         return jsonify({
             "code": 201,
             "msg": "Login Successfully",
+            "user": user_info_return
         }), 201
-    
     else:
         print("[LOGIN] User signed in with wrong username or password.")
         return jsonify({

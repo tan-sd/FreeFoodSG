@@ -112,7 +112,9 @@ def verfication(user_details):
     }
 # END OF VERIFICATION FUNCTION AND M/S
 
-# dn to care lat long is from where. js take in lat lng
+
+
+# this input will be {'latitude' :123, 'longitude':456}
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
 

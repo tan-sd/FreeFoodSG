@@ -18,6 +18,12 @@
       Map,
       FoodList
     },
+
+    created() {
+      //IF LOGGED IN
+
+      //IF NOT LOGGED IN
+    }
   };
 
 // if is existing users

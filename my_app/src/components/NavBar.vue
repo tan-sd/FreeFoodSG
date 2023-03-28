@@ -5,17 +5,23 @@
                 <img src="../assets/images/logos/small_logos/MakanBoleh_logo_long_light_small.png" alt="MakanBoleh Logo" width="165">
             </router-link>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span><font-awesome-icon icon="fa-solid fa-burger" /></span>
             </button>
 
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+            <div class="collapse navbar-collapse navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0" v-if="this.$store.state.isAuthenticated">
+                    <p class="text-white my-auto mt-2 mt-md-0 fw-semibold fst-italic">Welcome {{ this.$store.state.user_details.first_name }} {{ this.$store.state.user_details.last_name }}!</p>
+                </ul>
+            </div>
+
+            <div class="collapse navbar-collapse navbarSupportedContent">
+                <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                     <li class="nav-item">
                         <router-link to="/login" class="nav-link">Login</router-link>
                     </li>
 
-                    <li class="nav-item" v-if="isLoggedIn">
+                    <li class="nav-item" v-if="this.$store.state.isAuthenticated">
                         <router-link to="/user" class="nav-link">User Profile</router-link>
                     </li>
 
@@ -43,7 +49,6 @@ import FoodForm from '../components/FoodForm.vue';
 
         data() {
             return {
-                isLoggedIn: false
             }
         }
     }
