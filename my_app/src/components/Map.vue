@@ -14,6 +14,7 @@
             :key="index"
             v-for="(m, index) in markers"
             :position="m.position"
+            :icon="m.icon"
         />
         <GMapCircle
             :radius="500"
@@ -57,12 +58,17 @@
   </template>
 
   <script>
+    import axios from 'axios' 
+    const food_info_url = 'http://localhost:1112/filter_post'
+    const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
             onInput() {
                 this.showClearButton = this.$refs.autocomplete.$refs.input.value.length > 0;
             },
+            // Adam, will need you to use this function and pass the values from FoodList.vue line 167 to the panTo() function
+            // the values should be in the form of a JSON object, can refer to line 143 in this vue file.
             re_center() {
                 const map = this.$refs.map
                 map.panTo(this.currentLocation)
@@ -83,9 +89,78 @@
                 return new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject);
                 });
+            },
+            // '''
+            // Function: getting all nearest food post
+            // Input: user  current lat, lng from markers[0]
+            // Output: all food posts will be stored from markers[1] onwards
+            // '''
+            async get_nearest_food() {
+                // check if user is a guest
+                if (!this.$store.state.isAuthenticated) {
+                    console.log("It's a guest user! Calling food post for guest.")
+                    axios.get(`${guest_url}`, {
+                        latitude: this.markers[0].position.lat,
+                        longitude: this.markers[0].position.lng
+                })
+                    .then(response => {
+                        // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                        // console.log(response.data.data.food)
+                        var foods = response.data.data.food
+                        // store each food JSON in the markers array
+                        for (let i = 0; i<foods.length; i++) {
+                            this.markers.push({
+                                            position: {
+                                                lat: foods[i].latitude,
+                                                lng: foods[i].longitude,
+                                            },
+                                            post_id: foods[i].post_id,
+                                            icon: require("../assets/images/flaticon/food.png")
+                                        })
+                        }
+                        console.log("All markers created!")
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                        console.log(error.response.data.code == 404)
+                        document.getElementById("errors").innerHTML = error.response.data.msg
+                    });
+                } else {
+                    console.log("It's a registered user! Calling food post for user.")
+                    axios.get(`${food_info_url}`, {
+                        latitude: this.markers[0].position.lat,
+                        longitude: this.markers[0].position.lng,
+                        travel_appetite: this.$store.state.user_details.travel_appetite
+                })
+                    .then(response => {
+                        // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                        // console.log(response.data.data.food)
+                        var foods = response.data.data.food
+                        // store each food JSON in the markers array
+                        for (let i = 0; i<foods.length; i++) {
+                            this.markers.push({
+                                            position: {
+                                                lat: foods[i].latitude,
+                                                lng: foods[i].longitude,
+                                            },
+                                            post_id: foods[i].post_id,
+                                            icon: require("../assets/images/flaticon/food.png")
+                                        })
+                        }
+                        console.log("All markers created!")
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                        console.log(error.response.data.code == 404)
+                        document.getElementById("errors").innerHTML = error.response.data.msg
+                    });
+                }
+                console.log(this.markers[0].position.lat)
+                
             }
         },
         mounted() {
+            console.log("Getting user's current location")
             this.get_location().then(position => {
                 this.markers[0].position.lat = position.coords.latitude;
                 this.markers[0].position.lng = position.coords.longitude;
@@ -94,6 +169,10 @@
                 this.currentLocation.lat = position.coords.latitude;
                 this.currentLocation.lng = position.coords.longitude;
             });
+            console.log("Got user's current location")
+            console.log("Getting food post information from dB")
+            this.get_nearest_food()
+            console.log("Got food post information from dB")
         },
         data() {
             return {
@@ -115,6 +194,7 @@
                             lat: null,
                             lng: null,
                         },
+                        
                     }
                 ],
                 autoCompleteOptions: {
