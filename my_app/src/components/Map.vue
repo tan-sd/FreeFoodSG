@@ -91,7 +91,7 @@
                 });
             },
             // '''
-            // Function: getting all nearest food post, function returns all food post for now
+            // Function: getting all nearest food post
             // Input: user  current lat, lng from markers[0]
             // Output: all food posts will be stored from markers[1] onwards
             // '''
