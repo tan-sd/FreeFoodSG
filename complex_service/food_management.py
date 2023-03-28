@@ -264,32 +264,16 @@ def show_available_food(location):
 # output: get all posts in json object with key forum:
 @app.route("/posts", methods=['GET'])
 def get_forum_posts():
-    if request.is_json:
-        try:
-            # guest_details = request.get_json()
-            # print("\nReceived latitude and longitude in JSON:", guest_details)
 
-            # do the actual work
-            result = get_posts()
-            return jsonify(result), result["code"]
 
-        except Exception as e:
-            # Unexpected error in code
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
-            print(ex_str)
-
-            return jsonify({
-                "code": 500,
-                "message": "food_management.py internal error: " + ex_str
-            }), 500
+    result = invoke_http(forum_URL, method='GET')
+    if result:
+        return jsonify(result), result["code"]  
 
     # if reached here, not a JSON request.
     return jsonify({
         "code": 400,
-        "message": "Invalid JSON input: " + str(request.get_data())
-    }), 400
+        "message": "no posts to return"}), 400
 
 
 # show all forum posts 
