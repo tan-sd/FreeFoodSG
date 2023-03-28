@@ -23,7 +23,8 @@ food_URL = 'http://localhost:1112/filter_post'
 # for guest users
 nearby_food_URL = 'http://localhost:1112/nearby_food'
 
-
+# SCENARIO 2: CREATE FOOD
+post_URL = 'http://localhost:1112/create'
 
 # SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS
 
@@ -255,6 +256,40 @@ def show_available_food(location):
 
 ################## END OF SCENARIO 1 ####################
 
+################## START OF SCENARIO 2 ##################
+'''DOCUMENTATION HERE
+User posts a new post
+input(json): 
+{
+    post_id = type int
+    username = type varchar
+    post_name = type varchar
+    latitude = type float, precision 6
+    longitude = type float, precision 6
+    address = type varchar
+    description = type varchar
+    is_available = type bit or integer, 0 is false, 1 is true
+    end_time = type varchar, in YYYY-MM-DD HH:MM:SS format
+}
+output(json):
+{
+    code: type int <- tells you the server code, 404 if error
+    msg: details of the post if successful
+}
+
+'''
+@app.route("/post", methods=['POST'])
+def post_food():
+    print('\n-----Invoking food_info microservice-----')
+    post_result = invoke_http(post_URL, method='POST', json=request.json)
+    print('Post status:', post_result)
+    return {
+        "code": 201,
+        "data": {
+            "post_status": post_result
+        }
+    }
+################## END OF SCENARIO 2 #####################
 
 
 
