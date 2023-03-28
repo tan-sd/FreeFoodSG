@@ -33,10 +33,34 @@ create_forum_URL = 'http://localhost:1113'
 
 
 # do error microservice
-error_URL = ''
+error_URL = 'noerror'
 
 # scenario 1: user retrieves a list of nearby buffets
 
+'''
+Function: normal verification when user first logs in
+Input: JSON object -> {
+    "username" : string,
+    "password" : string
+}
+Output: user details as json 
+
+        {
+            "user_id": user_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "username": username,
+            "number": number,
+            "email": email,
+            "password": password,
+            "address": address,
+            "latitude": latitude,
+            "longitude": longitude,
+            "dietary_type": dietary_type,
+            "travel_appetite": travel_appetite
+        }
+and code result
+'''
 # just verification
 @app.route("/login", methods=['GET', 'POST'])
 def user_login():
@@ -47,6 +71,7 @@ def user_login():
 
     # Simple check of input format and data of the request are JSON
     print('in login function')
+    print('why no commmit')
     if request.is_json:
         try:
             # may need to sep login and displaying??
@@ -111,9 +136,87 @@ def verfication(user_details):
         }
     }
 # END OF VERIFICATION FUNCTION AND M/S
+'''
+Function: register the user and add user info to db
 
+Input: JSON object -> {
+    "username" : string,
+    "password" : string
+}
 
+Output: user details as json 
+{
+            "user_id": user_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "username": username,
+            "number": number,
+            "email": email,
+            "password": password,
+            "address": address,
+            "latitude": latitude,
+            "longitude": longitude,
+            "dietary_type": dietary_type,
+            "travel_appetite": travel_appetite
+        }
 
+and code result
+
+'''
+
+# START OF REGISTER FUNCTION 
+@app.route("/user", methods=['GET', 'POST'])
+def user_register():
+
+    # Simple check of input format and data of the request are JSON
+    if request.is_json:
+        try:
+
+            user_login_details = request.get_json()
+            print("\nReceived username and password in JSON:", user_login_details)
+
+            # do the actual work
+            result = verfication(user_login_details)
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "food_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+# END OF REGISTER FUNCTION 
+
+'''
+Function: get all available food near the user
+
+Input: JSON object -> {
+    "latitude" : string,
+    "longitude" : string
+}
+
+Output: list of all json food objects
+{
+        "code": 201,
+        "data": {
+            "food_result": food_result
+}
+
+and code result
+
+'''
 # this input will be {'latitude' :123, 'longitude':456}
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
@@ -189,6 +292,28 @@ def filtered_food(location):
 # input: lat long of user (from wifi)
 # output: json obj of all nearby food in a list
 
+'''
+Function: get all available food near the user [guest user]
+
+Input: JSON object -> {
+    "latitude" : string,
+    "longitude" : string
+}
+
+Output: 
+return jsonify(result), result["code"]
+
+list of all json food objects
+{
+        "code": 201,
+        "data": {
+            "food_result": food_result
+}
+
+and code result
+
+'''
+
 # if there is no user credentials (for guest)
 @app.route("/guest/available_food", methods=['POST'])
 def get_available_food2():
@@ -262,9 +387,31 @@ def show_available_food(location):
 # to view all posts in forum
 # input: nth
 # output: get all posts in json object with key forum:
+
+# to view all posts in forum
+
+'''
+Function: display all posts in forum
+
+Input: nothing
+
+Output: 
+
+return jsonify(result), result["code"]
+
+and result is 
+
+return {
+        "code": 201,
+        "data": {
+            "forum_result": forum_result
+        }
+    }
+
+'''
+
 @app.route("/posts", methods=['GET'])
 def get_forum_posts():
-
 
     result = invoke_http(forum_URL, method='GET')
     if result:
@@ -309,6 +456,26 @@ def get_posts():
     }
 
 # to create a post in forum
+
+'''
+Function: to create a post in forum
+
+Input: post details
+
+Output: 
+
+return jsonify(result), result["code"]
+
+and result is 
+
+return {
+        "code": 201,
+        "data": {
+            "forum_result": forum_result
+        }
+    }
+
+'''
 # input: comment, commentor_username, datetime, post_id
 # output: get all posts in json object with key forum:
 @app.route("/create_post", methods=['POST'])
