@@ -80,7 +80,7 @@ def verfication(user_details):
     print('\n-----Invoking user_info microservice-----')
     print(user_details)
 
-    url = verify_user_URL +'/'+ str(user_details['username']) + '/'+ str(user_details['password'])
+    url = verify_user_URL
     verification_result = invoke_http(url, method='POST', json=user_details)
     
     print('verification_result:', verification_result)
@@ -88,7 +88,7 @@ def verfication(user_details):
     code = verification_result["code"]
 
     # DO ERROR MS!
-    # if code not in range(200, 300):
+    if code not in range(200, 300):
 
     #     # Inform the error microservice
     #     print('\n\n-----Invoking error microservice as order fails-----')
@@ -99,11 +99,11 @@ def verfication(user_details):
     #         code), verification_result)
 
     #     # 7. Return error
-    #     return {
-    #         "code": 500,
-    #         "data": {"order_result": verification_result},
-    #         "message": "Order creation failure sent for error handling."
-    #     }
+        return {
+            "code": 500,
+            "data": {"order_result": verification_result},
+            "message": "Order creation failure sent for error handling."
+        }
     return {
         "code": 201,
         "data": {
@@ -112,7 +112,9 @@ def verfication(user_details):
     }
 # END OF VERIFICATION FUNCTION AND M/S
 
-# dn to care lat long is from where. js take in lat lng
+
+
+# this input will be {'latitude' :123, 'longitude':456}
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
 
@@ -262,32 +264,16 @@ def show_available_food(location):
 # output: get all posts in json object with key forum:
 @app.route("/posts", methods=['GET'])
 def get_forum_posts():
-    if request.is_json:
-        try:
-            # guest_details = request.get_json()
-            # print("\nReceived latitude and longitude in JSON:", guest_details)
 
-            # do the actual work
-            result = get_posts()
-            return jsonify(result), result["code"]
 
-        except Exception as e:
-            # Unexpected error in code
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
-            print(ex_str)
-
-            return jsonify({
-                "code": 500,
-                "message": "food_management.py internal error: " + ex_str
-            }), 500
+    result = invoke_http(forum_URL, method='GET')
+    if result:
+        return jsonify(result), result["code"]  
 
     # if reached here, not a JSON request.
     return jsonify({
         "code": 400,
-        "message": "Invalid JSON input: " + str(request.get_data())
-    }), 400
+        "message": "no posts to return"}), 400
 
 
 # show all forum posts 
