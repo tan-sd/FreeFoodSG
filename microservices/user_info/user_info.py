@@ -47,6 +47,7 @@ class User(db.Model):
     travel_appetite = db.Column(db.VARCHAR(64))
 
     def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
+        self.user_id = user_id
         self.first_name = first_name
         self.last_name = last_name
         self.username = username
@@ -91,7 +92,6 @@ class User(db.Model):
         
 @app.route('/')
 def nothing():
-    print('here')
     return 'user homepage'
     # return render_template('register.html')
     
@@ -124,13 +124,7 @@ def create_user(username):
     data['dietary_type'] = ','.join(data['dietary_type'])
 
     new_user = User(username, **data)
-    # print(new_user)
 
-    # keyed_password = keyed_password.encode('utf-8')
-    # hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-    # user.password = hashed
-
-    # store the hash pw ah!!!
     try:
         db.session.add(new_user)
         db.session.commit()
@@ -197,72 +191,6 @@ def login():
             "code": 404,
             "msg": "Username or password is wrong",
         }), 404
-
-    # else:
-    #     return jsonify({
-    #         "code": 404,
-    #         "msg": "Error",
-    #     }), 404 
-  
-    # check for pw 
-    # password = user.password
-    # password = password.encode('utf-8')
-    # hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
-
-    # correct = user.password.encode('utf_8').decode()
-    # print(user.username)
-    # print(password)
-
-    # print(correct)
-    # if password == data["password"] and user.username == data["username"]:
-    #     print('Success')
-    # else:
-    #     print('Failed')
-
-    # this one need to retrieve from ui side! now empty string
-
-    # pw that user keyed in
-#         keyed_password = request.form.get('password')
-#         keyed_password = keyed_password.encode('utf-8')
-
-#         # pw that is stored in db
-#         password =  user.password
-#         password = password.encode('utf-8')
-#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
-
-    # keyed_password = data['password']
-    # keyed_password = keyed_password.encode('utf-8')
-    # print(keyed_password)
-
-
-    # if bcrypt.checkpw(keyed_password, hashed):
-    #     print("login success")
-        
-    # else:
-    #     print("incorrect password")
-    #     return jsonify(
-    #     {
-    #         "code": 404,
-    #         "message": "Wrong password."
-    #     }
-    #     ), 404
-
-    # #if user exists and correct pw, return user json
-    # if user:
-    #     return jsonify(
-    #         {
-    #             "code": 200,
-    #             "data": user.json()
-    #         }
-    #     )
-    
-    # #else, return error message
-    # return jsonify(
-    #     {
-    #         "code": 404,
-    #         "message": "User not found."
-    #     }
-    # ), 404
 
 # to diplay profile of all users
 @app.route("/users")
@@ -344,9 +272,9 @@ def filter_user():
     if request.method =='POST':
         # try:
             # get query info
-            form_latitude = request.form.get('latitude1')
-            form_longitude = request.form.get('longitude1')
-            # form = request.form
+            data = request.get_json()
+            form_latitude = data.latitude
+            form_longitude = data.longitude
             print("\nReceived lat & long from the form:")
 
             # do the actual checking
@@ -366,18 +294,17 @@ def filter_user():
 
                     if distance <= user_travel_appetite or distance >= user_travel_appetite:
                         filtered_users.append(user)
+
                 # return list of user objects where the post is within the user's travel appetite
-                # return jsonify(
-                #     {
-                #         "code": 200,
-                #         "data": {
-                #             "user": [info.json() for info in filtered_users]
-                #         }
-                #     }
-                # )
-              
-                return render_template('search_user.html',all=filtered_users)
-            
+                return jsonify(
+                    {
+                        "code": 200,
+                        "data": {
+                            "user": [info.json() for info in filtered_users]
+                        }
+                    }
+                )
+                          
             else:
                 # the else comes here
                 return jsonify(
@@ -386,8 +313,6 @@ def filter_user():
                         "message": "No information to be displayed."
                     }
                 ), 404
-        # except:
-        #     pass
 
 if __name__ == '__main__':
     app.run(port=1111, debug=True)
