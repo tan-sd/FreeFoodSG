@@ -80,7 +80,7 @@ def verfication(user_details):
     print('\n-----Invoking user_info microservice-----')
     print(user_details)
 
-    url = verify_user_URL +'/'+ str(user_details['username']) + '/'+ str(user_details['password'])
+    url = verify_user_URL
     verification_result = invoke_http(url, method='POST', json=user_details)
     
     print('verification_result:', verification_result)
@@ -88,7 +88,7 @@ def verfication(user_details):
     code = verification_result["code"]
 
     # DO ERROR MS!
-    # if code not in range(200, 300):
+    if code not in range(200, 300):
 
     #     # Inform the error microservice
     #     print('\n\n-----Invoking error microservice as order fails-----')
@@ -99,11 +99,11 @@ def verfication(user_details):
     #         code), verification_result)
 
     #     # 7. Return error
-    #     return {
-    #         "code": 500,
-    #         "data": {"order_result": verification_result},
-    #         "message": "Order creation failure sent for error handling."
-    #     }
+        return {
+            "code": 500,
+            "data": {"order_result": verification_result},
+            "message": "Order creation failure sent for error handling."
+        }
     return {
         "code": 201,
         "data": {
@@ -112,7 +112,9 @@ def verfication(user_details):
     }
 # END OF VERIFICATION FUNCTION AND M/S
 
-# dn to care lat long is from where. js take in lat lng
+
+
+# this input will be {'latitude' :123, 'longitude':456}
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
 

@@ -60,7 +60,7 @@
 <script>
     import axios from 'axios'
     import GoogleSignIn from '../components/GoogleSignIn.vue';
-    const login_URL = 'http://localhost:1111/login'
+    const login_URL = 'http://localhost:5100/login'
 
     export default{
         components: {
@@ -85,7 +85,7 @@
                 if(this.user_name.length == 0) {
                     username.classList = "form-control is-invalid";
                     username.classList.add('errShake');
-                    username.onaimationend = () => {
+                    username.onanimationend = () => {
                         setTimeout(username.classList.remove("errShake", 200));
                     };
                     username_invalid.classList.remove("d-none")
@@ -117,8 +117,9 @@
                         // console.log(response.data);
                         console.log(response.data.msg)
                         this.user_details = response.data
+                        this.$store.state.user_details = response.data['data']['verification_result']['user']
+                        this.$store.state.isAuthenticated = true
                         this.$router.push('/')
-
                     })
                     .catch(error => {
                         console.log(error.message);
