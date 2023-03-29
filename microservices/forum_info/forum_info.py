@@ -327,7 +327,7 @@ def all_comments():
             {
                 "code": 200,
                 "data": {
-                    "comments": [comment.json()['forum_id'] for comment in comments_list]
+                    "comments": [comment.json() for comment in comments_list]
                 }
             }
         )
