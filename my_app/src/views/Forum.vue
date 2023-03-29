@@ -1,6 +1,27 @@
 <template>
     <div class="fill-space bg-light">
         <div class="forum-body pb-5">
+            <!-- LOADING CARDS -->
+            <div v-if="loading_posts" aria-hidden="true">
+                <div class="card mx-3 mx-md-auto my-3 placeholder-wave" v-for="e_id in 3" :key="e_id">
+                    <!-- HEADER -->
+                    <div class="card-header bg-dark text-light">
+                        <div class="post-title">
+                            <span class="placeholder col-10"></span>
+                            <span class="placeholder placeholder-xs col-5"></span>
+                        </div>
+                    </div>
+            
+                    <!-- BODY -->
+                    <div class="card-body bg-extra-light">
+                        <span class="placeholder col-10"></span>
+                        <span class="placeholder placeholder-xs col-7"></span>
+                        <span class="placeholder placeholder-xs col-6"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LOADED CARDS -->
             <div class="card mx-3 mx-md-auto text-dark my-3" v-for="e_post in forum_data" :key="e_post.forum_id">
                 <!-- HEADER -->
                 <div class="card-header bg-dark text-extra-light">
@@ -50,7 +71,8 @@
             </div>
         </div>
 
-        <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Thread</span></button>
+        <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-comment` : ``" @click="redirect_to_login()"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Thread</span></button>
+        <!-- <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment" @click="redirect_to_login()"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Thread</span></button> -->
     </div>
 
     <div class="modal fade" id="new-comment" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
@@ -63,18 +85,20 @@
 
                 <div class="modal-body">
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="post-title" placeholder=" ">
+                        <input type="text" class="form-control" id="post-title" placeholder=" " v-model="create_post_title">
                         <label for="post-title">Title</label>
                     </div>
 
                     <div class="form-floating mt-4">
-                        <textarea class="form-control" placeholder=" " id="post-content" style="height: 100px"></textarea>
+                        <textarea class="form-control" placeholder=" " id="post-content" v-model="create_post_desc"></textarea>
                         <label for="post-content">What do you want to tell people about?</label>
-
                     </div>
 
                     <div class="d-flex justify-content-center mt-3">
-                        <button class="btn btn-main"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
+                        <button class="btn btn-main" @click="submit_new_post()" :disabled="loading_post_button">
+                            <font-awesome-icon icon="fa-solid fa-paper-plane" v-if="!loading_post_button" />
+                            <font-awesome-icon :icon="['fas', 'spinner']" v-if="loading_post_button" spin />&nbsp;&nbsp;Post
+                        </button>
                     </div>
                 </div>
             </div>
@@ -84,13 +108,20 @@
 
 
 <script>
+import router from '@/router';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import axios from 'axios';
 
     export default{
     data() {
         return {
-            forum_data: []
+            create_post_title: "",
+            create_post_desc: "",
+            forum_data: [],
+            loading_posts: true,
+            loading_post_button: false,
+
+            // PRESET FORUM DATA
             // [
             //     {
             //         forum_id: 0,
@@ -102,27 +133,7 @@ import axios from 'axios';
             //             { username: "sethyap", description: "Fk you Salesforce sucks", datetime: "2023-03-12T09:12:00" },
             //             { username: "angkengboon", description: "No, fk you I love Salesforce. SF is bae <3 uwu", datetime: "2023-03-12T10:20:00" }
             //         ]
-            //     },
-            //     {
-            //         forum_id: 1,
-            //         username: "rachsng",
-            //         title: "SMU Open House got Buffet",
-            //         description: "Come down to SMU at 123 SMU Street 69 to enjoy free drinks and food on 26 Mar 2023 4-10pm!",
-            //         datetime: "2023-03-01T15:30:00",
-            //         comments: []
-            //     },
-            //     {
-            //         forum_id: 2,
-            //         username: "juns",
-            //         title: "Free Food @ Ballare Event!",
-            //         description: "Come down to Ballare office at 123 Ballare Street 25 to enjoy free drinks and food on 1 May 2023 1-2pm!",
-            //         datetime: "2023-03-04T23:30:00",
-            //         comments: [
-            //             { username: "ardiente", description: "Fk you Ballare sucks", datetime: "2023-03-05T09:23:00" },
-            //             { username: "samba_masala", description: "^ I agree", datetime: "2023-03-05T10:11:00" },
-            //             { username: "adambft", description: "guys, pls...", datetime: "2023-03-05T10:15:00" }
-            //         ]
-            //     },
+            //     }
             // ]
         };
     },
@@ -132,33 +143,71 @@ import axios from 'axios';
             let res = `${x.getDate()} ${x.toLocaleString("default", { month: "short" })} ${x.getFullYear()} | ${x.toLocaleString("default", { timeStyle: "short" })}`;
 
             return res;
+        },
+
+        redirect_to_login() {
+            //check if user logged in, redirect if not
+            if (!this.isAuthenticated) {
+                router.push({path: '/login'})
+            }
+        },
+
+        submit_new_post() {
+            this.loading_post_button = true
+
+            axios.post("http://localhost:5100/create_post", {
+                "username": this.$store.state.user_details.username,
+                "title": this.create_post_title,
+                "description": this.create_post_desc,
+                "datetime": new Date()
+            })
+            .then(function (response) {
+                console.log(response)
+                location.reload()
+            })
+            .catch(function(error) {
+                console.log(error)
+            })
+        },
+
+        update_posts() {
+            axios.get('http://localhost:5100/posts')
+            .then(response => {
+                // console.log("HERE U GO: ", response.data.data.forum)
+                let response_data = response.data.data.forum
+
+                //FOR TESTING: REPLACE/ DELETE ONCE RACHAEL FINISH ADDING COMMENTS TO JSON RESPONSE
+                for (let e_post of response_data) {
+                    if (!('comments' in e_post)) {
+                        e_post.comments = []
+                    }
+                }
+
+                this.forum_data = response_data
+                this.loading_posts = false
+            })
+            .catch(error => {
+                console.log("Error on Forum.vue API call to get all posts: ", error.message);
+            });
+        }
+    },
+    computed: {
+        isAuthenticated() {
+            return this.$store.state.isAuthenticated
         }
     },
     components: { FontAwesomeIcon },
     created() {
-        axios.get('http://localhost:5100/posts')
-        .then(response => {
-            // console.log("HERE U GO: ", response.data.data.forum)
-            let response_data = response.data.data.forum
-
-            //FOR TESTING: REPLACE/ DELETE ONCE RACHAEL FINISH ADDING COMMENTS TO JSON RESPONSE
-            for (let e_post of response_data) {
-                if (!('comments' in e_post)) {
-                    e_post.comments = []
-                }
-            }
-
-            this.forum_data = response_data
-        })
-        .catch(error => {
-            console.log("Error on Forum.vue API call to get all posts: ", error.message);
-        });
-    }
+        this.update_posts()
+    },
 }
 </script>
 
 
 <style scoped>
+    #post-content{
+        height: 100px;
+    }
 
     .fill-space{
         height: 100%;
