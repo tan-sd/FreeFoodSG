@@ -264,8 +264,6 @@ def show_available_food(location):
 # output: get all posts in json object with key forum:
 @app.route("/posts", methods=['GET'])
 def get_forum_posts():
-
-
     result = invoke_http(forum_URL, method='GET')
     if result:
         return jsonify(result), result["code"]  
@@ -274,7 +272,6 @@ def get_forum_posts():
     return jsonify({
         "code": 400,
         "message": "no posts to return"}), 400
-
 
 # show all forum posts 
 def get_posts():
