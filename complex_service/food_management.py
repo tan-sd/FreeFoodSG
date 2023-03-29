@@ -457,10 +457,10 @@ def show_available_food(location):
 # to view all posts in forum
 # input: nth
 # output: get all posts in json object with key forum:
-
 # to view all posts in forum
 
 '''
+
 Function: display all posts in forum + with comments
 
 Input: nothing
@@ -479,7 +479,7 @@ return {
             }
         }
     }
-
+    
 '''
 
 @app.route("/posts", methods=['GET'])
@@ -545,9 +545,12 @@ def get_forum_posts():
 #         }
 #     }
 
+
 # to create a post in forum
+# input: forum_id (Int), username (Str), title (Str), description (Str), datetime (Str)
 
 '''
+
 Function: to create a post in forum
 
 Input: post details
@@ -575,7 +578,7 @@ return {
                 }
         }
     }
-
+    
 '''
 
 # THIS ONE TO CREATE POSTS
