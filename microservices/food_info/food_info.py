@@ -2,13 +2,10 @@
 # import relevant dependencies
 import os
 import haversine as hs
-import json
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 from flask_cors import CORS
 from datetime import datetime
-from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
 
 
 # INITIALISING APP
@@ -27,23 +24,6 @@ db = SQLAlchemy(app)
 CORS(app)
 
 # DECLARING DATABASE CLASS
-class diet_table(db.Model):
-    __tablename__ = 'dietary_table'
-
-    post_id = db.Column(db.Integer, ForeignKey('food_table.post_id', ondelete="CASCADE"), primary_key=True)
-    dietary_type = db.Column(db.VARCHAR(64), primary_key=True)
-
-    def __init__(self, post_id, dietary_type):
-        self.post_id = post_id
-        self.dietary_type = dietary_type
-    
-    def json(self):
-        diet = {
-            'post_id': self.post_id,
-            'dietary_type': self.dietary_type
-        }
-        return diet
-
 class food_table(db.Model):
     __tablename__ = 'food_table'
 
@@ -56,11 +36,8 @@ class food_table(db.Model):
     description = db.Column(db.VARCHAR(248))
     is_available = db.Column(db.Integer(), nullable=False)
     end_time = db.Column(db.DateTime(), nullable=False)
-    photo_name = db.Column(db.VARCHAR(64))
-    photo_path = db.Column(db.VARCHAR(128))
-    diets = relationship("diet_table", backref="food_table")
 
-    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, is_available, end_time, photo_name, photo_path):
+    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, is_available, end_time):
         self.post_id = post_id
         self.username = username # username of creator
         self.post_name = post_name
@@ -70,8 +47,6 @@ class food_table(db.Model):
         self.description = description
         self.is_available = is_available
         self.end_time = end_time
-        self.photo_name = photo_name
-        self.photo_path = photo_path
 
     def json(self):
         post = {
@@ -83,12 +58,26 @@ class food_table(db.Model):
             'address': self.address,
             'description': self.description,
             'is_available' : self.is_available,
-            'end_time' : self.end_time,
-            'photo_name' : self.photo_name,
-            'photo_path' : self.photo_path
+            'end_time' : self.end_time
         }
         return post
 
+class diet_table(db.Model):
+    __tablename__ = 'dietary_table'
+
+    post_id = db.Column(db.Integer, db.ForeignKey('food_table.post_id'), primary_key=True)
+    dietary_type = db.Column(db.VARCHAR(64), primary_key=True)
+
+    def __init__(self, post_id, dietary_type):
+        self.post_id = post_id
+        self.dietary_type = dietary_type
+    
+    def json(self):
+        diet = {
+            'post_id': self.post_id,
+            'dietary_type': self.dietary_type
+        }
+        return diet
 # SHOW ALL POSTS
 
 @app.route("/")
@@ -137,24 +126,28 @@ def find_post(post_id):
     ), 404
 
 # CREATE A POST
-@app.route("/create>", methods=['POST'])
-def create_post():
+@app.route("/create/<int:post_id>", methods=['POST'])
+def create_post(post_id):
 
     #check if post is already in the db
     data = request.get_json()
-    post = food_table(**data, is_available=1)
-
+    post = food_table(**data, post_id=post_id,is_available=1)
+    
     #attempt to add post into db
     try:
         db.session.add(post)
         db.session.commit()
+        
 
     #if post cannot be made, return error message
-    except:
+    except Exception as e:
         return jsonify(
             {
                 "code":500,
-                "message": "An error occurred when creating a post. Please check if all fields meet the constraints of the database."
+                "data": {
+                    "post_id": post.post_id
+                },
+                "message": "An error occurred when creating a post. System message: " + str(e)
             }
         ), 500
     
@@ -162,8 +155,10 @@ def create_post():
     return jsonify(
         {
             "code": 201,
-            "data": post.json(),
-            "message": "Post created successfully."
+            "data": {
+                "post": post.json()
+            },
+            "message": "Post created successfully"
         }
     ), 201
 
