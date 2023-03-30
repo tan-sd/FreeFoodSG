@@ -186,7 +186,7 @@ import axios from 'axios';
             axios.get('http://localhost:5100/posts')
             .then(response => {
                 // console.log("HERE U GO: ", response.data.data.forum)
-                let response_data = response.data.data.forum
+                let response_data = response.data.data.forum_result.data.forum
 
                 // sorts list by datetime (latest first)
                 response_data.sort(function(a,b) {return Date.parse(b.datetime)-Date.parse(a.datetime)})

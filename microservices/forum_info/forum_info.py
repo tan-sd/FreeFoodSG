@@ -87,10 +87,7 @@ def all():
 
     comments_obj = {}
     for comment in comments:
-        print('comment here')
-        print(comment)
         id = comment['forum_id']
-        print(type(id))
 
         #       {
         #   "1": [
@@ -121,14 +118,19 @@ def all():
             comments_obj[id] = [comment]
         else:
             comments_obj[id].append(comment)
+    
+    all_posts = forum_db.query.all()
 
-    for id in comments_obj:
-        # rmb id here is the key of the comments obj
-        forum = forum_db.query.filter_by(forum_id=id).first().json()
-        all_comments = comments_obj[id]
-        print(all_comments)
-        forum['comments'] = all_comments
-        output.append(forum)
+    for e_post in all_posts:
+        e_post = e_post.json()
+        e_id = e_post['forum_id']
+
+        if e_id in comments_obj:
+            e_post['comments'] = comments_obj[e_id]
+        else:
+            e_post['comments'] = []
+        
+        output.append(e_post)
 
     if len(forum_list):
         return jsonify(
