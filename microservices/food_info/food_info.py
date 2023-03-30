@@ -6,6 +6,7 @@ from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy 
 from flask_cors import CORS
 from datetime import datetime
+import uuid
 
 
 # INITIALISING APP
@@ -27,7 +28,7 @@ CORS(app)
 class food_table(db.Model):
     __tablename__ = 'food_table'
 
-    post_id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.VARCHAR(64), primary_key=True)
     username = db.Column(db.VARCHAR(64), nullable=False) # username of creator
     post_name = db.Column(db.VARCHAR(64), nullable=False)
     latitude =  db.Column(db.Float(precision=6), nullable=False)
@@ -65,17 +66,17 @@ class food_table(db.Model):
 class diet_table(db.Model):
     __tablename__ = 'dietary_table'
 
-    post_id = db.Column(db.Integer, db.ForeignKey('food_table.post_id'), primary_key=True)
-    dietary_type = db.Column(db.VARCHAR(64), primary_key=True)
+    post_id = db.Column(db.VARCHAR(64), db.ForeignKey('food_table.post_id'), primary_key=True)
+    diets_available = db.Column(db.VARCHAR(64), primary_key=True)
 
-    def __init__(self, post_id, dietary_type):
+    def __init__(self, post_id, diets_available):
         self.post_id = post_id
-        self.dietary_type = dietary_type
+        self.diets_available = diets_available
     
     def json(self):
         diet = {
             'post_id': self.post_id,
-            'dietary_type': self.dietary_type
+            'diets_available': self.diets_available
         }
         return diet
     
@@ -121,44 +122,115 @@ def find_post(post_id):
         }
     ), 404
 
-# CREATE A POST
+'''
+CREATE A POST
+this function creates a post
+input: JSON of the new post. it must have:
+{
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MI:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"]
+}
+output: JSON of either success or failure of creation
+'''
 @app.route("/create_post", methods=['POST'])
-def create_post(post_id):
+def create_post():
+    #check if not json
+    if not request.is_json:
+        data = request.get_data()
+        print("Received an invalid post!")
+        print(data)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "data": data,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
 
-    #check if post is already in the db
-    data = request.get_json()
-    post = food_table(**data, post_id=post_id,is_available=1)
+    #if json, try adding
+    else:
+        data = request.get_json()
+        print("Adding post into database...")
+        
+        #if successful add
+        if add_to_db(data) == True:
+            print("Post added successfully!")
+            return jsonify(
+            {
+                "code": 201,
+                "data": {
+                    "post": data
+                },
+                "message": "Post created successfully"
+            }
+        ), 201
+        
+        else:
+            print("Error adding post into database: ")
+            print(add_to_db(data))
+            return add_to_db(data)
+        
     
-    #attempt to add post into db
+def add_to_db(data):
+    '''
+    this function adds a post into the database for create_post
+    input: post json
+    output: true if successful, json error description if failed
+    '''   
+    data["post_id"] = create_id()
+    data["is_available"] = 1 # to show that post is currently available
+    diet = data["diets_available"] # e.g. ["no prawns", "halal", "nuts"]
+    del data["diets_available"] # to set up JSON to send into food_table, since it does not have a diets field
+
     try:
+        # adds entry into food table
+        post = food_table(**data)
         db.session.add(post)
         db.session.commit()
-        
 
-    #if post cannot be made, return error message
+        # adds entries into diet table, based on diets of the post
+        if diet:
+            for item in diet:
+                diet_row = diet_table(post_id=data["post_id"],diets_available=item)
+                db.session.add(diet_row)
+                db.session.commit()
+
     except Exception as e:
         return jsonify(
             {
                 "code":500,
-                "data": {
-                    "post_id": post.post_id
-                },
-                "message": "An error occurred when creating a post. System message: " + str(e)
+                "message": "Cannot add post. System Message: " + str(e)
             }
         ), 500
     
-    #if no errors, return success message
-    return jsonify(
-        {
-            "code": 201,
-            "data": {
-                "post": post.json()
-            },
-            "message": "Post created successfully"
-        }
-    ), 201
+    return True
 
-# DELETE A POST
+def create_id():
+    '''
+    this function creates a new id for the incoming new post and checks if the id already exists in database
+    input: nothing
+    output: id of new post
+    '''
+    exist = True
+    while exist:
+        new_post_id = str(uuid.uuid4())
+        exist = food_table.query.filter_by(post_id=new_post_id).first()
+    
+    return new_post_id
+
+'''
+DELETE A POST
+this function deletes a post given a post_id
+input: none, just indicate the post_id to delete via URL
+output: JSON of either success or failure of deletion
+'''
 @app.route("/delete/<int:post_id>", methods=['DELETE'])
 def delete(post_id):
     post = food_table.query.filter_by(post_id=post_id).first()
