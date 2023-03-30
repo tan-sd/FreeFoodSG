@@ -115,7 +115,7 @@
                         // this response will give all user details
                         // store this to session or sth
                         // console.log(response.data);
-                        console.log(response.data.msg)
+                        console.log(response.data)
                         this.user_details = response.data
                         this.$store.state.user_details = response.data['data']['verification_result']['user']
                         this.$store.state.isAuthenticated = true

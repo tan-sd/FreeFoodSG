@@ -79,13 +79,63 @@ def test():
 # SHOW ALL FORUM POSTS
 @app.route("/all")
 def all():
+
     forum_list = forum_db.query.all()
+    comments_list = comments_table.query.all()
+    output = []
+    comments = [comment.json() for comment in comments_list]
+
+    comments_obj = {}
+    for comment in comments:
+        print('comment here')
+        print(comment)
+        id = comment['forum_id']
+        print(type(id))
+
+        #       {
+        #   "1": [
+        #     {
+        #       "comment": "comment2",
+        #       "commentor_username": "SJB123",
+        #       "datetime": "Wed, 01 Jan 2020 15:10:10 GMT",
+        #       "forum_id": 1
+        #     },
+        #     {
+        #       "comment": "comment1",
+        #       "commentor_username": "SJB123",
+        #       "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
+        #       "forum_id": 1
+        #     }
+        #   ],
+        #   "2": [
+        #     {
+        #       "comment": "comment1",
+        #       "commentor_username": "DA123",
+        #       "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
+        #       "forum_id": 2
+        #     }
+        #   ]
+        # }
+
+        if comments_obj.get(id) == None:
+            comments_obj[id] = [comment]
+        else:
+            comments_obj[id].append(comment)
+
+    for id in comments_obj:
+        # rmb id here is the key of the comments obj
+        forum = forum_db.query.filter_by(forum_id=id).first().json()
+        all_comments = comments_obj[id]
+        print(all_comments)
+        forum['comments'] = all_comments
+        output.append(forum)
+
     if len(forum_list):
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "forum": [forum.json() for forum in forum_list]
+                    "forum": output
                 }
             }
         )
@@ -120,7 +170,7 @@ def search(forum_id):
 
 # CREATE A FORUM POST
 @app.route("/create", methods=['POST'])
-def create(forum_id):
+def create():
 
     # think can ignore
     #check if forum post is already in the db
@@ -137,6 +187,9 @@ def create(forum_id):
     
     #else, carry on making the post
     data = request.get_json()
+    forum_id = forum_db.query.order_by(forum_db.forum_id.desc()).first().forum_id
+    data["forum_id"] = forum_id + 1
+    
     forum = forum_db(**data)
 
     #attempt to add post into db

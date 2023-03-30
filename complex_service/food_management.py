@@ -12,6 +12,9 @@ CORS(app)
 # to login user 
 verify_user_URL = 'http://localhost:1111/login'
 
+register_user_URL = 'http://localhost:1111/user'
+
+
 
 # SCENARIO 1: GET FOOD
 # related to user_info.py
@@ -34,28 +37,55 @@ create_forum_URL = 'http://localhost:1113'
 
 
 # do error microservice
-error_URL = ''
+error_URL = 'noerror'
 
 # scenario 1: user retrieves a list of nearby buffets
 
+'''
+Function: normal verification when user first logs in
+Input: JSON object -> {
+    "username" : string,
+    "password" : string
+}
+
+Output: user details as json 
+
+{
+        "code": 201,
+        "data": {
+            "verification_result": verification_result: 
+                        {
+                            'code': 201, 
+                            'msg': 'Login Successfully', 
+                            'user': {'address': 'Victoria Street, Singapore Management University Singapore',
+                            'dietary_type': '', 
+                            'email': 'shengdatan@gmail.com',
+                            'first_name': 'Sheng Da', 
+                            'last_name': 'Tan', 
+                            'latitude': 1.296273, 
+                            'longitude': 103.850158,
+                            'number': '92476862', 
+                            'travel_appetite': 'Medium', 
+                            'user_id': 9, 
+                            'username': 'DA123'
+                        }
+}
+
+'''
 # just verification
 @app.route("/login", methods=['GET', 'POST'])
 def user_login():
 
-    # input is {username : lala,
-    #           password: 123}    
-    # }
-
-    # Simple check of input format and data of the request are JSON
-    print('in login function')
     if request.is_json:
         try:
-            # may need to sep login and displaying??
             user_login_details = request.get_json()
             print("\nReceived username and password in JSON:", user_login_details)
 
             # do the actual work
             result = verfication(user_login_details)
+
+            # CHECK OUTPUT
+            print(jsonify(result))
             return jsonify(result), result["code"]
 
         except Exception as e:
@@ -82,7 +112,7 @@ def verfication(user_details):
     print(user_details)
 
     url = verify_user_URL
-    verification_result = invoke_http(url, method='POST', json=user_details)
+    verification_result = invoke_http(url, method='GET', json=user_details)
     
     print('verification_result:', verification_result)
 
@@ -113,9 +143,147 @@ def verfication(user_details):
     }
 # END OF VERIFICATION FUNCTION AND M/S
 
+'''
+Function: register the user and add user info to db
+
+Input: JSON object -> {
+    "username" : string,
+    "password" : string
+}
+
+Output: user details as json 
+
+latitude, longitude, user_id, travel_appetite will be integer
+as of 29/3 the travelapp is a string eg.near
+{
+    code: 201,
+
+    data: {
+    
+            "user_id": user_id,
+            "first_name": first_name,
+            "last_name": last_name,
+            "username": username,
+            "number": number,
+            "email": email,
+            "password": password,
+            "address": address,
+            "latitude": latitude,
+            "longitude": longitude,
+            "dietary_type": dietary_type,
+            "travel_appetite": travel_appetite
+    },
+
+    messsage: 'User created successfully'
+
+}
 
 
-# this input will be {'latitude' :123, 'longitude':456}
+'''
+
+# START OF REGISTER FUNCTION 
+@app.route("/user", methods=['GET', 'POST'])
+def user_register():
+
+    print('in register function')
+    # Simple check of input format and data of the request are JSON
+    if request.is_json:
+        try:
+
+            user_login_details = request.get_json()
+            print("\nReceived username and password in JSON:", user_login_details)
+
+            # do the actual work
+            result = register(user_login_details)
+
+            # CHECK OUTPUT
+            print(jsonify(result), result["code"])
+            return jsonify(result), result["code"]
+
+        except Exception as e:
+            # Unexpected error in code
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+            print(ex_str)
+
+            return jsonify({
+                "code": 500,
+                "message": "food_management.py internal error: " + ex_str
+            }), 500
+
+    # if reached here, not a JSON request.
+    return jsonify({
+        "code": 400,
+        "message": "Invalid JSON input: " + str(request.get_data())
+    }), 400
+
+
+def register(user_details):
+
+    print('\n-----Invoking user_info microservice-----')
+    print(user_details)
+    # user_details['username']
+
+    url = register_user_URL + '/' + user_details['username']
+    print(url)
+    verification_result = invoke_http(url, method='POST', json=user_details)
+    
+    print('verification_result:', verification_result)
+
+    code = verification_result["code"]
+
+    # DO ERROR MS!
+    if code not in range(200, 300):
+
+    #     # Inform the error microservice
+    #     print('\n\n-----Invoking error microservice as order fails-----')
+    #     invoke_http(error_URL, method="POST", json=verification_result)
+    #     # - reply from the invocation is not used; 
+    #     # continue even if this invocation fails
+    #     print("Order status ({:d}) sent to the error microservice:".format(
+    #         code), verification_result)
+
+    #     # 7. Return error
+        return {
+            "code": 500,
+            "data": {"order_result": verification_result},
+            "message": "Order creation failure sent for error handling."
+        }
+    return {
+        "code": 201,
+        "data": {
+            "verification_result": verification_result,
+        }
+    }
+# END OF REGISTER FUNCTION 
+
+'''
+Function: get all available food near the user
+
+Input: JSON object -> {
+    "latitude" : string,
+    "longitude" : string
+}
+
+Output: list of all json food objects
+{
+        "code": 201,
+        "data": {
+            "food_result": {
+            
+                {
+                        "code":200,
+                        "data":{
+                            "filtered_food": [x for x in filtered_food]
+                        }
+                }
+            
+            }
+}
+
+
+'''
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
 
@@ -190,6 +358,33 @@ def filtered_food(location):
 # input: lat long of user (from wifi)
 # output: json obj of all nearby food in a list
 
+'''
+Function: get all available food near the user [guest user]
+
+Input: JSON object -> {
+    "latitude" : string,
+    "longitude" : string
+}
+
+Output: 
+return jsonify(result), result["code"]
+
+list of all json food objects
+{
+        "code": 201,
+        "data": {
+            "food_result": 
+                    {
+                        "code": 200,
+                        "data": {
+                            "user": [info.json() for info in filtered_food]
+                        }
+                    }
+}
+
+
+'''
+
 # if there is no user credentials (for guest)
 @app.route("/guest/available_food", methods=['POST'])
 def get_available_food2():
@@ -233,11 +428,11 @@ def show_available_food(location):
     if code not in range(200, 300):
 
     # Inform the error microservice
-        print('\n\n-----Invoking error microservice as order fails-----')
-        invoke_http(error_URL, method="POST", json=food_result)
+        # print('\n\n-----Invoking error microservice as order fails-----')
+        # invoke_http(error_URL, method="POST", json=food_result)
   
-        print("Food status ({:d}) sent to the error microservice:".format(
-            code), food_result)
+        # print("Food status ({:d}) sent to the error microservice:".format(
+            # code), food_result)
 
     # 7. Return error
         return {
@@ -297,45 +492,37 @@ def post_food():
 # to view all posts in forum
 # input: nth
 # output: get all posts in json object with key forum:
+# to view all posts in forum
+
+'''
+
+Function: display all posts in forum + with comments
+
+Input: nothing
+
+Output: 
+
+return {
+        "code": 201,
+        "data": {
+            "forum_result": 
+                {
+                "code": 200,
+                "data": {
+                    "forum": [forum.json() for forum in forum_list]
+                }
+            }
+        }
+    }
+    
+'''
+
 @app.route("/posts", methods=['GET'])
 def get_forum_posts():
-    if request.is_json:
-        try:
-            # guest_details = request.get_json()
-            # print("\nReceived latitude and longitude in JSON:", guest_details)
 
-            # do the actual work
-            result = get_posts()
-            return jsonify(result), result["code"]
+    result = invoke_http(forum_URL, method='GET')
 
-        except Exception as e:
-            # Unexpected error in code
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
-            print(ex_str)
-
-            return jsonify({
-                "code": 500,
-                "message": "food_management.py internal error: " + ex_str
-            }), 500
-
-    # if reached here, not a JSON request.
-    return jsonify({
-        "code": 400,
-        "message": "Invalid JSON input: " + str(request.get_data())
-    }), 400
-
-
-# show all forum posts 
-def get_posts():
-
-    print('\n-----Invoking forum microservice-----')
-    forum_result = invoke_http(forum_URL, method='GET')
-    print('forum_result:', forum_result)
-
-    # Check the food result; if a failure, send it to the error microservice.
-    code = forum_result["code"]
+    code = result["code"]
     if code not in range(200, 300):
 
     # # Inform the error microservice
@@ -348,19 +535,89 @@ def get_posts():
     # 7. Return error
         return {
             "code": 500,
-            "data": {"forum_result": forum_result},
+            "data": {"forum_result": result},
             "message": "Retrieve forum failure sent for error handling."
         }
     
     return {
         "code": 201,
         "data": {
-            "forum_result": forum_result
+            "forum_result": result
         }
     }
+ 
+
+
+# show all forum posts 
+# def get_posts():
+
+#     print('\n-----Invoking forum microservice-----')
+#     forum_result = invoke_http(forum_URL, method='GET')
+#     print('forum_result:', forum_result)
+
+#     # Check the food result; if a failure, send it to the error microservice.
+#     code = forum_result["code"]
+#     if code not in range(200, 300):
+
+#     # # Inform the error microservice
+#     #     print('\n\n-----Invoking error microservice as order fails-----')
+#     #     invoke_http(error_URL, method="POST", json=forum_result)
+  
+#     #     print("Forum status ({:d}) sent to the error microservice:".format(
+#     #         code), forum_result)
+
+#     # 7. Return error
+#         return {
+#             "code": 500,
+#             "data": {"forum_result": forum_result},
+#             "message": "Retrieve forum failure sent for error handling."
+#         }
+    
+#     return {
+#         "code": 201,
+#         "data": {
+#             "forum_result": forum_result
+#         }
+#     }
+
 
 # to create a post in forum
-# input: comment, commentor_username, datetime, post_id
+# input: forum_id (Int), username (Str), title (Str), description (Str), datetime (Str)
+
+'''
+
+Function: to create a post in forum
+
+Input: post details
+
+Output: 
+
+return jsonify(result), result["code"]
+
+and result is 
+
+return {
+        "code": 201,
+        "data": {
+            "forum_result": 
+                 {
+                    "code": 201,
+                    "data": 
+                        {
+                            'forum_id': forum_id,
+                            'commentor_username': commentor_username,
+                            'comment': comment,
+                            'datetime': datetime
+                        },
+                    "message": "Post created successfully."
+                }
+        }
+    }
+    
+'''
+
+# THIS ONE TO CREATE POSTS
+# input: username, title, description, datetime
 # output: get all posts in json object with key forum:
 @app.route("/create_post", methods=['POST'])
 def create_forum_post():
@@ -427,6 +684,38 @@ def create_post(post_details):
             "forum_result": forum_result
         }
     }
+
+
+'''
+Function: create comments
+
+Input: post details
+
+Output: 
+
+return jsonify(result), result["code"]
+
+and result is 
+
+return {
+        "code": 201,
+        "data": {
+            "forum_result": 
+                 {
+                    "code": 201,
+                    "data": 
+                        {
+                            'forum_id': forum_id,
+                            'commentor_username': commentor_username,
+                            'comment': comment,
+                            'datetime': datetime
+                        },
+                    "message": "Post created successfully."
+                }
+        }
+    }
+
+'''
 
 
 ####################### END OF SCENARIO 3 ####################
