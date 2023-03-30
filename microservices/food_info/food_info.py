@@ -80,7 +80,11 @@ class diet_table(db.Model):
         }
         return diet
     
-# SHOW ALL POSTS
+'''SHOW ALL POSTS
+this function shows all posts
+input: None, access this using the URL
+output: list of post JSONs
+'''
 @app.route("/all")
 def all():
     food_list = food_table.query.all()
@@ -100,7 +104,11 @@ def all():
         }
     ), 404
 
-# RETRIEVE SPECIFIC POST
+'''SEARCH FOR POST
+this function shows a specific posts
+input: search post using post_id via URL -> /search/<post_id>
+output: post JSON
+'''
 @app.route("/search/<int:post_id>")
 def find_post(post_id):
     post = food_table.query.filter_by(post_id=post_id).first()
@@ -122,8 +130,7 @@ def find_post(post_id):
         }
     ), 404
 
-'''
-CREATE A POST
+'''CREATE A POST
 this function creates a post
 input: JSON of the new post. it must have:
 {
@@ -176,8 +183,7 @@ def create_post():
             print("Error adding post into database: ")
             print(add_to_db(data))
             return add_to_db(data)
-        
-    
+   
 def add_to_db(data):
     '''
     this function adds a post into the database for create_post
@@ -225,33 +231,30 @@ def create_id():
     
     return new_post_id
 
-'''
-DELETE A POST
+'''DELETE A POST
 this function deletes a post given a post_id
 input: none, just indicate the post_id to delete via URL
 output: JSON of either success or failure of deletion
 '''
-@app.route("/delete/<int:post_id>", methods=['DELETE'])
+@app.route("/delete/<post_id>", methods=['DELETE'])
 def delete(post_id):
     post = food_table.query.filter_by(post_id=post_id).first()
-
     #check if post exists
     if post:
-
         #attempt to delete post from db
         try:
             db.session.delete(post)
             db.session.commit()
 
         #if post cannot be deleted, return error message
-        except:
+        except Exception as e:
              return jsonify(
             {
                 "code": 500,
                 "data": {
                     "post_id": post_id
                 },
-                "message": "An error occurred when deleting the post. Please check if the post still exists."
+                "message": "An error occurred. System Message: " + str(e)
             }
         ), 500
 
@@ -265,7 +268,8 @@ def delete(post_id):
         ), 201
         
     #else, notify that the post doesn't exist
-    return jsonify(
+    else:
+        return jsonify(
         {
             "code": 404,
             "data": {
@@ -274,84 +278,114 @@ def delete(post_id):
             "message": "Post not found."
         }
     )
-
-# EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
-@app.route("/edit/<int:post_id>", methods=['PUT'])
-def edit(post_id):
     
+'''EDIT A POST
+this function edits a post given a post_id
+input: updated full JSON of new post, it must have:
+{
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MI:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"],
+    "is_available": 0
+}
+output: JSON message of either success or failure of edit
+'''
+@app.route("/edit/<post_id>", methods=['PUT'])
+def edit(post_id):
+    print("Editing post...")
     post = food_table.query.filter_by(post_id=post_id).first()
 
-    #check if post exists
-    if post:
+    # if post does not exist
+    if not post:
+        # notify that post does not exist
+        print("Post does not exist!")
+        print()
 
+        return jsonify(
+            {
+                "code": 404,
+                "data": {
+                    "post_id": post_id
+                },
+                "message": "Post does not exist."
+            }
+        ), 404
+
+    else:
         #attempt to edit
         try:
             data = request.get_json()
 
             #update fields
+            post.username = data['username']
             post.post_name = data['post_name']
             post.latitude = data['latitude'] 
             post.longitude = data['longitude'] 
+            post.address = data['address']
             post.description = data['description']  
-            post.allergens = data['allergens'] 
             post.is_available = data['is_available'] 
-
-            #commit changes
             db.session.commit()
 
+            edit_diets_table(post_id,data['diets_available'])
+           
             #if no errors, return success message
+            print("Post edited successfully!")
             return jsonify(
                 {
                     "code": 200,
-                    "data": post.json(),
-                    "message": "Post edited successfully. See above for updated post details."
+                    "message": "Post edited successfully."
                 }
             ), 200
         
         #if post cannot be edited, return error message
         except Exception as e:
+            print("Error occured while updating the post.")
+            print()
             return jsonify(
                 {
                     "code": 500,
                     "data": {
                         "post_id": post_id
                     },
-                    "message": "An error occurred while updating the post. " + str(e)
+                    "message": "An error occurred while updating the post. System Message: " + str(e)
                 }
             ), 500
             
-    #else, notify that post does not exist
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "post_id": post_id
-            },
-            "message": "Post not found."
-        }
-    ), 404
+def edit_diets_table(post_id, diet_list):
+    '''
+    this function removes all current diets and re-adds diets
+    input: post_id that is being created, list of diets
+    output: True if successful, JSON error msg if failure
+    '''
+    # remove all current diets
+    current_diets = diet_table.query.filter_by(post_id=post_id)
+    for entry in current_diets:
+        db.session.delete(entry)
+        db.session.commit()
 
-# TO TEST IF FOREIGN KEY FUNCTION WORKS
-@app.route("/test")
-def test():
-    post = food_table.query.filter_by(post_id=1).first()
-    if post:
-        # check diets of the post by accessing .diets, which accesses dietary_table
-        diet_list = post.diets
-        return jsonify({
-            "code":200,
-            "diets": [restriction.json()["dietary_type"] for restriction in post.diets]
-        }) 
-    return jsonify(
-        {
-            "code": 404,
-            "message" : "Post does not exist"
-        }
-    ), 404
+    try:
+        for item in diet_list:
+            # if current table has a diet that is now being removed
+            diet_row = diet_table(post_id=post_id,diets_available=item)
+            db.session.add(diet_row)
+            db.session.commit()
+        
+        return True
 
-'''
-Details for wrapper function below
-
+    except Exception as e:
+        return jsonify(
+            {
+                "code":500,
+                "message": "System Error Message: " + str(e)
+            }
+        ), 500
+    
+'''FILTER POST
 Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
 Input: user JSON object
 Output: array of food post JSON objects that fulfill the criteria
