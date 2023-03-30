@@ -78,12 +78,8 @@ class diet_table(db.Model):
             'dietary_type': self.dietary_type
         }
         return diet
+    
 # SHOW ALL POSTS
-
-@app.route("/")
-def main_page():
-    return 'this is the main page'
-
 @app.route("/all")
 def all():
     food_list = food_table.query.all()
@@ -126,7 +122,7 @@ def find_post(post_id):
     ), 404
 
 # CREATE A POST
-@app.route("/create/<int:post_id>", methods=['POST'])
+@app.route("/create_post", methods=['POST'])
 def create_post(post_id):
 
     #check if post is already in the db
