@@ -116,16 +116,27 @@ def create_user(username):
         ), 404
     # 400 BAD request
 
+    print('user dont exist so come over here')
     # store to db
     data = request.get_json()
-
+    print(data)
     data['password'] = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt(10))
     data['password'] = data['password'].decode('utf-8')
     data['dietary_type'] = ','.join(data['dietary_type'])
+    user_id = User.query.order_by(User.user_id.desc()).first().user_id
+    print(user_id)
+    data['user_id'] = user_id + 1
 
-    new_user = User(username, **data)
+    new_user = User(**data)
+    print(new_user)
+    print(data['dietary_type'])
+
+    print(data['password'])
+    print(data)
+
 
     try:
+        print('in try loop')
         db.session.add(new_user)
         db.session.commit()
         # to commit the change
@@ -137,6 +148,7 @@ def create_user(username):
             }
         ), 201
     except:
+        print('in except')
         return jsonify(
             {
                 "code": 500,
@@ -174,8 +186,8 @@ def login():
             "msg": "Username or password is wrong",
         }), 404
     
-    elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
-    # elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
+    # elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+    elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
         user_info_return = user.json()
         del user_info_return['password']
 

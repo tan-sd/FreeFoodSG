@@ -164,7 +164,8 @@
     /* eslint-disable no-useless-escape */
     import axios from 'axios'
     // import bcrypt from 'bcryptjs';
-    const register_user_URL = "http://localhost:1111/user";
+    const register_user_URL = "http://localhost:5100/user";
+    // 'http://localhost:5100/user'
 
     // "user_id": self.user_id,
     // "name": self.name,
@@ -384,7 +385,7 @@
 
                         console.log(`${register_user_URL}/${this.user_name}`)
 
-                        axios.post(`${register_user_URL}/${this.user_name}`,
+                        axios.post(`${register_user_URL}`,
                         json_data
                         )
                             .then(response => {
