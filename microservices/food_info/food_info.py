@@ -157,7 +157,7 @@ def create_post():
             {
                 "code": 403,
                 "data": data,
-                "message": "Request is not in JSON. System message: " + str(e)
+                "message": "Request is not in JSON."
             }
         ), 403
 
