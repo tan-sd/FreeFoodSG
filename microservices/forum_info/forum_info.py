@@ -367,13 +367,13 @@ def show_comments(forum_id):
     ), 404
 
 # this is to add comments to the specific post
-@app.route("/create_comment/<int:forum_id>", methods=['GET','POST'])
-def create_comment(forum_id):
+@app.route("/create_comment", methods=['POST'])
+def create_comment():
+    data = request.get_json()
+    forum_id = data['forum_id']
 
-    #check if forum post is already in the db
-    if(comments_table.query.filter_by(forum_id=forum_id).first()):
-    
-        data = request.get_json()
+    #check if forum post ID is already in the db
+    if(forum_db.query.filter_by(forum_id=forum_id).first()):
         forum = comments_table(**data)
 
         #attempt to add post into comment table
@@ -411,7 +411,7 @@ def create_comment(forum_id):
                 "data": {
                     "forum_id": forum_id
                 },
-                "message": "The forum post exists."
+                "message": "The forum post doesn't exist"
             }
         ), 404
 

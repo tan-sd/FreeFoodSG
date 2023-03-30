@@ -654,7 +654,12 @@ def create_post(post_details):
 '''
 Function: create comments
 
-Input: post details
+Input: {
+    forum_id: <int>,
+    commentor_username: <string>,
+    comment: <string>,
+    datetime: <string>
+}
 
 Output: 
 
@@ -679,8 +684,64 @@ return {
                 }
         }
     }
-
 '''
+
+@app.route("/create_comment", methods=['POST'])
+def create_comment():
+    # Breaks if no json given
+    if not request.is_json:
+        print("Invalid parameter (no JSON given)")
+
+        return jsonify({
+            "code": 400,
+            "message": "Invalid JSON input: " + str(request.get_data())
+        }), 400
+    
+    # If json given
+    try:
+        print("[LOOK HERE] Valid JSON passed, running create_comment()")
+        comment_details = request.get_json()
+        # print("\nReceived post details in JSON:", comment_details)
+
+        # do the actual work
+        result = push_new_comment(comment_details)
+
+        return jsonify(result['data']), result["code"]
+
+    except Exception as e:
+        # Unexpected error in code
+        exc_type, exc_obj, exc_tb = sys.exc_info()
+        fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+        ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
+        print(ex_str)
+
+        return jsonify({
+            "code": 500,
+            "message": "forum_management.py internal error: " + ex_str
+        }), 500
+    
+def push_new_comment(comment_details):
+    print("push_new_comment(", comment_details, '"')
+
+    url = create_forum_URL + '/create_comment'
+
+    create_comment_result = invoke_http(url, method='POST', json = comment_details)
+
+    # If a failure, send it to the error microservice
+    code = create_comment_result["code"]
+    
+    if code not in range(200, 300):
+        # 7. Return error
+        return {
+            "code": 500,
+            "data": create_comment_result,
+            "message": "Retrieve forum failure sent for error handling."
+        }
+    else:
+        return {
+            "code": 201,
+            "data": create_comment_result,
+        }
 
 
 ####################### END OF SCENARIO 3 ####################
