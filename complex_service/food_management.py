@@ -27,7 +27,7 @@ food_URL = 'http://localhost:1112/filter_post'
 nearby_food_URL = 'http://localhost:1112/nearby_food'
 
 # SCENARIO 2: CREATE FOOD
-post_URL = 'http://localhost:1112/create'
+post_URL = 'http://localhost:1112/create_post'
 
 # SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS
 
