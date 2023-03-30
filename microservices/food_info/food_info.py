@@ -7,7 +7,7 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from datetime import datetime
 import uuid
-
+import json
 
 # INITIALISING APP
 app = Flask(__name__)
@@ -413,71 +413,84 @@ def edit_diets_table(post_id, diet_list):
     
 '''FILTER POST
 Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
-Input: user JSON object
+Input: user JSON object, it must include:
+{
+    "user_id": 1,
+    "first_name": "faez",
+    "last_name": "latiff",
+    "username": "faezlatiff",
+    "number": 12345678,
+    "email": "faez@smu.com",
+    "password": "password",
+    "address": "Victoria Street, Singapore Management University, Singapore",
+    "latitude": 1.296273,
+    "longitude": 103.850158,
+    "dietary_type": "no prawns",
+    "travel_appetite": 1
+}
 Output: array of food post JSON objects that fulfill the criteria
 '''
-# NEED TO FILTER ACCORDING TO ALLERGY TOO
-
-@app.route("/filter_post", methods=['GET'])
-
-# search for users that are within the distance
-def filter_post():
+@app.route("/nearby_food_user", methods=['GET'])
+def nearby_food_user():
     # check input format and data is JSON
-    if request.is_json:
+    if not request.is_json:
+        data = request.get_data()
+        print("Received an invalid user!")
+        print(data)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "data": data,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
+
+    else:
         try:
-            # get query info
-            query = request.get_json()
-            print("\nReceived a query in JSON:", query)
+            print("Finding nearby food...")
+            user = request.get_json()
+            all_posts = food_table.query.all()
+            filtered_posts = []
 
-            # do the actual checking
-            # return list of food post objects from food_dB
-            all_food_info = food_table.query.all()
-            filtered_food = []
-            if len(all_food_info):
-                # filter for posts within specified user's travel appetite
-                for food in all_food_info:
-                    
-                    post_id = food.post_id
-                    food_latitude = food.latitude
-                    food_longitude = food.longitude
-                    user_latitude = query['latitude']
-                    user_longitude = query['longitude']
-                    user_travel_appetite = query['travel_appetite']
-                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
+            # filter for posts within specified user's travel appetite
+            for post in all_posts:
+                user_latitude = user['latitude']
+                user_longitude = user['longitude']
 
-                    # check dietary_list of the post by accessing .diets, which accesses dietary_table
-                    user_dietary_type = query['dietary_type']
-                    food_dietary_list = food.diets[0].query.filter_by(post_id=post_id)
+                # prepare data JSON output
+                data = {}
+                data["post_id"] = post.post_id
+                data["creator"] = post.username
+                data["latitude"] = post.latitude
+                data["longitude"] = post.longitude
+                data["address"] = post.address
+                data["description"] = post.description
+                data["is_available"] = post.is_available
+                data["end_time"] = post.end_time
 
-                    diet_list = []
-                    for diets in food_dietary_list:
-                        diet_list.append(diets.dietary_type)
+                # retrieve list of diets in post
+                diet_list = []
+                post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+                for entry in post_diets_available:
+                    diet_list.append(entry.__dict__["diets_available"])
 
-                    if distance <= user_travel_appetite and user_dietary_type in diet_list:
-                        food.json()["allergy"] = diet_list
-                        filtered_food.append(food.json())
-                    
-                    # for post in filtered_food:
-                    #     p = post.json()
-                    #     p["allergy"] = diet_list
+                data["diets_available"] = diet_list # list of diets for post
 
-                return jsonify(
-                    {
-                        "code":200,
-                        "data":{
-                            "filtered_food": [x for x in filtered_food]
-                        }
+                # get distance from user to post
+                distance = hs.haversine((post.latitude,post.longitude),(user_latitude, user_longitude))              
+                if check_if_valid(distance,diet_list,user,post):
+                    filtered_posts.append(data)
+            print("Found nearby food!")
+            return jsonify(
+                {
+                    "code": 200,
+                    "data": {
+                        "user": filtered_posts
                     }
-                )
-            
-            else:
-                # the else comes here
-                return jsonify(
-                    {
-                        "code": 404,
-                        "message": "No information to be displayed."
-                    }
-                ), 404
+                }
+            )
+    
         except Exception as e:
             return jsonify(
                 {
@@ -485,56 +498,82 @@ def filter_post():
                     "message": "Error occurred. System message: " + str(e)
                 }
             ), 404
+        
+def check_if_valid(distance,diet_list,user,post):
+    '''
+    this function checks if a post is a valid post
+    input: distance of post to user, diets_availability of post, user JSON
+    output: True if valid, False otherwise
+    '''
+    if user["travel_appetite"] > distance and post.__dict__["is_available"] == 1:
+        for diet in user["dietary_type"]:
+            if diet not in diet_list:
+                return False
+
+        return True
+    else:
+        return False
 
 # for guest users
-@app.route("/nearby_food", methods=['GET'])
+@app.route("/nearby_food_guest", methods=['GET'])
 # search for users that are within the distance
-def guest_display():
+def nearby_food_guest():
     # check input format and data is JSON
     if request.is_json:
         try:
-            # get query info
-            query = request.get_json()
-            print("\nReceived a query in JSON:", query)
+            print("Finding nearby food...")
+            user = request.get_json()
+            all_posts = food_table.query.all()
+            filtered_posts = []
 
-            # do the actual checking
-            # return list of food post objects from food_dB
-            all_food_info = food_table.query.all()
-            filtered_food = []
-            if len(all_food_info):
-                # filter for posts within specified user's travel appetite
-                for food in all_food_info:
-                    food_latitude = food.latitude
-                    food_longitude = food.longitude
-                    user_latitude = query['latitude']
-                    user_longitude = query['longitude']
+            # filter for posts within specified user's travel appetite
+            for post in all_posts:
+                user_latitude = user['latitude']
+                user_longitude = user['longitude']
 
-                    # preset the TA to 2km here
-                    user_travel_appetite = 2
-                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
+                # prepare data JSON output
+                data = {}
+                data["post_id"] = post.post_id
+                data["creator"] = post.username
+                data["latitude"] = post.latitude
+                data["longitude"] = post.longitude
+                data["address"] = post.address
+                data["description"] = post.description
+                data["is_available"] = post.is_available
+                data["end_time"] = post.end_time
 
-                    if distance <= user_travel_appetite:
-                        filtered_food.append(food)
-                # return list of food post objects where the post is within the user's travel appetite
-                return jsonify(
-                    {
-                        "code": 200,
-                        "data": {
-                            "user": [info.json() for info in filtered_food]
-                        }
-                    }
-                )
+                diet_list = []
+                post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+                for entry in post_diets_available:
+                    diet_list.append(entry.__dict__["diets_available"])
+
+                data["diets_available"] = diet_list # list of diets for post
+
+                # preset the TA to 2km here
+                user_travel_appetite = 2
+                distance = hs.haversine((post.latitude,post.longitude),(user_latitude, user_longitude))
+                if distance <= user_travel_appetite:
+                    filtered_posts.append(data)
+                    # list of food post objects where the post is within the user's travel appetite
+
+            print("Found nearby food!")
             
-            else:
-                # the else comes here
-                return jsonify(
-                    {
-                        "code": 404,
-                        "message": "No information to be displayed."
+            return jsonify(
+                {
+                    "code": 200,
+                    "data": {
+                        "user": filtered_posts
                     }
-                ), 404
-        except:
-            pass
+                }
+            )
+    
+        except Exception as e:
+            return jsonify(
+                {
+                    "code": 404,
+                    "message": "Error occurred. System message: " + str(e)
+                }
+            ), 404
 
 
 if __name__ == '__main__':
