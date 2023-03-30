@@ -80,7 +80,7 @@
             <div class="modal-content bg-light text-dark">
                 <div class="modal-header bg-dark text-extra-light">
                     <h5 class="modal-title" id="modal-title"><font-awesome-icon icon="fa-solid fa-comments" /> Create Forum Post</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button id="forum_create_close_btn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
@@ -152,8 +152,14 @@ import axios from 'axios';
             }
         },
 
+        clear_form() {
+            this.create_post_title = ""
+            this.create_post_desc = ""
+        },
+
         submit_new_post() {
             this.loading_post_button = true
+            var vm = this
 
             axios.post("http://localhost:5100/create_post", {
                 "username": this.$store.state.user_details.username,
@@ -163,7 +169,10 @@ import axios from 'axios';
             })
             .then(function (response) {
                 console.log(response)
-                location.reload()
+                document.getElementById("forum_create_close_btn").click()
+                vm.update_posts()
+                vm.clear_form()
+                vm.loading_post_button = false
             })
             .catch(function(error) {
                 console.log(error)
@@ -171,10 +180,16 @@ import axios from 'axios';
         },
 
         update_posts() {
+            this.forum_data = []
+            this.loading_posts = true
+
             axios.get('http://localhost:5100/posts')
             .then(response => {
                 // console.log("HERE U GO: ", response.data.data.forum)
                 let response_data = response.data.data.forum
+
+                // sorts list by datetime (latest first)
+                response_data.sort(function(a,b) {return Date.parse(b.datetime)-Date.parse(a.datetime)})
 
                 //FOR TESTING: REPLACE/ DELETE ONCE RACHAEL FINISH ADDING COMMENTS TO JSON RESPONSE
                 for (let e_post of response_data) {
