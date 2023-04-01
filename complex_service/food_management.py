@@ -38,6 +38,10 @@ create_forum_URL = 'http://localhost:1113'
 
 # SCENARIO 4: GET ALL FOOD POSTS
 
+
+
+# SCENARIO 4: GET ALL FOOD POSTS
+
 def activity_log(ms_name):
     '''
     This function invokes activity log microservice everytime an MS is invoked
@@ -376,8 +380,6 @@ def filtered_food(location):
 Function: get all available food near the user [guest user]
 
 Input: JSON object -> {
-    "latitude" : float,
-    "longitude" : float
     "latitude" : float,
     "longitude" : float
 }
