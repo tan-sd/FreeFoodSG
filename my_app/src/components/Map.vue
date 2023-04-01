@@ -15,6 +15,7 @@
             v-for="(m, index) in markers"
             :position="m.position"
             :icon="m.icon"
+            @click="toggleAccordion(index)"
         />
         <GMapCircle
             :radius="2000"
@@ -64,6 +65,21 @@
     export default {
         inheritAttrs: true,
         methods: {
+            toggleAccordion(index) {
+                this.$store.state.markerId = index
+                console.log(this.$store.state.markerId)
+                console.log(`#accordionList${index}`)
+                const selectedAccordion = document.querySelector(`#accordionList${index}`)
+                console.log(selectedAccordion)
+                selectedAccordion.setAttribute('aria-expanded',"true")
+                selectedAccordion.classList.remove('collapsed')
+
+                const selectedAccordionBody = document.querySelector(`.accordionBody${index}`)
+                console.log(selectedAccordionBody)
+                selectedAccordionBody.classList.add('show')
+                const accordionElement = this.$refs.index
+                accordionElement.classList.toggle('active')
+            },
             onInput() {
                 this.showClearButton = this.$refs.autocomplete.$refs.input.value.length > 0;
             },

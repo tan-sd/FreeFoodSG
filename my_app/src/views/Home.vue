@@ -18,7 +18,6 @@
       Map,
       FoodList
     },
-
     created() {
       //IF LOGGED IN
 
