@@ -36,6 +36,10 @@ post_URL = 'http://localhost:1112/create_post'
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
 
+# SCENARIO 4: GET ALL FOOD POSTS
+
+
+
 
 def activity_log(ms_name):
     '''
