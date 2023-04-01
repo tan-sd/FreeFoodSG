@@ -186,8 +186,8 @@ def login():
             "msg": "Username or password is wrong",
         }), 404
     
-    # elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
-    elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
+    elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+    # elif user.username == username and user.password == password: # <-- ADAM - Uncomment this to test website w/o encryption
         user_info_return = user.json()
         del user_info_return['password']
 
@@ -230,16 +230,16 @@ def getUserInfo():
     ), 404   
 
 # to display user info
-@app.route("/profile/<string:name>", methods=['GET'])
-def find_user(name):
+@app.route("/profile/<string:username>", methods=['GET'])
+def find_user(username):
 
     # shd display user profile
-    user = User.query.filter_by(name=name).first()
+    user = User.query.filter_by(username=username).first()
     if user:
         return jsonify(
             {
                 "code": 200,
-                "data": user
+                "data": user.json()
             }
         )
     return jsonify(
