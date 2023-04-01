@@ -79,7 +79,6 @@ class diet_table(db.Model):
             'diets_available': self.diets_available
         }
         return diet
-
 '''SHOW ALL POSTS
 this function shows all posts
 input: None, access this using the URL
@@ -371,7 +370,6 @@ def edit(post_id):
         #if post cannot be edited, return error message
         except Exception as e:
             print("Error occured while updating the post.")
-
             return jsonify(
                 {
                     "code": 500,
