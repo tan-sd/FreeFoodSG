@@ -5,7 +5,7 @@ export default createStore({
         isAuthenticated: true, // RMB CHANGE BACK TO FALSE AFTER TESTING
         user_details: {
             "address": "Singapore Management University",
-            "dietary_type": "na",
+            "dietary_type": "No beef,Halal,Vegetarian",
             "email": "dancer@gmail.com",
             "first_name": "Dancer",
             "last_name": "Adam",
