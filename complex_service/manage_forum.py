@@ -102,6 +102,7 @@ def create_forum_post():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
             print(ex_str)
+            activity_log("food_info error")
 
             return jsonify({
                 "code": 500,
@@ -109,6 +110,7 @@ def create_forum_post():
             }), 500
 
     # if reached here, not a JSON request.
+    activity_log("create post is not json error")
     return jsonify({
         "code": 400,
         "message": "Invalid JSON input: " + str(request.get_data())
@@ -184,7 +186,7 @@ return {
 def create_comment():
     # Breaks if no json given
     if not request.is_json:
-        print("Invalid parameter (no JSON given)")
+        print("create comment is not json")
 
         return jsonify({
             "code": 400,
@@ -208,10 +210,11 @@ def create_comment():
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
         print(ex_str)
+        activity_log("forum_info error")
 
         return jsonify({
             "code": 500,
-            "message": "forum_management.py internal error: " + ex_str
+            "message": "manage_forum.py internal error: " + ex_str
         }), 500
     
 def push_new_comment(comment_details):
@@ -227,6 +230,7 @@ def push_new_comment(comment_details):
     
     if code not in range(200, 300):
         # 7. Return error
+        activity_log("forum_info error")
         return {
             "code": 500,
             "data": create_comment_result,
