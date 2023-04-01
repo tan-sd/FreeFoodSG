@@ -219,80 +219,6 @@ def create_id():
         exist = food_table.query.filter_by(post_id=new_post_id).first()
     
     return new_post_id
-
-'''DELETE A POST
-this function deletes a post given a post_id
-input: none, just indicate the post_id to delete via URL
-output: JSON of either success or failure of deletion
-'''
-@app.route("/delete/<post_id>", methods=['DELETE'])
-def delete(post_id):
-    print("Deleting post...")
-    post = food_table.query.filter_by(post_id=post_id).first()
-    #check if post exists
-    if not post:
-        return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "post_id": post_id
-            },
-            "message": "Post not found."
-        }
-    )
-    else:
-        try:
-            delete_diets_table(post_id)
-            db.session.delete(post)
-            db.session.commit()
-
-            #if no errors, return success message
-            print("Post successfully deleted!")
-            print()
-            return jsonify(
-                {
-                    "code": 201,
-                    "data": post.json(),
-                    "message":"Post successfully deleted."
-                }
-            ), 201
-        
-        #if post cannot be deleted, return error message
-        except Exception as e:
-            print("Error occured while updating the post.")
-            print()
-            return jsonify(
-                {
-                    "code": 500,
-                    "data": {
-                        "post_id": post_id
-                    },
-                    "message": "An error occurred while deleteing the post. System Message: " + str(e)
-                }
-            ), 500
-        
-def delete_diets_table(post_id):
-    '''
-    this function removes all diets given a post_id
-    input: post_id
-    output: True if successful, JSON error msg if failure
-    '''
-    # remove all current diets
-    current_diets = diet_table.query.filter_by(post_id=post_id)
-    if current_diets:
-        try:
-            for entry in current_diets:
-                db.session.delete(entry)
-                db.session.commit()
-            return True
-
-        except Exception as e:
-            return jsonify(
-                {
-                    "code":500,
-                    "message": "System Error Message: " + str(e)
-                }
-            ), 500
         
 '''EDIT A POST
 this function edits a post given a post_id
@@ -306,7 +232,7 @@ input: updated full JSON of new post, it must have:
     "description": "long_description",
     "end_time" : "YYYY-MM-DD HH:MI:SS",
     "diets_available": ["prawn-free", "halal", "nut-free"],
-    "is_available": 0
+    "is_available": 1
 }
 output: JSON message of either success or failure of edit
 '''
@@ -315,23 +241,8 @@ def edit(post_id):
     print("Editing post...")
     post = food_table.query.filter_by(post_id=post_id).first()
 
-    # if post does not exist
-    if not post:
-        # notify that post does not exist
-        print("Post does not exist!")
-        print()
-
-        return jsonify(
-            {
-                "code": 404,
-                "data": {
-                    "post_id": post_id
-                },
-                "message": "Post does not exist."
-            }
-        ), 404
-
-    else:
+    # check if post exists
+    if post:
         #attempt to edit
         try:
             data = request.get_json()
@@ -369,7 +280,22 @@ def edit(post_id):
                     "message": "An error occurred while updating the post. System Message: " + str(e)
                 }
             ), 500
-            
+    
+    # if post does not exist
+    else:
+        # notify that post does not exist
+        print("Post does not exist!")
+
+
+        return jsonify(
+            {
+                "code": 404,
+                "data": {
+                    "post_id": post_id
+                },
+                "message": "Post does not exist."
+            }
+        ), 404        
 def edit_diets_table(post_id, diet_list):
     '''
     this function removes all current diets and re-adds diets
@@ -412,21 +338,8 @@ Output: array of food post JSON objects that fulfill the criteria
 '''
 @app.route("/nearby_food_user", methods=['GET'])
 def nearby_food_user():
-    # check input format and data is JSON
-    if not request.is_json:
-        data = request.get_data()
-        print("Received an invalid user!")
-        print(data)
-        print()
-        return jsonify(
-            {
-                "code": 403,
-                "data": data,
-                "message": "Request is not in JSON. System message: " + str(e)
-            }
-        ), 403
-
-    else:
+    # check if JSON
+    if request.is_json:
         try:
             print("Finding nearby food...")
             user = request.get_json()
@@ -467,19 +380,34 @@ def nearby_food_user():
                 {
                     "code": 200,
                     "data": {
-                        "user": filtered_posts
+                        "posts": filtered_posts
                     }
                 }
             )
     
         except Exception as e:
+            print("Finding food error.")
             return jsonify(
                 {
                     "code": 404,
                     "message": "Error occurred. System message: " + str(e)
                 }
             ), 404
-        
+    
+    # if not JSON
+    else:
+        data = request.get_data()
+        print("User not in JSON!")
+        print(data)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "data": data,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
+    
 def check_if_valid(distance,diet_list,user,post):
     '''
     this function checks if a post is a valid post
@@ -559,6 +487,7 @@ def nearby_food_guest():
             )
     
         except Exception as e:
+            print("Finding food error.")
             return jsonify(
                 {
                     "code": 404,
@@ -566,6 +495,18 @@ def nearby_food_guest():
                 }
             ), 404
 
+    else:
+        user = request.get_data()
+        print("User not in JSON!")
+        print(user)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "user": user,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
 '''FIND POSTS BASED ON USERNAME
 This function returns a list of posts based on username
 Input: None, parse username through URL
@@ -575,7 +516,9 @@ Output: A list of post jsons
 def filter_user(username):
     posts_data = food_table.query.filter_by(username=username).all()
     output_list = []
+    # check if any posts
     if posts_data:
+        print("Filtering posts according to user...")
         for post in posts_data:
             # prepare data JSON output
             data = {}
@@ -599,7 +542,20 @@ def filter_user(username):
         data["diets_available"] = diet_list # list of diets for post
         if data["creator"] == username:
             output_list.append(data)
+        print("Filtered posts according to user!")
+        return output_list
+
+    
+    else:
+        data = request.get_data()
+        print("User does not have any posts.")
+
+        return jsonify(
+            {
+                "code": 404,
+                "message": "User does not have any posts."
+            }
+        ), 404
         
-    return output_list
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
