@@ -86,7 +86,7 @@ output: list of post JSONs
 '''
 @app.route("/all")
 def all():
-    posts_data = food_table.query.all()
+    posts_data = food_table.query.filter(food_table.is_available == 1).all()
     output_list = []
     for post in posts_data:
         # prepare data JSON output
@@ -620,5 +620,25 @@ def filter_user(username):
             output_list.append(data)
         
     return output_list
+
+'''REMOVE POST AKA SET UNAVAILABLE
+Function: sets a post status to 'unavailable'
+Input: nothing, just parse the post_id via URL
+Output: success or failure
+'''
+@app.route('/remove/<string:post_id>', methods=['PUT'])
+def unavailable(post_id):
+    post = food_table.query.filter_by(post_id=post_id).first()
+    post.is_available = 0
+    db.session.commit()
+
+    return jsonify(
+        {
+            "code": 200,
+            "message": "Success! Post is now unavailable."
+        }
+    )
+
+
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
