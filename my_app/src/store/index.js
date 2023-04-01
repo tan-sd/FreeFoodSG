@@ -15,7 +15,9 @@ export default createStore({
             "travel_appetite": 2,
             "user_id": 2,
             "username": "DA123"
-        }
+        },
+        markerId: null,
+        foodPostId: null,
     },
     mutations: {
 
