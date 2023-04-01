@@ -57,27 +57,28 @@ const root = Vue.createApp({
                 console.log("you got an error")
             });
         },
-        
-        format_file(){
+
+        upload_img(){
             console.log(document.getElementById("img_input").files[0])
-            var img_file = document.getElementById("img_input").files[0]
+            var img_files = document.getElementById("img_input").files
+            
+            // for loop to upload each file selected
+            for(let i = 0; i< img_files.length; i++){
+                // upload img to firebase storage
+                // the input "input_file" takes in a "File" object data type
+                var img_file = img_files[i]
 
-            this.upload_img(img_file)
-        },
+                // step 1: define what file you want to label this image as
+                // (put it as the food ID)
+                var file_name = "file_" + i
 
-        upload_img(input_file){
-            // upload img to firebase storage
-            // the input "input_file" takes in a "File" object data type
-
-            // step 1: define what file you want to label this image as
-            // (put it as the food ID)
-            var file_name = "food_ID"
-
-            // step 2: nothing, the code will take care of the rest
-            var uploadRef = ref(storage, file_name)
-            uploadBytes(uploadRef, input_file).then((snapshot) => {
-                console.log('Uploaded a blob or file!');
-            }); 
+                // step 2: nothing, the code will take care of the rest
+                var uploadRef = ref(storage, file_name)
+                uploadBytes(uploadRef, img_file).then((snapshot) => {
+                    console.log('Uploaded a blob or file!');
+                    console.log('this is file number ' + i)
+                })
+            }
         }
     }
 
