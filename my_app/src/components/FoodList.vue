@@ -74,13 +74,14 @@
                         
                 </div>
                 </div>
-            </div>        
+            </div>       
         </div>
 
         <!-- OTHER BUFFETS -->
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in buffets" :key="index" >
+            <div v-if="food.length > 0">
+            <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
                 <h2 class="accordion-header" :id="`flush-heading${index}`">
     
                 <!-- HEADER GOES HERE v -->
@@ -97,7 +98,7 @@
                                 <!-- DIET RESTRICTIONS -->
                                 <div class="col-12">
                                     <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diet_res" :key="index">
+                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
                                             <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
                                         </i>
                                     </h6>
@@ -126,7 +127,12 @@
                         <div class="row">
                             <div class="col-12">
                                 <h6>
-                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.location }}
+                                    <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                </h6>
+                            </div>
+                            <div class="col-12">
+                                <h6>
+                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
                                 </h6>
 
                                 <p>
@@ -135,9 +141,11 @@
                             </div>
                             <div class="col-12 d-flex justify-content-center align-items-center">
                                 <div>
-                                    <button class="btn btn-main">
-                                        <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                    </button>
+                                    <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                        <button class="btn btn-main">
+                                            <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                        </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -147,12 +155,16 @@
                 </div>
             </div>
         </div>
+        <div v-else>
+            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
+        </div>
+        </div>
     </div>
 </template>
 
 
 <script>
-    const get_all_food_URL = "http://localhost:1112/all";
+    const get_all_food_URL = "http://localhost:5100/all";
 
     export default{
         props: [],
@@ -251,7 +263,7 @@
             update_buffet_time_left() {
                 let curr_time = new Date();
 
-                for (let e_buff of this.buffets) {
+                for (let e_buff of this.food) {
                     // UPDATES TIME_LEFT
                     let end_time = new Date(e_buff.end_time);
     
@@ -279,10 +291,10 @@
             update_buffet_distance() {
                 console.log(`=== [START] update_buffet_distance() ===`)
                 
-                for (let e_buff of this.buffets) {
+                for (let e_buff of this.food) {
                     // UPDATES DISTANCE
-                    let target_lat = e_buff.lat
-                    let target_long = e_buff.long
+                    let target_lat = e_buff.latitude
+                    let target_long = e_buff.longitude
                     let distance_km = this.get_distance_km(target_lat, target_long, this.user_lat, this.user_long)
 
                     console.log("User curr latlong", this.user_lat, this.user_long)
