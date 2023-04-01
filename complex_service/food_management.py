@@ -36,6 +36,10 @@ post_URL = 'http://localhost:1112/create_post'
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
 
+# SCENARIO 4: GET ALL FOOD POSTS
+
+
+
 
 def activity_log(ms_name):
     '''
@@ -271,36 +275,34 @@ def register(user_details):
     }
 # END OF REGISTER FUNCTION 
 
-'''
-Function: get all available food near the user
-
-Input: JSON object -> {
-    "latitude" : float,
-    "longitude" : float,
-    "dietary
-}
-
-Output: list of all json food objects
-{
-        "code": 201,
-        "data": {
-            "food_result": {
-            
-                {
-                        "code":200,
-                        "data":{
-                            "filtered_food": [x for x in filtered_food]
-                        }
-                }
-            
-            }
-}
-
-
-'''
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
+    '''GET ALL NEARBY FOOD
+    Function: get all available food near the user
 
+    Input: JSON object -> {
+        "latitude" : float,
+        "longitude" : float,
+        "dietary_type": ['halal','prawn-free'],
+        "travel_appetite": int
+    }
+
+    Output: list of all json food objects
+    {
+            "code": 201,
+            "data": {
+                "food_result": {
+                
+                    {
+                            "code":200,
+                            "data":{
+                                "filtered_food": [x for x in filtered_food]
+                            }
+                    }
+                
+                }
+    }
+    '''
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
@@ -336,7 +338,7 @@ def filtered_food(location):
 
     # we already have the location, so we check w food m/s
     print('\n-----Invoking food_info microservice-----')
-    food_result = invoke_http(food_URL, method='POST', json=location)
+    food_result = invoke_http(food_URL, method='GET', json=location)
     activity_log("food") #to put in activity log
     print('food_result:', food_result)
 
@@ -378,8 +380,8 @@ def filtered_food(location):
 Function: get all available food near the user [guest user]
 
 Input: JSON object -> {
-    "latitude" : string,
-    "longitude" : string
+    "latitude" : float,
+    "longitude" : float
 }
 
 Output: 
@@ -402,7 +404,7 @@ list of all json food objects
 '''
 
 # if there is no user credentials (for guest)
-@app.route("/guest/available_food", methods=['POST'])
+@app.route("/guest/available_food", methods=['GET'])
 def get_available_food2():
     if request.is_json:
         try:
@@ -800,6 +802,17 @@ def push_new_comment(comment_details):
 
 
 ####################### END OF SCENARIO 3 ####################
+
+#SCENARIO 4#
+@app.route('/all', methods=['GET'])
+
+def get_all():
+    '''
+    this function gets all posts
+    '''
+    url = "http://localhost:1112/all"
+    list_of_posts = invoke_http(url,method="GET")
+    return list_of_posts
 
 # Execute this program if it is run as a main script (not by 'import')
 if __name__ == "__main__":
