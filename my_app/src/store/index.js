@@ -12,7 +12,7 @@ export default createStore({
             "latitude": 41.023472,
             "longitude": -91.967133,
             "number": "+6590229185",
-            "travel_appetite": "far",
+            "travel_appetite": 2,
             "user_id": 2,
             "username": "DA123"
         }

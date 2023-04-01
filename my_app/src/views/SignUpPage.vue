@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid bg-dark text-light" id="login-body">
-        <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img">
+        <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img pt-5">
 
         <form class="register-form" style="width: 350px">
             <div class="form-row mt-5">
@@ -428,6 +428,7 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
+        background-image: linear-gradient(180deg, #264726, #336033);
     }
 
     .logo_img{

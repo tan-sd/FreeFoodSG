@@ -154,37 +154,37 @@
                     </h2>
                     <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
                     
-                    <!-- BODY GOES HERE v -->
-                    <div class="accordion-body bg-light-gradient">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
-                                    </h6>
-                                </div>
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
-                                    </h6>
+                        <!-- BODY GOES HERE v -->
+                        <div class="accordion-body bg-light-gradient">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6>
+                                            <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                        </h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <h6>
+                                            <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
+                                        </h6>
 
-                                    <p>
-                                        {{ e_buff.description }}
-                                    </p>
-                                </div>
-                                <div class="col-12 d-flex justify-content-center align-items-center">
-                                    <div>
-                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                            <button class="btn btn-main">
-                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                            </button>
-                                        </a>
+                                        <p>
+                                            {{ e_buff.description }}
+                                        </p>
+                                    </div>
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <div>
+                                            <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                                <button class="btn btn-main">
+                                                    <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                                </button>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                                
                         </div>
-                            
-                    </div>
                     </div>
                 </div>
             </div>
