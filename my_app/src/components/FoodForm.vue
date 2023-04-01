@@ -99,22 +99,22 @@
 
   // Firebase Stuff
   // Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes } from 'firebase/storage'
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+  import { initializeApp } from "firebase/app";
+  import { getStorage, ref, uploadBytes } from 'firebase/storage'
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-    apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
-    authDomain: "makanboleh-1311.firebaseapp.com",
-    projectId: "makanboleh-1311",
-    storageBucket: "makanboleh-1311.appspot.com",
-    messagingSenderId: "269223674891",
-    appId: "1:269223674891:web:b089695c57872fc6fab30e",
-    measurementId: "G-17HRT79G1H"
-};
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  const firebaseConfig = {
+      apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
+      authDomain: "makanboleh-1311.firebaseapp.com",
+      projectId: "makanboleh-1311",
+      storageBucket: "makanboleh-1311.appspot.com",
+      messagingSenderId: "269223674891",
+      appId: "1:269223674891:web:b089695c57872fc6fab30e",
+      measurementId: "G-17HRT79G1H"
+  };
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
