@@ -79,6 +79,7 @@ class diet_table(db.Model):
             'diets_available': self.diets_available
         }
         return diet
+    
 '''SHOW ALL POSTS
 this function shows all posts
 input: None, access this using the URL
@@ -433,13 +434,14 @@ def edit_diets_table(post_id, diet_list):
             }
         ), 500
     
-'''FILTER POST
+'''NEARBY FOOD FOR USER
 Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
 Input: user JSON object, it must include:
 {
     "latitude": 1.296273,
     "longitude": 103.850158,
-    "dietary_type": ["halal","no prawns"]
+    "dietary_type": ["halal","no prawns"],
+    "travel_appetite": 2
 }
 Output: array of food post JSON objects that fulfill the criteria
 '''
@@ -528,7 +530,16 @@ def check_if_valid(distance,diet_list,user,post):
     else:
         return False
 
-# for guest users
+'''NEARBY FOOD GUEST
+Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
+Input: user JSON object, it must include:
+{
+    "latitude": 1.296273,
+    "longitude": 103.850158
+}
+Output: array of food post JSON objects that fulfill the criteria
+
+'''
 @app.route("/nearby_food_guest", methods=['GET'])
 # search for users that are within the distance
 def nearby_food_guest():
@@ -611,7 +622,7 @@ def filter_user(username):
         # retrieve list of diets in post
     
         diet_list = []
-        post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+        post_diets_available = diet_table.query.filter_by(username=username)
         for entry in post_diets_available:
             diet_list.append(entry.__dict__["diets_available"])
 
