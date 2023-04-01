@@ -92,6 +92,7 @@ def all():
         # prepare data JSON output
         data = {}
         data["post_id"] = post.post_id
+        data["post_name"] = post.post_name
         data["creator"] = post.username
         data["latitude"] = post.latitude
         data["longitude"] = post.longitude
@@ -473,6 +474,7 @@ def nearby_food_user():
                 # prepare data JSON output
                 data = {}
                 data["post_id"] = post.post_id
+                data["post_name"] = post.post_name
                 data["creator"] = post.username
                 data["latitude"] = post.latitude
                 data["longitude"] = post.longitude
@@ -546,6 +548,7 @@ def nearby_food_guest():
                 # prepare data JSON output
                 data = {}
                 data["post_id"] = post.post_id
+                data["post_name"] = post.post_name
                 data["creator"] = post.username
                 data["latitude"] = post.latitude
                 data["longitude"] = post.longitude
