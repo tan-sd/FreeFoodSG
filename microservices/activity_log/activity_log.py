@@ -7,13 +7,13 @@ from datetime import datetime
 '''
 This is activity_log microservice
 It only has one function which is to add to the activity_log database
-Ideal input: JSON of microservice invoked e.g.
+Ideal input: JSON of log information, which is either ms invoked, or ms error, or function error e.g.
     {
-        "ms_invoked" : "food_info"
+        "log_info" : "food_info"
     }
     if error:
     {
-        "ms_invoked" : "food_info_error"
+        "log_info" : "food_info_error"
     }
 Output: None, this is a microservice which does not return any information
 '''
@@ -36,18 +36,18 @@ class activity_table(db.Model):
     __tablename__ = 'activity_table'
     log_id = db.Column(db.Integer, primary_key=True)
     created = db.Column(db.DateTime, nullable=False, default=datetime.now)
-    ms_invoked = db.Column(db.VARCHAR(64), nullable=False)
+    log_info = db.Column(db.VARCHAR(64), nullable=False)
     
-    def __init__(self, log_id, created, ms_invoked):
+    def __init__(self, log_id, created, log_info):
         self.log_id = log_id
         self.created = created
-        self.ms_invoked = ms_invoked
+        self.log_info = log_info
 
     def json(self):
         log = {
             'log_id': self.log_id,
             'created': self.created,
-            'ms_invoked': self.ms_invoked,
+            'log_info': self.log_info,
         }
         return log
 

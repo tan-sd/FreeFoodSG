@@ -1,13 +1,13 @@
 from invokes import invoke_http
 
-def activity_log(ms_name):
+def activity_log(log_info):
     '''
-    This function invokes activity log microservice everytime an MS is invoked
-    input: microservice_name OR microservice_name_error
+    This function invokes activity log microservice everytime an MS is invoked or error encountered
+    input: microservice_name OR microservice_name_error OR function_error
     output: none, this is a fire forget microservice
     '''
     activity = "http://localhost:1114/create_log"
-    ms_json = {
-        "ms_invoked":ms_name
+    log_json = {
+        "log_info":log_info
     }
-    invoke_http(activity,method='POST',json=ms_json)
+    invoke_http(activity,method='POST',json=log_json)
