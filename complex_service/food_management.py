@@ -10,36 +10,43 @@ app = Flask(__name__)
 CORS(app)
 
 # LOGIN USER URLs
+# LOGIN USER URLs
 verify_user_URL = 'http://localhost:1111/login'
 register_user_URL = 'http://localhost:1111/user'
 
 # ERROR MICROSERVICE URLs
 error_URL = 'noerror'
+# ERROR MICROSERVICE URLs
+error_URL = 'noerror'
 
 # ACTIVITY LOG URLs
 activity_URL = 'http://localhost:1114/create_log'
+# ACTIVITY LOG URLs
+activity_URL = 'http://localhost:1114/create_log'
 
+# SCENARIO 1: GET FOOD URLs
 # SCENARIO 1: GET FOOD URLs
 # related to user_info.py
 user_URL = 'http://localhost:1111/users'
 
 # for current users
 food_URL = 'http://localhost:1112/nearby_food_user'
+food_URL = 'http://localhost:1112/nearby_food_user'
 
 # for guest users
 nearby_food_URL = 'http://localhost:1112/nearby_food_guest'
+nearby_food_URL = 'http://localhost:1112/nearby_food_guest'
 
+# SCENARIO 2: CREATE FOOD URLs
 # SCENARIO 2: CREATE FOOD URLs
 post_URL = 'http://localhost:1112/create_post'
 
+# SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS URLs
 # SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS URLs
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
 
 # SCENARIO 4: GET ALL FOOD POSTS
-
-
-
 
 def activity_log(ms_name):
     '''
@@ -127,6 +134,7 @@ def verfication(user_details):
 
     url = verify_user_URL
     verification_result = invoke_http(url, method='GET', json=user_details)
+    activity_log("user")
     activity_log("user")
     
     print('verification_result:', verification_result)
@@ -245,6 +253,8 @@ def register(user_details):
     verification_result = invoke_http(url, method='POST', json=user_details)
     activity_log("user") #to put in activity log
 
+    activity_log("user") #to put in activity log
+
     
     print('verification_result:', verification_result)
 
@@ -280,12 +290,11 @@ def get_available_food():
     '''GET ALL NEARBY FOOD
     Function: get all available food near the user
 
-    Input: JSON object -> {
-        "latitude" : float,
-        "longitude" : float,
-        "dietary_type": ['halal','prawn-free'],
-        "travel_appetite": int
-    }
+Input: JSON object -> {
+    "latitude" : float,
+    "longitude" : float,
+    "dietary
+}
 
     Output: list of all json food objects
     {
@@ -338,7 +347,7 @@ def filtered_food(location):
 
     # we already have the location, so we check w food m/s
     print('\n-----Invoking food_info microservice-----')
-    food_result = invoke_http(food_URL, method='GET', json=location)
+    food_result = invoke_http(food_URL, method='POST', json=location)
     activity_log("food") #to put in activity log
     print('food_result:', food_result)
 
@@ -350,6 +359,7 @@ def filtered_food(location):
         # Inform the error microservice
         print('\n\n-----Invoking error microservice as order fails-----')
         invoke_http(error_URL, method="POST", json=food_result)
+        activity_log("error") #to put in activity log
         activity_log("error") #to put in activity log
         # - reply from the invocation is not used; 
         # continue even if this invocation fails
@@ -440,6 +450,7 @@ def show_available_food(location):
     print('\n-----Invoking food microservice-----')
     food_result = invoke_http(food_URL, method='GET', json=location)
     activity_log("food") #to put in activity log
+    activity_log("food") #to put in activity log
     print('food_result:', food_result)
 
     # Check the food result; if a failure, send it to the error microservice.
@@ -487,9 +498,11 @@ input: JSON of the new post. it must have:
 output: JSON of either success or failure of creation
 '''
 @app.route("/create_post", methods=['POST'])
+@app.route("/create_post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(post_URL, method='POST', json=request.json)
+    activity_log("food")
     activity_log("food")
     print('Post status:', post_result)
     return {
@@ -535,6 +548,7 @@ return {
 def get_forum_posts():
 
     result = invoke_http(forum_URL, method='GET')
+    activity_log("forum") #to put in activity log
     activity_log("forum") #to put in activity log
     code = result["code"]
     if code not in range(200, 300):
@@ -673,6 +687,7 @@ def create_post(post_details):
 
     forum_result = invoke_http(url, method='POST', json=post_details)
     activity_log("forum") #to put in activity log
+    activity_log("forum") #to put in activity log
     print('forum_result:', forum_result)
 
     # Check the food result; if a failure, send it to the error microservice.
@@ -776,6 +791,7 @@ def push_new_comment(comment_details):
     url = create_forum_URL + '/create_comment'
 
     create_comment_result = invoke_http(url, method='POST', json = comment_details)
+    activity_log("forum") #to put in activity log
     activity_log("forum") #to put in activity log
 
     # If a failure, send it to the error microservice
