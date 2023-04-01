@@ -489,7 +489,6 @@ def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(post_URL, method='POST', json=request.json)
     activity_log("food")
-    activity_log("food")
     print('Post status:', post_result)
     return {
         "code": 201,
@@ -534,7 +533,6 @@ return {
 def get_forum_posts():
 
     result = invoke_http(forum_URL, method='GET')
-    activity_log("forum") #to put in activity log
     activity_log("forum") #to put in activity log
     code = result["code"]
     if code not in range(200, 300):
@@ -672,7 +670,7 @@ def create_post(post_details):
     url = create_forum_URL + '/create'
 
     forum_result = invoke_http(url, method='POST', json=post_details)
-    activity_log("forum") #to put in activity log
+    activity_log("forum") #to put in acti #to put in activity log
     print('forum_result:', forum_result)
 
     # Check the food result; if a failure, send it to the error microservice.
@@ -776,7 +774,6 @@ def push_new_comment(comment_details):
     url = create_forum_URL + '/create_comment'
 
     create_comment_result = invoke_http(url, method='POST', json = comment_details)
-    activity_log("forum") #to put in activity log
     activity_log("forum") #to put in activity log
 
     # If a failure, send it to the error microservice
