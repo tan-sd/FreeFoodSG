@@ -39,6 +39,9 @@
 
                   <label for="googlemap_autocomplete_foodform"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
               </div>
+
+              <!-- DATETIME -->
+              <VueDatePicker v-model="post_datetime" :format="format" placeholder="Buffet End Time" utc></VueDatePicker>
   
               <!-- Dietary Restrictions START -->
               <div class="d-flex justify-content-center mt-3">
@@ -62,11 +65,8 @@
                       <font-awesome-icon icon="fa-solid fa-cow" />&nbsp;No Beef
                     </label>
                 </div>
-              </div>  
+              </div>
               <!-- Dietary Restrictions END -->
-
-              <!-- DATETIME -->
-              <VueDatePicker v-model="date" time-picker></VueDatePicker>
   
               <!-- UPLOAD IMG -->
               <div class="input-group custom-file-button my-4">
@@ -104,6 +104,10 @@
         post_title: '',
         post_desc: '',
         diet_res: [],
+        post_datetime: '',
+        month_list: [
+          'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+        ],
 
         autoCompleteOptions: {
             componentRestrictions: {
@@ -153,7 +157,7 @@
             "longitude": this.post_lng,
             "address": this.post_location,
             "description": this.post_desc,
-            "end_time" : new Date(),
+            "end_time" : this.post_datetime.split(".")[0],
             "diets_available": this.diet_res
         })
         .then(function (response) {
@@ -162,6 +166,27 @@
         .catch(function(error) {
             console.log(error)
         })
+      },
+
+      format(date) {
+        const today = new Date()
+        var day_ends = ""
+
+        if (
+          date.getFullYear() === today.getFullYear() &&
+          date.getMonth() === today.getMonth() &&
+          date.getDate() === today.getDate()
+        ) {
+          day_ends = 'today'
+        } else {
+          const day = date.getDate();
+          const month = this.month_list[date.getMonth()];
+          const year = date.getFullYear();
+          
+          day_ends = `${day} ${month} ${year}`
+        }
+
+        return `Buffet ends ${day_ends} at ${date.getHours()}:${date.getMinutes()}`;
       }
     }
   }
