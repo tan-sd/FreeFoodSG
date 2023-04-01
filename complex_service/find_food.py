@@ -47,6 +47,7 @@ Output: user details as json
 def user_login():
     # check if JSON
     if not request.is_json:
+        activity_log("login not json error")
         return jsonify({
             "code": 400,
             "message": "Invalid JSON input: " + str(request.get_data())
@@ -66,10 +67,11 @@ def user_login():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
             print(ex_str)
+            activity_log("user login error")
 
             return jsonify({
                 "code": 500,
-                "message": "food_management.py internal error: " + ex_str
+                "message": "find_food.py internal error: " + ex_str
             }), 500
 
 def verification(user_details):
@@ -85,7 +87,7 @@ def verification(user_details):
     code = verification_result["code"]
 
     if code not in range(200, 300):
-        activity_log("login error")
+        activity_log("user_info error")
         return {
             "code": 500,
             "data": {"verification_result": verification_result},
@@ -120,8 +122,8 @@ Output: user details as json
             "email": email,
             "password": password,
             "address": address,
-            "latitude": latitude int,
-            "longitude": longitude int,
+            "latitude": latitude float,
+            "longitude": longitude float,
             "dietary_type": ["halal"],
             "travel_appetite": 2
     },
@@ -154,11 +156,13 @@ def user_register():
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
             print(ex_str)
 
+            activity_log("user_info error")
             return jsonify({
                 "code": 500,
-                "message": "food_management.py internal error: " + ex_str
+                "message": "find_food.py internal error: " + ex_str
             }), 500
 
+    activity_log("register is not json error")
     # if reached here, not a JSON request.
     return jsonify({
         "code": 400,
@@ -173,13 +177,13 @@ def register(user_details):
 
     url = register_user_URL + '/' + user_details['username']
     print(url)
-    verification_result = invoke_http(url, method='POST', json=user_details)
+    creation_result = invoke_http(url, method='POST', json=user_details)
     activity_log("user") #to put in activity log
 
     
-    print('verification_result:', verification_result)
+    print('creation_result:', creation_result)
 
-    code = verification_result["code"]
+    code = creation_result["code"]
 
     # DO ERROR MS!
     if code not in range(200, 300):
@@ -193,15 +197,16 @@ def register(user_details):
     #         code), verification_result)
 
     #     # 7. Return error
+        activity_log("user_info error")
         return {
             "code": 500,
-            "data": {"order_result": verification_result},
-            "message": "Order creation failure sent for error handling."
+            "data": {"creation_result": creation_result},
+            "message": "User creation failure sent for error handling."
         }
     return {
         "code": 201,
         "data": {
-            "verification_result": verification_result,
+            "Creation_result": creation_result,
         }
     }
 
@@ -251,12 +256,14 @@ def get_available_food():
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
             print(ex_str)
 
+            activity_log("food_info error")
             return jsonify({
                 "code": 500,
-                "message": "food_management.py internal error: " + ex_str
+                "message": "find_food.py internal error: " + ex_str
             }), 500
 
     # if reached here, not a JSON request.
+    activity_log("avail food is not json error")
     return jsonify({
         "code": 400,
         "message": "Invalid JSON input: " + str(request.get_data())
@@ -271,7 +278,7 @@ def filtered_food(location):
     print('food_result:', food_result)
     code = food_result["code"]
     if code not in range(200, 300):
-        activity_log("error") #to put in activity log
+        activity_log("food_info error") #to put in activity log
         print("Food status ({:d}) sent to the error microservice:".format(
             code), food_result)
         return {
@@ -338,12 +345,14 @@ def get_available_food2():
             ex_str = str(e) + " at " + str(exc_type) + ": " + fname + ": line " + str(exc_tb.tb_lineno)
             print(ex_str)
 
+            activity_log("user_info error")
             return jsonify({
                 "code": 500,
-                "message": "food_management.py internal error: " + ex_str
+                "message": "find_food.py internal error: " + ex_str
             }), 500
 
     # if reached here, not a JSON request.
+    activity_log("guest user get food is not json")
     return jsonify({
         "code": 400,
         "message": "Invalid JSON input: " + str(request.get_data())
