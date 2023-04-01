@@ -452,27 +452,22 @@ def show_available_food(location):
 ################## END OF SCENARIO 1 ####################
 
 ################## START OF SCENARIO 2 ##################
-'''DOCUMENTATION HERE
-User posts a new post
-input(json): 
+'''CREATE A POST
+this function creates a post
+input: JSON of the new post. it must have:
 {
-    post_id = type int
-    username = type varchar
-    post_name = type varchar
-    latitude = type float, precision 6
-    longitude = type float, precision 6
-    address = type varchar
-    description = type varchar
-    is_available = type bit or integer, 0 is false, 1 is true
-    end_time = type varchar, in YYYY-MM-DD HH:MM:SS format
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MI:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"]
 }
-output(json):
-{
-    code: type int <- tells you the server code, 404 if error
-    msg: details of the post if successful
-}
-
+output: JSON of either success or failure of creation
 '''
+
 @app.route("/post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')

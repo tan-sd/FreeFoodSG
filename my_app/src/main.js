@@ -6,6 +6,8 @@ import { GoogleSignInPlugin } from "vue3-google-signin";
 import "../styling/sass/main.min.css";
 import "../styling/style.css";
 import store from './store';
+import VueDatePicker from '@vuepic/vue-datepicker';
+import '@vuepic/vue-datepicker/dist/main.css'
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -28,6 +30,8 @@ app.use(router).use(VueGoogleMaps, {
         libraries: 'places'
     },
 })
+
+app.component('VueDatePicker', VueDatePicker);
 
 app.use(store)
 

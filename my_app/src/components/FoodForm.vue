@@ -1,26 +1,31 @@
 <template>
-    <button class="btn btn-main" data-bs-toggle="modal" data-bs-target="#new-foodpost"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
+    <button class="btn btn-main" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-foodpost` : ``" @click="reroute_to_login()"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
-    <div v-if="isAuthenticated" class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
+    <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
       <div class="modal-dialog">
         <div class="modal-content bg-light text-dark">
+          <!-- TITLE AND CLOSE BTN -->
           <div class="modal-header bg-dark text-extra-light">
             <h5 class="modal-title" id="modal-title-foodform"><font-awesome-icon icon="fa-solid fa-utensils" /> Create Food Post</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
+          <!-- FORM -->
           <div class="modal-body justify-content-center">
             <form>
+              <!-- POST TITLE -->
               <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="floatingInput" placeholder="Title">
+                  <input type="text" class="form-control" id="floatingInput" placeholder="Title" v-model="post_title">
                   <label for="floatingInput">Title</label>
               </div>
               
+              <!-- POST DESC -->
               <div class="form-floating mb-3">
-                  <textarea class="form-control" id="floatingInput" placeholder="Description" style="height: 80px; resize: none;"></textarea>
+                  <textarea class="form-control" id="floatingInput" placeholder="Description" style="height: 80px; resize: none;" v-model="post_desc"></textarea>
                   <label for="floatingInput">Description</label>
               </div>
   
+              <!-- POST ADDRESS -->
               <div class="form-floating mb-3">
                   <GMapAutocomplete
                       class="form-control"
@@ -28,36 +33,42 @@
                       id="googlemap_autocomplete_foodform"
                       type="text"
                       :options="autoCompleteOptions"
+                      @place_changed="setPlace"
                   >
                   </GMapAutocomplete>
+
                   <label for="googlemap_autocomplete_foodform"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
               </div>
   
               <!-- Dietary Restrictions START -->
               <div class="d-flex justify-content-center mt-3">
                 <div class="form-check mx-2">
-                    <input class="form-check-input" type="checkbox" value="halal" id="foodform-halal-checkbox">
+                    <input class="form-check-input" type="checkbox" value="halal" id="foodform-halal-checkbox" v-model="diet_res">
                     <label class="form-check-label" for="foodform-halal-checkbox">
                       <font-awesome-icon icon="fa-solid fa-star-and-crescent" />&nbsp;Halal
                     </label>
                 </div>
     
                 <div class="form-check mx-2">
-                    <input class="form-check-input" type="checkbox" value="vegetarian" id="foodform-vege-checkbox">
+                    <input class="form-check-input" type="checkbox" value="vegetarian" id="foodform-vege-checkbox" v-model="diet_res">
                     <label class="form-check-label" for="foodform-vege-checkbox">
                       <font-awesome-icon icon="fa-solid fa-leaf" />&nbsp;Vegetarian
                     </label>
                 </div>
     
                 <div class="form-check mx-2">
-                    <input class="form-check-input" type="checkbox" value="" id="foodform-nobeef-checkbox">
+                    <input class="form-check-input" type="checkbox" value="nobeef" id="foodform-nobeef-checkbox" v-model="diet_res">
                     <label class="form-check-label" for="foodform-nobeef-checkbox">
                       <font-awesome-icon icon="fa-solid fa-cow" />&nbsp;No Beef
                     </label>
                 </div>
               </div>  
               <!-- Dietary Restrictions END -->
+
+              <!-- DATETIME -->
+              <VueDatePicker v-model="date" time-picker></VueDatePicker>
   
+              <!-- UPLOAD IMG -->
               <div class="input-group custom-file-button my-4">
                   <label class="input-group-text bg-dark text-extra-light" for="foodform-upload-img-btn">
                     <font-awesome-icon icon="fa-solid fa-image" />&nbsp;Upload Image
@@ -66,8 +77,9 @@
                   <input class="form-control" type="file" id="foodform-upload-img-btn">
               </div>
   
+              <!-- SUBMIT BTN -->
               <div class="d-flex justify-content-center mt-3">
-                  <button class="btn btn-main"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
+                  <button class="btn btn-main" type="button" @click="submit_new_post()"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
               </div>
             </form>
           </div>
@@ -77,9 +89,22 @@
 </template>
 
 <script>
+  import router from '@/router';
+  import axios from 'axios';
+  import VueDatePicker from '@vuepic/vue-datepicker';
+  import '@vuepic/vue-datepicker/dist/main.css';
+
   export default{
+    components: { VueDatePicker },
     data() {
       return{
+        post_location: '',
+        post_lat: null,
+        post_lng: null,
+        post_title: '',
+        post_desc: '',
+        diet_res: [],
+
         autoCompleteOptions: {
             componentRestrictions: {
                 country: ["sg"],
@@ -91,6 +116,52 @@
       isAuthenticated() {
         // console.log(this.$store.getters.isAuthenticated)
         return this.$store.getters.isAuthenticated;
+      }
+    },
+
+    methods: {
+      reroute_to_login() {
+        if (!this.isAuthenticated) {
+          router.push({path: '/login'})
+        }
+      },
+
+      setPlace(place) {
+        this.post_location = place.formatted_address
+        this.post_lat = place.geometry.location.lat()
+        this.post_lng = place.geometry.location.lng()
+      },
+
+      submit_new_post() {
+        //Handle errors
+        if (
+            this.post_location === '' ||
+            this.post_title === '' ||
+            this.post_desc === ''
+        ) {
+            console.log("FIELDS NOT FILLED ====")
+            return false
+        }
+
+        //Continue wo errors
+        // var vm = this
+
+        axios.post("http://localhost:5100/post", {
+            "username": this.$store.state.user_details.username,
+            "post_name": this.post_title,
+            "latitude": this.post_lat,
+            "longitude": this.post_lng,
+            "address": this.post_location,
+            "description": this.post_desc,
+            "end_time" : new Date(),
+            "diets_available": this.diet_res
+        })
+        .then(function (response) {
+            console.log("Success: ", response)
+        })
+        .catch(function(error) {
+            console.log(error)
+        })
       }
     }
   }
