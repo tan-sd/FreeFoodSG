@@ -86,13 +86,36 @@ output: list of post JSONs
 '''
 @app.route("/all")
 def all():
-    food_list = food_table.query.all()
-    if len(food_list):
+    posts_data = food_table.query.all()
+    output_list = []
+    for post in posts_data:
+        # prepare data JSON output
+        data = {}
+        data["post_id"] = post.post_id
+        data["creator"] = post.username
+        data["latitude"] = post.latitude
+        data["longitude"] = post.longitude
+        data["address"] = post.address
+        data["description"] = post.description
+        data["is_available"] = post.is_available
+        data["end_time"] = post.end_time
+
+        # retrieve list of diets in post
+    
+        diet_list = []
+        post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+        for entry in post_diets_available:
+            diet_list.append(entry.__dict__["diets_available"])
+
+        data["diets_available"] = diet_list # list of diets for post
+        output_list.append(data)
+    
+    if len(posts_data):
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "food": [food.json() for food in food_list]
+                    "food": output_list
                 }
             }
         )
