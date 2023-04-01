@@ -1,4 +1,21 @@
 <template>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-sm">
+            <div class="modal-content">
+                <div class="modal-header bg-dark text-extra-light">
+                    <h5 class="modal-title" id="modal-title-confirm">
+                        Confirm?
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="d-flex justify-content-around mt-3 mb-3">
+                    <button type="button" class="btn btn-main btn-size" data-bs-dismiss="modal" @click="cancelFood">Yes</button>
+                    <button type="button" class="btn btn-main btn-size">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
         <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
@@ -14,11 +31,11 @@
         <!-- MY BUFFETS -->
         <div v-if="to_display == 'mine' ">
             <!-- V-FOR MY_BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index" >
+            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index">
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
                 <!-- HEADER GOES HERE v -->
-                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="focus_on_buffet(index, true)">
+                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
                     <div class="row vw-100">
                         <!-- IMAGE CAROUSEL -->
                         <div class="col-6 col-md-7 col-lg-8">
@@ -82,9 +99,12 @@
                             </div>
                             <div class="col-12 d-flex justify-content-center align-items-center">
                                 <div>
-                                    <button class="btn btn-warning btn-expand">
+                                    <button type="button" class="btn btn-warning btn-expand" data-bs-toggle="modal" data-bs-target="#exampleModal" @click="passFoodID(e_buff.post_id)">
                                         <font-awesome-icon icon="fa-solid fa-circle-stop" />&nbsp;&nbsp;End Event
                                     </button>
+                                    <!-- <button class="btn btn-warning btn-expand">
+                                        <font-awesome-icon icon="fa-solid fa-circle-stop" />&nbsp;&nbsp;End Buffet
+                                    </button> -->
                                 </div>
                             </div>
                         </div>
@@ -99,7 +119,7 @@
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
             <div v-if="food.length > 0">
-                <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
+                <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" id="accordion-list">
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
                     <!-- HEADER GOES HERE v -->
@@ -172,14 +192,39 @@
                                         {{ e_buff.description }}
                                     </p>
                                 </div>
-                                <div class="col-12 d-flex justify-content-center align-items-center">
-                                    <div>
-                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                            <button class="btn btn-main">
-                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                            </button>
-                                        </a>
-                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                </button>
+    
+                </h2>
+                <div class="accordion-collapse collapse accordionBody" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`" :class="`accordionBody${index+1}`">
+                
+                <!-- BODY GOES HERE v -->
+                <div class="accordion-body bg-light-gradient">
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="col-12">
+                                <h6>
+                                    <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                </h6>
+                            </div>
+                            <div class="col-12">
+                                <h6>
+                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
+                                </h6>
+
+                                <p>
+                                    {{ e_buff.description }}
+                                </p>
+                            </div>
+                            <div class="col-12 d-flex justify-content-center align-items-center">
+                                <div>
+                                    <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                        <button class="btn btn-main">
+                                            <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                        </button>
+                                    </a>
                                 </div>
                             </div>
                         </div>
@@ -198,7 +243,8 @@
 
 <script>
     const get_all_food_URL = "http://localhost:5100/all";
-    const get_all_user_food_URL = "http://localhost:5100/filter_user"
+    const get_all_user_food_URL = "http://localhost:5100/filter_user";
+    const cancel_food_post_URL = "http://localhost:1112/remove";
 
     // FIREBASE STUFF
     import { initializeApp } from "firebase/app";
@@ -221,7 +267,7 @@
         props: [],
 
         data() {
-            return{
+            return {
                 food: [],
                 user_food: [],
 
@@ -276,10 +322,31 @@
                 user_long: null,
 
                 to_display: 'other',
+                foodID: null,
             }
         },
 
         methods: {
+            onPostClick(index) {
+                this.$store.state.foodPostId = index
+                console.log(this.$store.state.foodPostId)
+            },
+            cancelFood() {
+                fetch(`${cancel_food_post_URL}/${this.foodID}`,{
+                    method: 'PUT'
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log('Success:', data);
+                    })
+                    .catch((error) => {
+                        console.error('Error:', error);
+                    });
+            },
+            passFoodID(foodID) {
+                this.foodID = foodID
+                console.log(this.foodID)
+            },
             get_all_food() {
                 const response = fetch(get_all_food_URL)
                     .then(response => response.json())
@@ -424,27 +491,6 @@
 
                 return -1
             },
-
-            focus_on_buffet(idx, is_my_buff) {
-                console.log(`=== [START] focus_on_buffet(${idx}) ===`)
-                let prefix = ''
-
-                if (is_my_buff) {
-                    prefix = 'mybuff-'
-                }
-                
-                if (idx == -1) { idx = 0 }
-
-                let focus_elem = document.getElementById(`${prefix}flush-heading${idx}`)
-
-                setTimeout(() => {
-                    focus_elem.scrollIntoView({ behavior: 'smooth'})
-                }, "300")
-
-                console.log(`=== [END] focus_on_buffet(${idx}) ===`)
-                return
-            },
-
             update_user_latlong(position) {
                 console.log(`=== [START] update_user_latlong() ===`)
                 
@@ -528,6 +574,13 @@
 
 
 <style scoped>
+    .modal-header {
+        text-align: center;
+    }
+
+    .btn-size {
+        width: 100px;
+    }
 
     /* Up to LG */
     @media (max-width: 769px) {
@@ -536,6 +589,7 @@
             bottom: 0;
             right: 0;
             left: 0; */
+            margin-top: 25px;
             overflow-y: scroll;
             max-height: 40vh;
             transition: all .8s ease-in-out;
