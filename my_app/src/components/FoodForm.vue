@@ -7,7 +7,7 @@
           <!-- TITLE AND CLOSE BTN -->
           <div class="modal-header bg-dark text-extra-light">
             <h5 class="modal-title" id="modal-title-foodform"><font-awesome-icon icon="fa-solid fa-utensils" /> Create Food Post</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" id="food-form-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
           <!-- FORM -->
@@ -79,7 +79,10 @@
   
               <!-- SUBMIT BTN -->
               <div class="d-flex justify-content-center mt-3">
-                  <button class="btn btn-main" type="button" @click="submit_new_post()"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
+                  <button class="btn btn-main" type="button" @click="submit_new_post()" :disabled="uploading_data">
+                    <font-awesome-icon icon="fa-solid fa-paper-plane" v-if="!uploading_data" />
+                    <font-awesome-icon :icon="['fas', 'spinner']" v-if="uploading_data" spin />&nbsp;&nbsp;Post
+                  </button>
               </div>
             </form>
           </div>
@@ -127,6 +130,9 @@ const storage = getStorage(app);
         post_desc: '',
         diet_res: [],
         post_datetime: '',
+
+        uploading_data: false,
+
         month_list: [
           'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
         ],
@@ -160,6 +166,7 @@ const storage = getStorage(app);
 
       submit_new_post() {
         console.log(`=== [START] submit_new_post() ===`)
+        this.uploading_data = true
 
         //Handle errors
         if (
@@ -240,6 +247,23 @@ const storage = getStorage(app);
                 console.log('this is file number ' + i)
             })
         }
+
+        this.uploading_data = false
+        this.clear_form()
+        document.getElementById('food-form-close-btn').click()
+      },
+
+      clear_form() {
+        this.post_location = ''
+        this.post_lat = null
+        this.post_lng = null
+        this.post_title = ''
+        this.post_desc = ''
+        this.diet_res = []
+        this.post_datetime = ''
+
+        document.getElementById('foodform-upload-img-btn').value = ''
+        document.getElementById('googlemap_autocomplete_foodform').value = ''
       }
     }
   }
