@@ -30,7 +30,7 @@
                     try uploading an image here, and pray v hard it works ->
                 </div>
                 <div class="col">
-                    <input type="file" @change="format_file()" id="img_input" accept="image/*">
+                    <input type="file" id="img_input" accept="image/*" multiple>
                 </div>
             </div>
             <div class="row"><button @click="upload_img()" type="button" class="btn btn-primary">click me to test the upload function</button></div>
