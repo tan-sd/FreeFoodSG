@@ -215,4 +215,8 @@
   .pac-container {
         z-index: 10000 !important;
     }
+  
+  ::-webkit-scrollbar {
+    display: none;
+    }
 </style>

@@ -1,4 +1,5 @@
 <template>
+    <!-- {{ this.food }} -->
     <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
         <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
@@ -80,6 +81,7 @@
         <!-- OTHER BUFFETS -->
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
+            <div v-if="food.length > 0">
             <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
                 <h2 class="accordion-header" :id="`flush-heading${index}`">
     
@@ -154,12 +156,16 @@
                 </div>
             </div>
         </div>
+        <div v-else>
+            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
+        </div>
+        </div>
     </div>
 </template>
 
 
 <script>
-    const get_all_food_URL = "http://localhost:1112/all";
+    const get_all_food_URL = "http://localhost:5100/all";
 
     export default{
         props: [],

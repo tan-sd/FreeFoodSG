@@ -86,13 +86,36 @@ output: list of post JSONs
 '''
 @app.route("/all")
 def all():
-    food_list = food_table.query.all()
-    if len(food_list):
+    posts_data = food_table.query.all()
+    output_list = []
+    for post in posts_data:
+        # prepare data JSON output
+        data = {}
+        data["post_id"] = post.post_id
+        data["creator"] = post.username
+        data["latitude"] = post.latitude
+        data["longitude"] = post.longitude
+        data["address"] = post.address
+        data["description"] = post.description
+        data["is_available"] = post.is_available
+        data["end_time"] = post.end_time
+
+        # retrieve list of diets in post
+    
+        diet_list = []
+        post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+        for entry in post_diets_available:
+            diet_list.append(entry.__dict__["diets_available"])
+
+        data["diets_available"] = diet_list # list of diets for post
+        output_list.append(data)
+    
+    if len(posts_data):
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "food": [food.json() for food in food_list]
+                    "food": output_list
                 }
             }
         )
@@ -413,18 +436,9 @@ def edit_diets_table(post_id, diet_list):
 Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
 Input: user JSON object, it must include:
 {
-    "user_id": 1,
-    "first_name": "faez",
-    "last_name": "latiff",
-    "username": "faezlatiff",
-    "number": 12345678,
-    "email": "faez@smu.com",
-    "password": "password",
-    "address": "Victoria Street, Singapore Management University, Singapore",
     "latitude": 1.296273,
     "longitude": 103.850158,
-    "dietary_type": "no prawns",
-    "travel_appetite": 1
+    "dietary_type": ["halal","no prawns"]
 }
 Output: array of food post JSON objects that fulfill the criteria
 '''
