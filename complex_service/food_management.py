@@ -38,6 +38,17 @@ create_forum_URL = 'http://localhost:1113'
 
 # SCENARIO 4: GET ALL FOOD POSTS
 
+def activity_log(ms_name):
+    '''
+    This function invokes activity log microservice everytime an MS is invoked
+    input: name of microservice
+    output: none, this is a fire forget microservice
+    '''
+    activity = "http://localhost:1114/create_log"
+    ms_json = {
+        "ms_invoked":"food"
+    }
+    invoke_http(activity,method='POST',json=ms_json)
 
 
 # SCENARIO 4: GET ALL FOOD POSTS
@@ -486,7 +497,7 @@ input: JSON of the new post. it must have:
 }
 output: JSON of either success or failure of creation
 '''
-@app.route("/post", methods=['POST'])
+@app.route("/create_post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(post_URL, method='POST', json=request.json)
