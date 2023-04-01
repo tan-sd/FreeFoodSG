@@ -80,53 +80,56 @@ class diet_table(db.Model):
         }
         return diet
     
-'''SHOW ALL POSTS
-this function shows all posts
+'''SHOW ALL AVAILABLE POSTS
+this function shows all posts that are available
 input: None, access this using the URL
 output: list of post JSONs
 '''
 @app.route("/all")
 def all():
-    posts_data = food_table.query.all()
-    output_list = []
-    for post in posts_data:
-        # prepare data JSON output
-        data = {}
-        data["post_id"] = post.post_id
-        data["post_name"] = post.post_name
-        data["creator"] = post.username
-        data["latitude"] = post.latitude
-        data["longitude"] = post.longitude
-        data["address"] = post.address
-        data["description"] = post.description
-        data["is_available"] = post.is_available
-        data["end_time"] = post.end_time
+    posts_data = food_table.query.filter_by(is_available=1).all()
+    if posts_data:
+        output_list = []
+        for post in posts_data:
+            # prepare data JSON output
+            data = {}
+            data["post_id"] = post.post_id
+            data["post_name"] = post.post_name
+            data["creator"] = post.username
+            data["latitude"] = post.latitude
+            data["longitude"] = post.longitude
+            data["address"] = post.address
+            data["description"] = post.description
+            data["is_available"] = post.is_available
+            data["end_time"] = post.end_time
 
-        # retrieve list of diets in post
-    
-        diet_list = []
-        post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
-        for entry in post_diets_available:
-            diet_list.append(entry.__dict__["diets_available"])
+            # retrieve list of diets in post
+        
+            diet_list = []
+            post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+            for entry in post_diets_available:
+                diet_list.append(entry.__dict__["diets_available"])
 
-        data["diets_available"] = diet_list # list of diets for post
-        output_list.append(data)
+            data["diets_available"] = diet_list # list of diets for post
+            output_list.append(data)
+        
+        if len(posts_data):
+            return jsonify(
+                {
+                    "code": 200,
+                    "data": {
+                        "food": output_list
+                    }
+                }
+            )
     
-    if len(posts_data):
+    else:
         return jsonify(
             {
-                "code": 200,
-                "data": {
-                    "food": output_list
-                }
+                "code": 404,
+                "message": "There is no available food."
             }
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There is no food."
-        }
-    ), 404
+        ), 404
 
 '''CREATE A POST
 this function creates a post
