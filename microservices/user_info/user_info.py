@@ -44,7 +44,7 @@ class User(db.Model):
     latitude = db.Column(db.Float(precision=6), nullable=False)
     longitude = db.Column(db.Float(precision=6), nullable=False)
     dietary_type = db.Column(db.VARCHAR(64))
-    travel_appetite = db.Column(db.VARCHAR(64))
+    travel_appetite = db.Column(db.Integer)
 
     def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
         self.user_id = user_id
