@@ -593,5 +593,34 @@ def nearby_food_guest():
             ), 404
 
 
+@app.route("/filter_user/<string:username>")
+def filter_user(username):
+    posts_data = food_table.query.all()
+    output_list = []
+    for post in posts_data:
+        # prepare data JSON output
+        data = {}
+        data["post_id"] = post.post_id
+        data["post_name"] = post.post_name
+        data["creator"] = post.username
+        data["latitude"] = post.latitude
+        data["longitude"] = post.longitude
+        data["address"] = post.address
+        data["description"] = post.description
+        data["is_available"] = post.is_available
+        data["end_time"] = post.end_time
+
+        # retrieve list of diets in post
+    
+        diet_list = []
+        post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+        for entry in post_diets_available:
+            diet_list.append(entry.__dict__["diets_available"])
+
+        data["diets_available"] = diet_list # list of diets for post
+        if data["creator"] == username:
+            output_list.append(data)
+        
+    return output_list
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
