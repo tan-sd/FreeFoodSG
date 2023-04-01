@@ -22,7 +22,10 @@ import amqp_setup
 # If modifying these scopes, delete the file token.json.
 SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 
-monitor_binding_key = "*.email.#"
+# PLEASE CHECK!! THE GOOGLE TOKEN NEEDS TO BE REFRESHED!! IT HAS A TIME FRAME BEFORE IT EXPIRES, WHICH MEANS YOU NEED TO GENERATE  A NEW TOKEN BEFORE YOU RUN THIS FILE!!
+# TLDR: DELETE TOKEN.JSON BEFORE RUNNING SEND_EMAIL.PY!
+
+monitor_binding_key = "#.email.#"
 '''
 Function: initiate the queue
 '''
