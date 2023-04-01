@@ -48,6 +48,14 @@ create_forum_URL = 'http://localhost:1113'
 
 # SCENARIO 4: GET ALL FOOD POSTS
 
+
+
+# SCENARIO 4: GET ALL FOOD POSTS
+
+
+
+# SCENARIO 4: GET ALL FOOD POSTS
+
 def activity_log(ms_name):
     '''
     This function invokes activity log microservice everytime an MS is invoked
@@ -289,13 +297,34 @@ def register(user_details):
 def get_available_food():
     '''GET ALL NEARBY FOOD
     Function: get all available food near the user
+@app.route("/available_food", methods=['GET'])
+def get_available_food():
+    '''GET ALL NEARBY FOOD
+    Function: get all available food near the user
 
-Input: JSON object -> {
-    "latitude" : float,
-    "longitude" : float,
-    "dietary
-}
+    Input: JSON object -> {
+        "latitude" : float,
+        "longitude" : float,
+        "dietary_type": ['halal','prawn-free'],
+        "travel_appetite": int
+    }
 
+    Output: list of all json food objects
+    {
+            "code": 201,
+            "data": {
+                "food_result": {
+                
+                    {
+                            "code":200,
+                            "data":{
+                                "filtered_food": [x for x in filtered_food]
+                            }
+                    }
+                
+                }
+    }
+    '''
     Output: list of all json food objects
     {
             "code": 201,
@@ -347,7 +376,7 @@ def filtered_food(location):
 
     # we already have the location, so we check w food m/s
     print('\n-----Invoking food_info microservice-----')
-    food_result = invoke_http(food_URL, method='POST', json=location)
+    food_result = invoke_http(food_URL, method='GET', json=location)
     activity_log("food") #to put in activity log
     print('food_result:', food_result)
 
@@ -392,6 +421,8 @@ Function: get all available food near the user [guest user]
 Input: JSON object -> {
     "latitude" : float,
     "longitude" : float
+    "latitude" : float,
+    "longitude" : float
 }
 
 Output: 
@@ -414,6 +445,7 @@ list of all json food objects
 '''
 
 # if there is no user credentials (for guest)
+@app.route("/guest/available_food", methods=['GET'])
 @app.route("/guest/available_food", methods=['GET'])
 def get_available_food2():
     if request.is_json:
@@ -812,6 +844,17 @@ def push_new_comment(comment_details):
 
 
 ####################### END OF SCENARIO 3 ####################
+
+#SCENARIO 4#
+@app.route('/all', methods=['GET'])
+
+def get_all():
+    '''
+    this function gets all posts
+    '''
+    url = "http://localhost:1112/all"
+    list_of_posts = invoke_http(url,method="GET")
+    return list_of_posts
 
 #SCENARIO 4#
 @app.route('/all', methods=['GET'])
