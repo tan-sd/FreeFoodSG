@@ -16,10 +16,10 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faBars, faBurger, faCircleArrowRight, faCircleStop, faCow, faHourglassHalf, faLeaf, faLocationDot, faPersonWalking, faPizzaSlice, faPlus, faStarAndCrescent, faUserSecret, faUtensils, faCrosshairs, faXmark, faCircleUser, faComments, faPaperPlane, faImage, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faBurger, faCircleArrowRight, faCircleStop, faCow, faHourglassHalf, faLeaf, faLocationDot, faPersonWalking, faPizzaSlice, faPlus, faStarAndCrescent, faUserSecret, faUtensils, faCrosshairs, faXmark, faCircleUser, faComments, faPaperPlane, faImage, faSpinner, faBowlFood } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
-library.add(faSpinner, faCircleUser ,faPizzaSlice, faUserSecret, faLocationDot, faStarAndCrescent, faLeaf, faCow, faHourglassHalf, faPlus, faUtensils, faBurger, faBars, faPersonWalking, faCircleArrowRight ,faCircleStop, faCrosshairs, faXmark, faComments, faPaperPlane, faImage)
+library.add(faSpinner, faCircleUser ,faPizzaSlice, faUserSecret, faLocationDot, faStarAndCrescent, faLeaf, faCow, faHourglassHalf, faPlus, faUtensils, faBurger, faBars, faPersonWalking, faCircleArrowRight ,faCircleStop, faCrosshairs, faXmark, faComments, faPaperPlane, faImage, faBowlFood)
 
 import "../node_modules/bootstrap/dist/js/bootstrap"
 

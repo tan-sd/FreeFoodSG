@@ -17,7 +17,7 @@
             :icon="m.icon"
         />
         <GMapCircle
-            :radius="500"
+            :radius="2000"
             :center="currentLocation"
             :options="circleOptions"
         />
@@ -59,8 +59,8 @@
 
   <script>
     import axios from 'axios' 
-    const food_info_url = 'http://localhost:1112/filter_post'
-    const guest_url = 'http://localhost:1112/nearby_food'
+    const food_info_url = 'http://localhost:1112/all'
+    // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
@@ -96,10 +96,8 @@
             // Output: all food posts will be stored from markers[1] onwards
             // '''
             async get_nearest_food() {
-                // check if user is a guest
-                if (!this.$store.state.isAuthenticated) {
-                    console.log("It's a guest user! Calling food post for guest.")
-                    axios.get(`${guest_url}`, {
+                // return all regardless of user or guest
+                axios.get(`${food_info_url}`, {
                         latitude: this.markers[0].position.lat,
                         longitude: this.markers[0].position.lng
                 })
@@ -125,36 +123,64 @@
                         console.log(error.response.data.code == 404)
                         document.getElementById("errors").innerHTML = error.response.data.msg
                     });
-                } else {
-                    console.log("It's a registered user! Calling food post for user.")
-                    axios.get(`${food_info_url}`, {
-                        latitude: this.markers[0].position.lat,
-                        longitude: this.markers[0].position.lng,
-                        travel_appetite: this.$store.state.user_details.travel_appetite
-                })
-                    .then(response => {
-                        // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
-                        // console.log(response.data.data.food)
-                        var foods = response.data.data.food
-                        // store each food JSON in the markers array
-                        for (let i = 0; i<foods.length; i++) {
-                            this.markers.push({
-                                            position: {
-                                                lat: foods[i].latitude,
-                                                lng: foods[i].longitude,
-                                            },
-                                            post_id: foods[i].post_id,
-                                            icon: require("../assets/images/flaticon/food.png")
-                                        })
-                        }
-                        console.log("All markers created!")
-                    })
-                    .catch(error => {
-                        console.log(error.message);
-                        console.log(error.response.data.code == 404)
-                        document.getElementById("errors").innerHTML = error.response.data.msg
-                    });
-                }
+                // check if user is a guest
+                // if (!this.$store.state.isAuthenticated) {
+                //     console.log("It's a guest user! Calling food post for guest.")
+                //     axios.get(`${guest_url}`, {
+                //         latitude: this.markers[0].position.lat,
+                //         longitude: this.markers[0].position.lng
+                // })
+                //     .then(response => {
+                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                //         // console.log(response.data.data.food)
+                //         var foods = response.data.data.food
+                //         // store each food JSON in the markers array
+                //         for (let i = 0; i<foods.length; i++) {
+                //             this.markers.push({
+                //                             position: {
+                //                                 lat: foods[i].latitude,
+                //                                 lng: foods[i].longitude,
+                //                             },
+                //                             post_id: foods[i].post_id,
+                //                             icon: require("../assets/images/flaticon/food.png")
+                //                         })
+                //         }
+                //         console.log("All markers created!")
+                //     })
+                //     .catch(error => {
+                //         console.log(error.message);
+                //         console.log(error.response.data.code == 404)
+                //         document.getElementById("errors").innerHTML = error.response.data.msg
+                //     });
+                // } else {
+                //     console.log("It's a registered user! Calling food post for user.")
+                //     axios.get(`${food_info_url}`, {
+                //         latitude: this.markers[0].position.lat,
+                //         longitude: this.markers[0].position.lng,
+                //         travel_appetite: this.$store.state.user_details.travel_appetite
+                // })
+                //     .then(response => {
+                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                //         // console.log(response.data.data.food)
+                //         var foods = response.data.data.food
+                //         // store each food JSON in the markers array
+                //         for (let i = 0; i<foods.length; i++) {
+                //             this.markers.push({
+                //                             position: {
+                //                                 lat: foods[i].latitude,
+                //                                 lng: foods[i].longitude,
+                //                             },
+                //                             post_id: foods[i].post_id,
+                //                             icon: require("../assets/images/flaticon/food.png")
+                //                         })
+                //         }
+                //         console.log("All markers created!")
+                //     })
+                //     .catch(error => {
+                //         console.log(error.message);
+                //         console.log(error.response.data.code == 404)
+                //         document.getElementById("errors").innerHTML = error.response.data.msg
+                //     });
                 console.log(this.markers[0].position.lat)
                 
             }
