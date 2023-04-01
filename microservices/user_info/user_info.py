@@ -100,8 +100,38 @@ class User(db.Model):
 @app.route('/')
 def nothing():
     return 'user homepage'
-    # return render_template('register.html')
     
+'''CREATE USER PROFILE
+this function create a user account
+input: updated full JSON of new user details, it must have:
+
+{
+    "user_id": user_id,
+    "first_name": first_name,
+    "last_name": last_name,
+    "username": username,
+    "number": number,
+    "email": email,
+    "password": password,
+    "address": address,
+    "latitude": latitude,
+    "longitude": longitude,
+    "dietary_type": dietary_type,
+    "travel_appetite": travel_appetite,
+    "sms_notif": sms_notif,
+    "email_notif": email_notif
+}
+
+output: 
+
+{
+    "code": 201,
+    "data": new_user.json(),
+    "message": "User created successfully."
+
+}
+
+'''
 
 # to create user info when user first created account
 @app.route("/user/<string:username>", methods=['GET','POST'])
@@ -166,13 +196,25 @@ def create_user(username):
             }
         ), 500
     
-    # return jsonify(
-    #     {
-    #         "code": 201,
-    #         "data": name
-    #     }
-    # ), 201
-    
+
+'''LOGS INTO USER ACCOUNT
+this function checks user's username and password
+input: updated full JSON of new user details, it must have:
+
+{
+    "username": username, 
+    "password": password,
+}
+
+output: 
+
+{
+            "code": 201,
+            "msg": "Login Successfully",
+            "user": user_info_return
+}
+
+'''
 # let user log in 
 @app.route("/login", methods=['POST', 'GET'])
 def login():
@@ -211,6 +253,21 @@ def login():
             "msg": "Username or password is wrong",
         }), 404
 
+
+'''SHOW ALL USERS ACCOUNT
+this function returns all user profiles
+input: nothing
+
+output: 
+
+{
+    "code": 200,
+    "data": {
+        "user": [info.json() for info in all_user_info]
+    }
+}
+
+'''
 # to diplay profile of all users
 @app.route("/users")
 def getUserInfo():
@@ -236,6 +293,23 @@ def getUserInfo():
         }
     ), 404   
 
+
+'''DISPLAY USER PROFILE DETAILS
+this function checks user's username 
+input: it must have:
+
+{
+    "username": username, 
+}
+
+output: 
+
+{
+                "code": 200,
+                "data": user.json()
+}
+
+'''
 # to display user info
 @app.route("/profile/<string:username>", methods=['GET'])
 def find_user(username):
@@ -246,7 +320,7 @@ def find_user(username):
         return jsonify(
             {
                 "code": 200,
-                "data": user
+                "data": user.json()
             }
         )
     return jsonify(
@@ -256,23 +330,98 @@ def find_user(username):
         }
     ), 404
 
+
+'''EDIT USER PROFILE
+this function edits user details, username stays the same
+input: it must have:
+{
+    "user_id": user_id,
+    "first_name": first_name,
+    "last_name": last_name,
+    "username": username,
+    "number": number,
+    "email": email,
+    "password": password,
+    "address": address,
+    "latitude": latitude,
+    "longitude": longitude,
+    "dietary_type": dietary_type,
+    "travel_appetite": travel_appetite,
+    "sms_notif": sms_notif,
+    "email_notif": email_notif
+}
+
+output: 
+
+{
+    "code": 200,
+    "data": user.json()
+}
+
+'''
+
 # just to update user profile, according to the data receieved from website
-@app.route("/profile/<string:name>/update", methods=['PUT'])
-def update_by_user_id(name):
+@app.route("/profile/update", methods=['PUT'])
+def update_by_user_id():
+
+    print("editing profile...")
     
-    user = User.query.filter_by(name=name).first()
-    if user:
+
+    if request.get_json():
+        data = request.get_json()
+        user = User.query.filter_by(username=username).first()
+        username = user.username
+
+        if username:
+
+            try: 
+            
+                user.first_name = data['first_name']
+                user.last_name = data['last_name']
+                user.number = data['number']
+                user.email = data['email']
+                user.password = data['password']
+                user.address = data['address']
+                user.latitude = data['latitude']
+                user.longitude = data['longitude']
+                user.dietary_type = data['dietary_type']
+                user.travel_appetite = data['travel_appetite']
+                user.sms_notif = data['sms_notif']
+                user.email_notif = data['email_notif']
+                db.session.commit()
+
+                print('User details updated successfully')
+                return jsonify(
+                    {
+                        "code": 200,
+                        "data": user.json()
+                    }
+                )
+        
+            except Exception as e:
+                print("Error occured while updating the post.")
+                return jsonify(
+                    {
+                        "code": 500,
+                        "data": {
+                            "username": username
+                        },
+                        "message": "An error occurred while updating the post. System Message: " + str(e)
+                    }
+                ), 500
+        # user not found
         return jsonify(
-            {
-                "code": 200,
-                "data": user.json()
-            }
-        )
+        {
+            "code": 404,
+            "message": "User not found."
+        }
+        ), 404
+        
     
     return jsonify(
         {
             "code": 404,
-            "message": "User not found."
+            "message": "No data retrieved."
         }
     ), 404
 
@@ -281,8 +430,22 @@ def update_by_user_id(name):
 Details for wrapper function below
 
 Function: search for users where the food post latlng is within the users' travel appetite
-Input: food post JSON object
-Output: array of user JSON objects who fulfill the criteria
+Input: 
+
+{
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+}
+
+Output: 
+
+{
+    "code": 200,
+    "data": {
+        "user": [info.json() for info in filtered_users]
+    }
+}
+
 '''
 @app.route("/filter_user", methods=['POST'])
 # search for users that are within the distance
