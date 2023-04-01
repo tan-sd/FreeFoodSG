@@ -485,7 +485,7 @@ input: JSON of the new post. it must have:
 }
 output: JSON of either success or failure of creation
 '''
-@app.route("/create_post", methods=['POST'])
+@app.route("/post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(post_URL, method='POST', json=request.json)
