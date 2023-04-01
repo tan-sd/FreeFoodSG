@@ -20,9 +20,30 @@
                 <!-- HEADER GOES HERE v -->
                 <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="focus_on_buffet(index, true)">
                     <div class="row vw-100">
-                        <!-- IMAGE -->
+                        <!-- IMAGE CAROUSEL -->
                         <div class="col-6 col-md-7 col-lg-8">
-                            <img :src="require(`../assets/images/buffet_imgs/buffet${index%3+1}.jpg`)" class="img-fluid">
+                            <div id="foodlist-img-carousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner" data-bs-interval="2000">
+                                    <div class="carousel-item active">
+                                        <img src="../assets/images/buffet_imgs/buffet1.jpg" class="d-block w-100">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="2000">
+                                        <img src="../assets/images/buffet_imgs/buffet2.jpg" class="d-block w-100">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="2000">
+                                        <img src="../assets/images/buffet_imgs/buffet3.jpg" class="d-block w-100">
+                                    </div>
+                                </div>
+    
+                                <button class="carousel-control-prev" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- DETAILS -->
@@ -90,9 +111,30 @@
                 <!-- HEADER GOES HERE v -->
                 <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="focus_on_buffet(index, false)">
                     <div class="row vw-100">
-                        <!-- IMAGE -->
+                        <!-- IMAGE CAROUSEL -->
                         <div class="col-6 col-md-7 col-lg-8">
-                            <img :src="require(`../assets/images/buffet_imgs/buffet${index%3+1}.jpg`)" class="img-fluid">
+                            <div id="foodlist-img-carousel" class="carousel slide" data-bs-ride="carousel">
+                                <div class="carousel-inner" data-bs-interval="2000">
+                                    <div class="carousel-item active">
+                                        <img src="../assets/images/buffet_imgs/buffet1.jpg" class="d-block w-100">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="2000">
+                                        <img src="../assets/images/buffet_imgs/buffet2.jpg" class="d-block w-100">
+                                    </div>
+                                    <div class="carousel-item" data-bs-interval="2000">
+                                        <img src="../assets/images/buffet_imgs/buffet3.jpg" class="d-block w-100">
+                                    </div>
+                                </div>
+    
+                                <button class="carousel-control-prev" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="prev">
+                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Previous</span>
+                                </button>
+                                <button class="carousel-control-next" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="next">
+                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                    <span class="visually-hidden">Next</span>
+                                </button>
+                            </div>
                         </div>
 
                         <!-- DETAILS -->
@@ -169,6 +211,23 @@
 <script>
     const get_all_food_URL = "http://localhost:5100/all";
     const get_all_user_food_URL = "http://localhost:5100/filter_user"
+
+    // FIREBASE STUFF
+    import { initializeApp } from "firebase/app";
+    import { getStorage, ref, getDownloadURL } from 'firebase/storage'
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
+        authDomain: "makanboleh-1311.firebaseapp.com",
+        projectId: "makanboleh-1311",
+        storageBucket: "makanboleh-1311.appspot.com",
+        messagingSenderId: "269223674891",
+        appId: "1:269223674891:web:b089695c57872fc6fab30e",
+        measurementId: "G-17HRT79G1H"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const storage = getStorage(app);
 
     export default{
         props: [],
@@ -405,6 +464,26 @@
 
             deg2rad(deg) {
                 return deg * (Math.PI/180)
+            },
+
+            retrieve_img(file_name, img_id){
+                // retrieve an img from firebase storage
+
+                // test reference
+                const testphoto = ref(storage, file_name)
+            
+                // get download url to get your img
+                getDownloadURL(testphoto)
+                .then((url) => {
+                    // `url` is the download URL for testphoto
+                    const img = document.getElementById(img_id);
+                    img.setAttribute('src', url);
+                })
+                .catch((error) => {
+                    // Handle any errors
+                    console.log(error)
+                    console.log("you got an error")
+                });
             },
         },
 
