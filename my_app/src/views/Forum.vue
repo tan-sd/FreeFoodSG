@@ -158,7 +158,7 @@ import axios from 'axios';
             .then(function (response) {
                 console.log(response)
                 document.getElementById("forum_create_close_btn").click()
-                vm.update_posts()
+                vm.update_posts(true)
                 vm.clear_form()
                 vm.loading_post_button = false
             })
@@ -167,9 +167,12 @@ import axios from 'axios';
             })
         },
 
-        update_posts() {
-            this.forum_data = []
-            this.loading_posts = true
+        update_posts(hard_reload) {
+            // hard reload specifies whether to clear entire forum posts while reloading
+            if (hard_reload) {
+                this.forum_data = []
+                this.loading_posts = true
+            }
 
             axios.get('http://localhost:5100/posts')
             .then(response => {
@@ -189,6 +192,10 @@ import axios from 'axios';
                 }
 
                 this.comment_input_data = temp_comment_input_data
+
+                if (!hard_reload) {
+                    this.sending_comment_id = null
+                }
             })
             .catch(error => {
                 console.log("Error on Forum.vue API call to get all posts: ", error.message);
@@ -217,8 +224,7 @@ import axios from 'axios';
             .then(function (response) {
                 console.log(response)
 
-                vm.update_posts()
-                vm.sending_comment_id = null
+                vm.update_posts(false)
                 return true
             })
             .catch(function(error) {
@@ -236,7 +242,7 @@ import axios from 'axios';
     },
     components: { FontAwesomeIcon },
     created() {
-        this.update_posts()
+        this.update_posts(true)
     },
 }
 </script>
