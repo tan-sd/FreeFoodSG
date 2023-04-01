@@ -135,7 +135,6 @@
                 dietary_res: [],
                 email: '',
                 travel_appetite: '',
-                username: ''
             }
         },
 

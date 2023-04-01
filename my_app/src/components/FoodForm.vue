@@ -74,7 +74,7 @@
                     <font-awesome-icon icon="fa-solid fa-image" />&nbsp;Upload Image
                   </label>
                   
-                  <input class="form-control" type="file" id="foodform-upload-img-btn">
+                  <input class="form-control" type="file" id="foodform-upload-img-btn" accept="image/*" multiple>
               </div>
   
               <!-- SUBMIT BTN -->
@@ -93,6 +93,28 @@
   import axios from 'axios';
   import VueDatePicker from '@vuepic/vue-datepicker';
   import '@vuepic/vue-datepicker/dist/main.css';
+
+  // Firebase Stuff
+  // Import the functions you need from the SDKs you need
+import { initializeApp } from "firebase/app";
+import { getStorage, ref, uploadBytes } from 'firebase/storage'
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+    apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
+    authDomain: "makanboleh-1311.firebaseapp.com",
+    projectId: "makanboleh-1311",
+    storageBucket: "makanboleh-1311.appspot.com",
+    messagingSenderId: "269223674891",
+    appId: "1:269223674891:web:b089695c57872fc6fab30e",
+    measurementId: "G-17HRT79G1H"
+};
+
+const app = initializeApp(firebaseConfig);
+const storage = getStorage(app);
 
   export default{
     components: { VueDatePicker },
@@ -137,6 +159,8 @@
       },
 
       submit_new_post() {
+        console.log(`=== [START] submit_new_post() ===`)
+
         //Handle errors
         if (
             this.post_location === '' ||
@@ -144,6 +168,7 @@
             this.post_desc === ''
         ) {
             console.log("FIELDS NOT FILLED ====")
+            console.log(`=== [END] submit_new_post() ===`)
             return false
         }
 
@@ -161,10 +186,14 @@
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success: ", response)
+            console.log("Success: ", response.data.data.post_status.data.post.post_id)
+            console.log(`=== [END] submit_new_post() ===`)
+
+            // this.upload_img()
         })
         .catch(function(error) {
             console.log(error)
+            console.log(`=== [END] submit_new_post() ===`)
         })
       },
 
@@ -187,6 +216,29 @@
         }
 
         return `Buffet ends ${day_ends} at ${date.getHours()}:${date.getMinutes()}`;
+      },
+
+      upload_img(local_filename) {
+        console.log(`=== [START] upload_img() ===`)
+        var img_files = document.getElementById("foodform-upload-img-btn").files
+        
+        // for loop to upload each file selected
+        for(let i = 0; i< img_files.length; i++){
+            // upload img to firebase storage
+            // the input "input_file" takes in a "File" object data type
+            var img_file = img_files[i]
+
+            // step 1: define what file you want to label this image as
+            // (put it as the food ID)
+            var file_name = `${local_filename}_${i}`
+
+            // step 2: nothing, the code will take care of the rest
+            var uploadRef = ref(storage, file_name)
+            uploadBytes(uploadRef, img_file).then(() => {
+                console.log('Uploaded a blob or file!');
+                console.log('this is file number ' + i)
+            })
+        }
       }
     }
   }

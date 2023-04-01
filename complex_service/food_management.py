@@ -36,6 +36,10 @@ post_URL = 'http://localhost:1112/create_post'
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
 
+# SCENARIO 4: GET ALL FOOD POSTS
+
+
+
 
 def activity_log(ms_name):
     '''
@@ -200,6 +204,7 @@ def user_register():
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
+
             user_login_details = request.get_json()
             print("\nReceived username and password in JSON:", user_login_details)
 
@@ -240,6 +245,7 @@ def register(user_details):
     verification_result = invoke_http(url, method='POST', json=user_details)
     activity_log("user") #to put in activity log
 
+    
     print('verification_result:', verification_result)
 
     code = verification_result["code"]
@@ -271,8 +277,7 @@ def register(user_details):
 
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
-    '''
-    GET ALL NEARBY FOOD
+    '''GET ALL NEARBY FOOD
     Function: get all available food near the user
 
     Input: JSON object -> {
@@ -466,20 +471,26 @@ def show_available_food(location):
 ################## END OF SCENARIO 1 ####################
 
 ################## START OF SCENARIO 2 ##################
-'''CREATE A POST
-this function creates a post
-input: JSON of the new post. it must have:
+'''DOCUMENTATION HERE
+User posts a new post
+input(json): 
 {
-    "username": "actual_username",
-    "post_name": "actual_postname",
-    "latitude": 1.296568,
-    "longitude": 103.852119,
-    "address": "81 Victoria St, Singapore 188065",
-    "description": "long_description",
-    "end_time" : "YYYY-MM-DD HH:MI:SS",
-    "diets_available": ["prawn-free", "halal", "nut-free"]
+    post_id = type int
+    username = type varchar
+    post_name = type varchar
+    latitude = type float, precision 6
+    longitude = type float, precision 6
+    address = type varchar
+    description = type varchar
+    is_available = type bit or integer, 0 is false, 1 is true
+    end_time = type varchar, in YYYY-MM-DD HH:MM:SS format
 }
-output: JSON of either success or failure of creation
+output(json):
+{
+    code: type int <- tells you the server code, 404 if error
+    msg: details of the post if successful
+}
+
 '''
 @app.route("/post", methods=['POST'])
 def post_food():
@@ -629,7 +640,7 @@ def create_post(post_details):
     url = create_forum_URL + '/create'
 
     forum_result = invoke_http(url, method='POST', json=post_details)
-    activity_log("forum") #to put in acti #to put in activity log
+    activity_log("forum") #to put in activity log
     print('forum_result:', forum_result)
 
     # Check the food result; if a failure, send it to the error microservice.
