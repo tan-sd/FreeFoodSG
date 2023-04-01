@@ -14,11 +14,14 @@
             :key="index"
             v-for="(m, index) in markers"
             :position="m.position"
-            :icon="m.icon"
+            :icon="{
+                url: m.icon,
+                scaledSize: m.scaledSize
+            }"
             @click="toggleAccordion(index)"
         />
         <GMapCircle
-            :radius="2000"
+            :radius="this.appetites[this.user_appetite]"
             :center="currentLocation"
             :options="circleOptions"
         />
@@ -61,10 +64,25 @@
   <script>
     import axios from 'axios' 
     const food_info_url = 'http://localhost:1112/all'
+    const get_user_info = 'http://localhost:1111/profile'
     // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
+            get_user_info(username) {
+                console.log(`${get_user_info}/${username}`)
+                const response = fetch(`${get_user_info}/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("get_user_info() -", response);
+                        if (data.code === 404) {
+                            console.log("get_user_info() - error!");
+                        } else {
+                            this.user_appetite = data.data.travel_appetite
+                            console.log(this.user_appetite)
+                        }
+                    })
+            },
             toggleAccordion(index) {
                 this.$store.state.markerId = index
                 console.log(this.$store.state.markerId)
@@ -77,8 +95,8 @@
                 const selectedAccordionBody = document.querySelector(`.accordionBody${index}`)
                 console.log(selectedAccordionBody)
                 selectedAccordionBody.classList.add('show')
-                const accordionElement = this.$refs.index
-                accordionElement.classList.toggle('active')
+                // const accordionElement = this.$refs.index
+                // accordionElement.classList.toggle('active')
             },
             onInput() {
                 this.showClearButton = this.$refs.autocomplete.$refs.input.value.length > 0;
@@ -88,7 +106,7 @@
             re_center() {
                 const map = this.$refs.map
                 map.panTo(this.currentLocation)
-                this.zoomValue = 15
+                this.zoomValue = 14
             },
             clear_search() {
                 this.$refs.autocomplete.$refs.input.value = '';
@@ -129,7 +147,8 @@
                                                 lng: foods[i].longitude,
                                             },
                                             post_id: foods[i].post_id,
-                                            icon: require("../assets/images/flaticon/food.png")
+                                            icon: require("../assets/images/flaticon/food.png"),
+                                            scaledSize: {width: 45, height: 45}
                                         })
                         }
                         console.log("All markers created!")
@@ -210,6 +229,7 @@
                 this.center.lng = position.coords.longitude;
                 this.currentLocation.lat = position.coords.latitude;
                 this.currentLocation.lng = position.coords.longitude;
+                this.get_user_info(this.$store.state.user_details.username)
             });
             console.log("Got user's current location")
             console.log("Getting food post information from dB")
@@ -218,6 +238,13 @@
         },
         data() {
             return {
+                appetites: {
+                    Near: 1000,
+                    Medium: 2500,
+                    Far: 5000,
+                },
+                user_appetite: null,
+                username: null,
                 showClearButton: false,
                 search: '',
                 actLocation: "",

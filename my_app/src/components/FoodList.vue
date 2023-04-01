@@ -123,7 +123,7 @@
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
                     <!-- HEADER GOES HERE v -->
-                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="focus_on_buffet(index, false)">
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index)" :id="`accordionList${index+1}`">
                         <div class="row vw-100">
                             <!-- IMAGE CAROUSEL -->
                             <div class="col-6 col-md-7 col-lg-8">
@@ -172,49 +172,41 @@
                     </button>
         
                     </h2>
-                    <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
-
-                <div class="accordion-collapse collapse accordionBody" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`" :class="`accordionBody${index+1}`">
-                
-                <!-- BODY GOES HERE v -->
-                <div class="accordion-body bg-light-gradient">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-12">
-                                <h6>
-                                    <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
-                                </h6>
-                            </div>
-                            <div class="col-12">
-                                <h6>
-                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
-                                </h6>
-
-                                        <p>
-                                            {{ e_buff.description }}
-                                        </p>
-                                    </div>
-                                    <div class="col-12 d-flex justify-content-center align-items-center">
-                                        <div>
-                                            <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                                <button class="btn btn-main">
-                                                    <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                                </button>
-                                            </a>
-                                        </div>
-                                    </div>
+                    <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian"  :class="`accordionBody${index+1}`">
+                    
+                    <!-- BODY GOES HERE v -->
+                    <div class="accordion-body bg-light-gradient">
+                        <div class="container-fluid">
+                            <div class="row">
+                                <div class="col-12">
+                                    <h6>
+                                        <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                    </h6>
                                 </div>
-                            </div>   
+                                <div class="col-12">
+                                    <h6>
+                                        <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
+                                    </h6>
+
+                                    <p>
+                                        {{ e_buff.description }}
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    </div>
+            
+                <div class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`">
                 </div>
             </div>
-            <div v-else>
+            </div>
+        </div>
+        <div v-else>
             <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
         </div>
-        </div>
     </div>
+    </div>
+           
 </template>
 
 
