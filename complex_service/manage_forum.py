@@ -134,7 +134,7 @@ def create_post(post_details):
     if code not in range(200, 300):
         activity_log("forum_info_error")
         return {
-            "code": 501,
+            "code": 500,
             "data": {"forum_result": forum_result},
             "message": "Retrieve forum failure sent for error handling."
         }
