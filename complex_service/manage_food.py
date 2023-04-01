@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import os, sys
+import os
 from invokes import invoke_http
 from invoke_activity import activity_log
 app = Flask(__name__)
@@ -33,7 +33,7 @@ output(json):
 def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(create_post_URL, method='POST', json=request.json)
-    activity_log("food")
+    activity_log("food_info")
     print('Post status:', post_result)
     return {
         "code": 201,
