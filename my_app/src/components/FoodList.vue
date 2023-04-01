@@ -22,24 +22,18 @@
                     <div class="row vw-100">
                         <!-- IMAGE CAROUSEL -->
                         <div class="col-6 col-md-7 col-lg-8">
-                            <div id="foodlist-img-carousel" class="carousel slide" data-bs-ride="carousel">
+                            <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
                                 <div class="carousel-inner" data-bs-interval="2000">
-                                    <div class="carousel-item active">
-                                        <img src="../assets/images/buffet_imgs/buffet1.jpg" class="d-block w-100">
-                                    </div>
-                                    <div class="carousel-item" data-bs-interval="2000">
-                                        <img src="../assets/images/buffet_imgs/buffet2.jpg" class="d-block w-100">
-                                    </div>
-                                    <div class="carousel-item" data-bs-interval="2000">
-                                        <img src="../assets/images/buffet_imgs/buffet3.jpg" class="d-block w-100">
+                                    <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
+                                        <img :src="e_imgsrc" class="d-block w-100">
                                     </div>
                                 </div>
     
-                                <button class="carousel-control-prev" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="prev">
+                                <button class="carousel-control-prev" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
                                     <span class="carousel-control-prev-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Previous</span>
                                 </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="next">
+                                <button class="carousel-control-next" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
                                     <span class="carousel-control-next-icon" aria-hidden="true"></span>
                                     <span class="visually-hidden">Next</span>
                                 </button>
@@ -89,7 +83,7 @@
                             <div class="col-12 d-flex justify-content-center align-items-center">
                                 <div>
                                     <button class="btn btn-warning btn-expand">
-                                        <font-awesome-icon icon="fa-solid fa-circle-stop" />&nbsp;&nbsp;End Buffet
+                                        <font-awesome-icon icon="fa-solid fa-circle-stop" />&nbsp;&nbsp;End Event
                                     </button>
                                 </div>
                             </div>
@@ -105,102 +99,96 @@
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
             <div v-if="food.length > 0">
-            <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
-                <h2 class="accordion-header" :id="`flush-heading${index}`">
-    
-                <!-- HEADER GOES HERE v -->
-                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="focus_on_buffet(index, false)">
-                    <div class="row vw-100">
-                        <!-- IMAGE CAROUSEL -->
-                        <div class="col-6 col-md-7 col-lg-8">
-                            <div id="foodlist-img-carousel" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner" data-bs-interval="2000">
-                                    <div class="carousel-item active">
-                                        <img src="../assets/images/buffet_imgs/buffet1.jpg" class="d-block w-100">
+                <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" >
+                    <h2 class="accordion-header" :id="`flush-heading${index}`">
+        
+                    <!-- HEADER GOES HERE v -->
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="focus_on_buffet(index, false)">
+                        <div class="row vw-100">
+                            <!-- IMAGE CAROUSEL -->
+                            <div class="col-6 col-md-7 col-lg-8">
+                                <div :id="`foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner" data-bs-interval="2000">
+                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
+                                            <img :src="e_imgsrc" class="d-block w-100">
+                                        </div>
                                     </div>
-                                    <div class="carousel-item" data-bs-interval="2000">
-                                        <img src="../assets/images/buffet_imgs/buffet2.jpg" class="d-block w-100">
+        
+                                    <button class="carousel-control-prev" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- DETAILS -->
+                            <div class="col-6 col-md-5 col-lg-4">
+                                <div class="row">
+                                    <!-- DIET RESTRICTIONS -->
+                                    <div class="col-12">
+                                        <h6>
+                                            <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
+                                                <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
+                                            </i>
+                                        </h6>
                                     </div>
-                                    <div class="carousel-item" data-bs-interval="2000">
-                                        <img src="../assets/images/buffet_imgs/buffet3.jpg" class="d-block w-100">
+
+                                    <!-- TIME LEFT -->
+                                    <div class="col-12">
+                                        <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
+                                    </div>
+
+                                    <!-- DISTANCE -->
+                                    <div class="col-12" v-if="user_lat">
+                                        <h6><font-awesome-icon icon="fa-solid fa-person-walking" /> {{ e_buff.distance }}</h6>
                                     </div>
                                 </div>
-    
-                                <button class="carousel-control-prev" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" data-bs-target="#foodlist-img-carousel" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
                             </div>
                         </div>
-
-                        <!-- DETAILS -->
-                        <div class="col-6 col-md-5 col-lg-4">
+                    </button>
+        
+                    </h2>
+                    <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
+                    
+                    <!-- BODY GOES HERE v -->
+                    <div class="accordion-body bg-light-gradient">
+                        <div class="container-fluid">
                             <div class="row">
-                                <!-- DIET RESTRICTIONS -->
                                 <div class="col-12">
                                     <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
-                                            <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
-                                        </i>
+                                        <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
                                     </h6>
                                 </div>
-
-                                <!-- TIME LEFT -->
                                 <div class="col-12">
-                                    <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
-                                </div>
+                                    <h6>
+                                        <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
+                                    </h6>
 
-                                <!-- DISTANCE -->
-                                <div class="col-12" v-if="user_lat">
-                                    <h6><font-awesome-icon icon="fa-solid fa-person-walking" /> {{ e_buff.distance }}</h6>
+                                    <p>
+                                        {{ e_buff.description }}
+                                    </p>
+                                </div>
+                                <div class="col-12 d-flex justify-content-center align-items-center">
+                                    <div>
+                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                            <button class="btn btn-main">
+                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                            </button>
+                                        </a>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                            
                     </div>
-                </button>
-    
-                </h2>
-                <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
-                
-                <!-- BODY GOES HERE v -->
-                <div class="accordion-body bg-light-gradient">
-                    <div class="container-fluid">
-                        <div class="row">
-                            <div class="col-12">
-                                <h6>
-                                    <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
-                                </h6>
-                            </div>
-                            <div class="col-12">
-                                <h6>
-                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
-                                </h6>
-
-                                <p>
-                                    {{ e_buff.description }}
-                                </p>
-                            </div>
-                            <div class="col-12 d-flex justify-content-center align-items-center">
-                                <div>
-                                    <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                        <button class="btn btn-main">
-                                            <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                        </button>
-                                    </a>
-                                </div>
-                            </div>
-                        </div>
                     </div>
-                        
-                </div>
                 </div>
             </div>
-        </div>
-        <div v-else>
+            <div v-else>
             <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
         </div>
         </div>
@@ -214,7 +202,7 @@
 
     // FIREBASE STUFF
     import { initializeApp } from "firebase/app";
-    import { getStorage, ref, getDownloadURL } from 'firebase/storage'
+    import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage'
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
@@ -236,6 +224,10 @@
             return{
                 food: [],
                 user_food: [],
+
+                pulling_food: true,
+                pulling_my_food: true,
+
                 buffets: [
                     {
                         description: 'Food at SOL',
@@ -246,28 +238,7 @@
                         end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
                         diet_res: ['halal', 'vegetarian', 'nobeef'],
                         time_left: '',
-                    },
-
-                    {
-                        description: 'Food at Esplanade. Really delicious, got chicken wings, burger, nuggets, bull penis, ice cream and chocolate cake! Come fast cos confirm very fast clear one~ :)Food at Esplanade. Really delicious, got chicken wings, burger, nuggets, bull penis, ice cream and chocolate cake! Come fast cos confirm very fast clear one~ :)Food at Esplanade. Really delicious, got chicken wings, burger, nuggets, bull penis, ice cream and chocolate cake! Come fast cos confirm very fast clear one~ :)',
-                        location: '1 Esplanade Dr, Singapore 038981',
-                        lat: 1.2898355468246039,
-                        long: 103.85527989652236,
-                        distance: null,
-                        end_time: '2023-03-12T22:00:00',
-                        diet_res: ['halal'],
-                        time_left: '',
-                    },
-
-                    {
-                        description: 'Food at ur mom\'s house',
-                        location: '17 Petir Rd, Singapore 678278',
-                        lat: 1.3784975491700686,
-                        long: 103.76300728853624,
-                        distance: null,
-                        end_time: '2023-03-12T22:30:00',
-                        diet_res: ['vegetarian'],
-                        time_left: '',
+                        img: ['url1', 'url2']
                     },
                 ],
 
@@ -313,32 +284,45 @@
                 const response = fetch(get_all_food_URL)
                     .then(response => response.json())
                     .then(data => {
-                        console.log(response);
+                        console.log("get_all_food() -", response);
                         if (data.code === 404) {
-                            console.log("error!");
+                            console.log("get_all_food() - error!");
                         } else {
                             this.food = data.data.food
+                            this.pulling_food = false
+                            this.update_buffet_images()
+                            this.update_buffet_distance()
+                            this.update_buffet_time_left()
                     }
                 })
                     .catch(error => {
-                        console.log(error);
+                        console.log("get_all_food() error -", error);
                     })
             },
+
             get_all_user_food() {
-                console.log(`${get_all_user_food_URL}`)
-                console.log(`${this.$store.state.user_details.username}`)
                 const response = fetch(`${get_all_user_food_URL}/${this.$store.state.user_details.username}`)
                     .then(response => response.json())
                     .then(data => {
-                        console.log(response);
+                        console.log("get_all_user_food() response: ", response);
                         if (data.code === 404) {
-                            console.log("error!");
+                            console.log("get_all_user_food() - error!");
                         } else {
                             this.user_food = data.data
+                            this.pulling_my_food = false
+                            this.update_buffet_images()
+                            this.update_buffet_distance()
+                            this.update_buffet_time_left()
                         }
                     })
             },
+
             update_buffet_time_left() {
+                // BREAK IF STILL PULLING DATA
+                if (this.pulling_food || this.pulling_my_food) {
+                    return
+                }
+
                 let curr_time = new Date();
 
                 for (let e_buff of this.food) {
@@ -369,13 +353,19 @@
             update_buffet_distance() {
                 console.log(`=== [START] update_buffet_distance() ===`)
                 
+                // BREAK IF STILL PULLING DATA
+                if (this.pulling_food || this.pulling_my_food) {
+                    console.log("update_buffet_distance() - Not done uploading")
+                    return
+                }
+
+                console.log("update_buffet_distance() - this.food: ", this.food)
+
                 for (let e_buff of this.food) {
                     // UPDATES DISTANCE
                     let target_lat = e_buff.latitude
                     let target_long = e_buff.longitude
                     let distance_km = this.get_distance_km(target_lat, target_long, this.user_lat, this.user_long)
-
-                    console.log("User curr latlong", this.user_lat, this.user_long)
 
                     if (distance_km >= 1) {
                         e_buff.distance = distance_km.toFixed(1).toString() + "km"
@@ -385,6 +375,30 @@
                 }
 
                 console.log(`=== [END] update_buffet_distance() ===`)
+            },
+
+            update_buffet_images() {
+                console.log(`=== [START] update_buffet_images() ===`)
+                
+                // BREAK IF STILL PULLING DATA
+                if (this.pulling_food || this.pulling_my_food) {
+                    console.log("update_buffet_images() - Not done uploading")
+                    return
+                }
+
+                var img_arr = []
+
+                for (let e_buff of this.food) {
+                    img_arr = this.return_buffet_imgs_arr(e_buff.post_id)
+                    e_buff.img = img_arr
+                }
+
+                for  (let e_buff of this.user_food) {
+                    img_arr = this.return_buffet_imgs_arr(e_buff.post_id)
+                    e_buff.img = img_arr
+                }
+
+                console.log(`=== [END] update_buffet_images() ===`)
             },
 
             current_expanded() {
@@ -436,7 +450,6 @@
                 
                 this.user_lat = position.coords.latitude
                 this.user_long =  position.coords.longitude
-
                 this.update_buffet_distance()
 
                 console.log(`=== [END] update_user_latlong() ===`)
@@ -466,24 +479,39 @@
                 return deg * (Math.PI/180)
             },
 
-            retrieve_img(file_name, img_id){
-                // retrieve an img from firebase storage
+            return_buffet_imgs_arr(food_id){
+                console.log(`=== [START] return_buffet_imgs_arr(${food_id}) ===`)
+                
+                // retrieve a list of imges from firebase storage
+                var to_return = []
 
-                // test reference
-                const testphoto = ref(storage, file_name)
-            
-                // get download url to get your img
-                getDownloadURL(testphoto)
-                .then((url) => {
-                    // `url` is the download URL for testphoto
-                    const img = document.getElementById(img_id);
-                    img.setAttribute('src', url);
-                })
-                .catch((error) => {
-                    // Handle any errors
-                    console.log(error)
-                    console.log("you got an error")
+                // test reference to the folder
+                const list_ref = ref(storage, `${food_id}/`)
+
+                listAll(list_ref)
+                .then((res) => {
+                res.items.forEach((itemRef) => {
+                    // All the items under listRef.
+                    // console.log(res.items.length)
+
+                    getDownloadURL(itemRef)
+                    .then((url) => {
+                        // `url` is the download URL for testphoto
+                        console.log(`return_buffet_imgs_arr() url: ${url}`)
+                        to_return.push(url)
+                    })
+                    .catch((error) => {
+                        // Handle any errors
+                        console.log("return_buffet_imgs_arr() error: ", error)
+                    });
                 });
+                }).catch((error) => {
+                    // Uh-oh, an error occurred!
+                    console.log("return_buffet_imgs_arr() error: ", error)
+                });
+
+                console.log(`=== [END] return_buffet_imgs_arr(${food_id}) ===`)
+                return to_return
             },
         },
 
@@ -492,7 +520,6 @@
 
         async created() {
             this.getLocation();
-            this.update_buffet_time_left();
             this.get_all_food();
             this.get_all_user_food();
         }
@@ -501,6 +528,7 @@
 
 
 <style scoped>
+
     /* Up to LG */
     @media (max-width: 769px) {
         #food_accordian{
