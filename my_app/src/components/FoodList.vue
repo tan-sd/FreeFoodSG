@@ -34,49 +34,49 @@
             <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index">
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
-                <!-- HEADER GOES HERE v -->
-                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
-                    <div class="row vw-100">
-                        <!-- IMAGE CAROUSEL -->
-                        <div class="col-6 col-md-7 col-lg-8">
-                            <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner" data-bs-interval="2000">
-                                    <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
-                                        <img :src="e_imgsrc" class="d-block w-100">
+                    <!-- HEADER GOES HERE v -->
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
+                        <div class="row vw-100">
+                            <!-- IMAGE CAROUSEL -->
+                            <div class="col-6 col-md-7 col-lg-8">
+                                <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner" data-bs-interval="2000">
+                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
+                                            <img :src="e_imgsrc" class="d-block w-100">
+                                        </div>
+                                    </div>
+        
+                                    <button class="carousel-control-prev" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- DETAILS -->
+                            <div class="col-6 col-md-5 col-lg-4">
+                                <div class="row">
+                                    <!-- DIET RESTRICTIONS -->
+                                    <div class="col-12">
+                                        <h6>
+                                            <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
+                                                <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
+                                            </i>
+                                        </h6>
+                                    </div>
+
+                                    <!-- TIME LEFT -->
+                                    <div class="col-12">
+                                        <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
                                     </div>
                                 </div>
-    
-                                <button class="carousel-control-prev" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
                             </div>
                         </div>
-
-                        <!-- DETAILS -->
-                        <div class="col-6 col-md-5 col-lg-4">
-                            <div class="row">
-                                <!-- DIET RESTRICTIONS -->
-                                <div class="col-12">
-                                    <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
-                                            <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
-                                        </i>
-                                    </h6>
-                                </div>
-
-                                <!-- TIME LEFT -->
-                                <div class="col-12">
-                                    <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </button>
+                    </button>
     
                 </h2>
                 <div :id="`mybuff-flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
@@ -173,31 +173,7 @@
         
                     </h2>
                     <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
-                    
-                    <!-- BODY GOES HERE v -->
-                    <div class="accordion-body bg-light-gradient">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
-                                    </h6>
-                                </div>
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
-                                    </h6>
 
-                                    <p>
-                                        {{ e_buff.description }}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </button>
-    
-                </h2>
                 <div class="accordion-collapse collapse accordionBody" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`" :class="`accordionBody${index+1}`">
                 
                 <!-- BODY GOES HERE v -->
@@ -228,9 +204,9 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                                
+                            </div>   
                         </div>
+                    </div>
                     </div>
                 </div>
             </div>
