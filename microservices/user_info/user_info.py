@@ -235,8 +235,8 @@ def login():
             "msg": "Username or password is wrong",
         }), 404
     
-    # elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
-    elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
+    elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
+    # elif user.username == username and user.password == password: # <-- ADAM - Uncomment this to test website w/o encryption
         user_info_return = user.json()
         del user_info_return['password']
 
