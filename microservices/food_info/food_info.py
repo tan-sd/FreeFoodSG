@@ -415,18 +415,9 @@ def edit_diets_table(post_id, diet_list):
 Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
 Input: user JSON object, it must include:
 {
-    "user_id": 1,
-    "first_name": "faez",
-    "last_name": "latiff",
-    "username": "faezlatiff",
-    "number": 12345678,
-    "email": "faez@smu.com",
-    "password": "password",
-    "address": "Victoria Street, Singapore Management University, Singapore",
     "latitude": 1.296273,
     "longitude": 103.850158,
-    "dietary_type": "no prawns",
-    "travel_appetite": 1
+    "dietary_type": ["halal","no prawns"]
 }
 Output: array of food post JSON objects that fulfill the criteria
 '''
