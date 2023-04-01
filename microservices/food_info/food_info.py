@@ -85,9 +85,10 @@ this function shows all posts that are available
 input: None, access this using the URL
 output: list of post JSONs
 '''
-@app.route("/all")
+@app.route("/all", methods=['GET'])
 def all():
     posts_data = food_table.query.filter_by(is_available=1).all()
+    print("Getting all available posts from database...")
     if posts_data:
         output_list = []
         for post in posts_data:
@@ -113,17 +114,18 @@ def all():
             data["diets_available"] = diet_list # list of diets for post
             output_list.append(data)
         
-        if len(posts_data):
-            return jsonify(
-                {
-                    "code": 200,
-                    "data": {
-                        "food": output_list
-                    }
+        print("Available posts retrieved!")
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "food": output_list
                 }
-            )
+            }
+        )
     
     else:
+        print("No available food!")
         return jsonify(
             {
                 "code": 404,
@@ -148,22 +150,8 @@ output: JSON of either success or failure of creation
 '''
 @app.route("/create_post", methods=['POST'])
 def create_post():
-    #check if not json
-    if not request.is_json:
-        data = request.get_data()
-        print("Received an invalid post!")
-        print(data)
-        print()
-        return jsonify(
-            {
-                "code": 403,
-                "data": data,
-                "message": "Request is not in JSON."
-            }
-        ), 403
-
     #if json, try adding
-    else:
+    if request.is_json:
         data = request.get_json()
         print("Adding post into database...")
         
@@ -180,10 +168,10 @@ def create_post():
             }
         ), 201
         
-        else:
-            print("Error adding post into database: ")
-            print(add_to_db(data))
-            return add_to_db(data)
+    else:
+        print("Error adding post into database: ")
+        print(add_to_db(data))
+        return add_to_db(data)
    
 def add_to_db(data):
     '''
