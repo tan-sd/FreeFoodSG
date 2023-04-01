@@ -48,6 +48,7 @@
                 
                 <!-- COMMENTS -->
                 <div class="collapse bg-extra-light" :id="`collapse-${e_post.forum_id}`">
+                    <!-- CURRENT COMMENTS -->
                     <div v-for="(e_comment, index) in e_post.comments" :key="index">
                         <div class="card-footer d-flex">
                             <div class="post-user-img">
@@ -55,16 +56,17 @@
                             </div>
             
                             <div class="post-title">
-                                <p class="my-0"><span class="fw-semibold">@{{ e_comment.username }}</span> {{ convert_datetime_to_readable(e_comment.datetime) }}</p>
-                                <p class="mt-1 mb-0">{{ e_comment.description }}</p>
+                                <p class="my-0"><span class="fw-semibold">@{{ e_comment.commentor_username }}</span> {{ convert_datetime_to_readable(e_comment.datetime) }}</p>
+                                <p class="mt-1 mb-0">{{ e_comment.comment }}</p>
                             </div>
                         </div>
                     </div>
         
-                    <div class="card-footer">
+                    <!-- ADD NEW COMMENT -->
+                    <div class="card-footer" v-if="this.$store.state.isAuthenticated">
                         <div class="input-group my-2">
-                            <input type="text" class="form-control" placeholder="Add comment" :aria-describedby="`forum-${e_post.forum_id}-add-comment`">
-                            <button class="btn btn-dark" type="button" :id="`forum-${e_post.forum_id}-add-comment`">Reply</button>
+                            <input type="text" class="form-control" placeholder="Add comment" :aria-describedby="`forum-${e_post.forum_id}-add-comment`" v-model="comment_input_data[e_post.forum_id]">
+                            <button class="btn btn-dark" type="button" :disabled="sending_comment_id" :id="`forum-${e_post.forum_id}-add-comment`" @click="submit_new_comment(e_post.forum_id)"><font-awesome-icon :icon="['fas', 'spinner']" v-if="sending_comment_id == e_post.forum_id" class="me-2" spin />Reply</button>
                         </div>
                     </div>
                 </div>
@@ -72,7 +74,6 @@
         </div>
 
         <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-comment` : ``" @click="redirect_to_login()"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Thread</span></button>
-        <!-- <button class="btn btn-main-fixed post-btn" data-bs-toggle="modal" data-bs-target="#new-comment" @click="redirect_to_login()"><font-awesome-icon icon="fa-solid fa-plus" /><span> Create Thread</span></button> -->
     </div>
 
     <div class="modal fade" id="new-comment" tabindex="-1" aria-labelledby="modal-title" aria-hidden="true">
@@ -80,7 +81,7 @@
             <div class="modal-content bg-light text-dark">
                 <div class="modal-header bg-dark text-extra-light">
                     <h5 class="modal-title" id="modal-title"><font-awesome-icon icon="fa-solid fa-comments" /> Create Forum Post</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button id="forum_create_close_btn" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
 
                 <div class="modal-body">
@@ -120,21 +121,8 @@ import axios from 'axios';
             forum_data: [],
             loading_posts: true,
             loading_post_button: false,
-
-            // PRESET FORUM DATA
-            // [
-            //     {
-            //         forum_id: 0,
-            //         username: "adambft",
-            //         title: "Free Food @ Salesforce Event!",
-            //         description: "Come down to Saleforce office at 123 Bugis Street 25 to enjoy free drinks and food on 30 Apr 2023 2-4pm!",
-            //         datetime: "2023-03-12T08:30:00",
-            //         comments: [
-            //             { username: "sethyap", description: "Fk you Salesforce sucks", datetime: "2023-03-12T09:12:00" },
-            //             { username: "angkengboon", description: "No, fk you I love Salesforce. SF is bae <3 uwu", datetime: "2023-03-12T10:20:00" }
-            //         ]
-            //     }
-            // ]
+            comment_input_data: {},
+            sending_comment_id: null
         };
     },
     methods: {
@@ -152,8 +140,14 @@ import axios from 'axios';
             }
         },
 
+        clear_form() {
+            this.create_post_title = ""
+            this.create_post_desc = ""
+        },
+
         submit_new_post() {
             this.loading_post_button = true
+            var vm = this
 
             axios.post("http://localhost:5100/create_post", {
                 "username": this.$store.state.user_details.username,
@@ -163,7 +157,10 @@ import axios from 'axios';
             })
             .then(function (response) {
                 console.log(response)
-                location.reload()
+                document.getElementById("forum_create_close_btn").click()
+                vm.update_posts()
+                vm.clear_form()
+                vm.loading_post_button = false
             })
             .catch(function(error) {
                 console.log(error)
@@ -171,24 +168,65 @@ import axios from 'axios';
         },
 
         update_posts() {
+            this.forum_data = []
+            this.loading_posts = true
+
             axios.get('http://localhost:5100/posts')
             .then(response => {
                 // console.log("HERE U GO: ", response.data.data.forum)
-                let response_data = response.data.data.forum
+                let response_data = response.data.data.forum_result.data.forum
 
-                //FOR TESTING: REPLACE/ DELETE ONCE RACHAEL FINISH ADDING COMMENTS TO JSON RESPONSE
-                for (let e_post of response_data) {
-                    if (!('comments' in e_post)) {
-                        e_post.comments = []
-                    }
-                }
+                // sorts list by datetime (latest first)
+                response_data.sort(function(a,b) {return Date.parse(b.datetime)-Date.parse(a.datetime)})
 
                 this.forum_data = response_data
                 this.loading_posts = false
+
+                // CREATES OBJECT W [Key:Forum_ID, Value: ""]
+                let temp_comment_input_data = {}
+                for (let e_post of response_data) {
+                    temp_comment_input_data[e_post.forum_id] = ''
+                }
+
+                this.comment_input_data = temp_comment_input_data
             })
             .catch(error => {
                 console.log("Error on Forum.vue API call to get all posts: ", error.message);
             });
+        },
+
+        submit_new_comment(forumid) {
+            var vm = this
+            var comment = this.comment_input_data[forumid]
+            var curr_datetime = new Date().toISOString().split(".")[0]
+            this.sending_comment_id = forumid
+
+            // RETURN FALSE IF NO COMMENT
+            if (comment.length == 0) {
+                this.sending_comment_id = null
+                return false
+            }
+
+            // ELSE SUBMIT COMMENT
+            axios.post("http://localhost:5100/create_comment", {
+                "forum_id": forumid,
+                "commentor_username": this.$store.state.user_details.username,
+                "comment": comment,
+                "datetime": curr_datetime
+            })
+            .then(function (response) {
+                console.log(response)
+
+                vm.update_posts()
+                vm.sending_comment_id = null
+                return true
+            })
+            .catch(function(error) {
+                console.log(error)
+    
+                vm.sending_comment_id = null
+                return false
+            })
         }
     },
     computed: {

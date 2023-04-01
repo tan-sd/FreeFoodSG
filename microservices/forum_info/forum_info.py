@@ -87,10 +87,7 @@ def all():
 
     comments_obj = {}
     for comment in comments:
-        print('comment here')
-        print(comment)
         id = comment['forum_id']
-        print(type(id))
 
         #       {
         #   "1": [
@@ -121,14 +118,19 @@ def all():
             comments_obj[id] = [comment]
         else:
             comments_obj[id].append(comment)
+    
+    all_posts = forum_db.query.all()
 
-    for id in comments_obj:
-        # rmb id here is the key of the comments obj
-        forum = forum_db.query.filter_by(forum_id=id).first().json()
-        all_comments = comments_obj[id]
-        print(all_comments)
-        forum['comments'] = all_comments
-        output.append(forum)
+    for e_post in all_posts:
+        e_post = e_post.json()
+        e_id = e_post['forum_id']
+
+        if e_id in comments_obj:
+            e_post['comments'] = comments_obj[e_id]
+        else:
+            e_post['comments'] = []
+        
+        output.append(e_post)
 
     if len(forum_list):
         return jsonify(
@@ -365,13 +367,13 @@ def show_comments(forum_id):
     ), 404
 
 # this is to add comments to the specific post
-@app.route("/create_comment/<int:forum_id>", methods=['GET','POST'])
-def create_comment(forum_id):
+@app.route("/create_comment", methods=['POST'])
+def create_comment():
+    data = request.get_json()
+    forum_id = data['forum_id']
 
-    #check if forum post is already in the db
-    if(comments_table.query.filter_by(forum_id=forum_id).first()):
-    
-        data = request.get_json()
+    #check if forum post ID is already in the db
+    if(forum_db.query.filter_by(forum_id=forum_id).first()):
         forum = comments_table(**data)
 
         #attempt to add post into comment table
@@ -409,7 +411,7 @@ def create_comment(forum_id):
                 "data": {
                     "forum_id": forum_id
                 },
-                "message": "The forum post exists."
+                "message": "The forum post doesn't exist"
             }
         ), 404
 

@@ -1,63 +1,54 @@
 <template>
-    <div class="container-fluid bg-dark text-light" id="login-body">
-        <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img">
-
-        <GoogleSignIn class="mt-5"/>
-
-        <div class="d-flex align-items-center mt-3">
-            <hr>
-            <span id="text-divider">or</span>
-            <hr>
-        </div>
-
-        <div class="small form-floating mt-3 text-dark">
-            <input v-model="user_name" type="text" class="form-control" id="username_input"
-            placeholder="name@example.com">
-            <label for="floatingInput">Username</label>
-        </div>
-        <div id="username_login_invalid" class="small form-floating mt-2 d-none">
-            Please enter your username.
-        </div>
-        
-        <div class="small form-floating text-dark mt-3">
-            <input v-model="password" type="password" class="form-control" id="password_input" placeholder="Password">
-            <label for="floatingPassword">Password</label>
-        </div>
-        <div id="password_login_invalid" class="small form-floating mt-2 d-none">
-            Please enter your password.
-        </div>
-
-        <div id="errors" class="small mt-3" style="height: 20px"></div>
-
-        <div class="d-flex justify-content-center">
-            <button class="btn btn-main mt-3" @click="login">Log in</button>
-        </div>
-
-        <hr class="mt-3" style="width: 340px">
-        <div class="mt-3 text-center">
-            Don't have an account?
-        </div>
-        
-        <div class="d-flex justify-content-center">
-            <router-link to="/signup"><button class="btn btn-main mt-3">Sign up for Makan Boleh</button></router-link>
-        </div>
-
-        <!-- <form action="" class="d-flex flex-column mt-3">
-            <small>Username</small>
-            <input type="text">
-
-            <small>Password</small>
-            <input type="password">
-
-            <div class="d-flex justify-content-center">
-                <button class="btn btn-main mt-3">Login</button>
+    <div class="fill-space">
+        <div class="container-fluid bg-dark text-light py-5" id="login-body">
+            <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img">
+    
+            <GoogleSignIn class="mt-5"/>
+    
+            <div class="d-flex align-items-center mt-3">
+                <hr>
+                <span id="text-divider">or</span>
+                <hr>
             </div>
-        </form> -->
+    
+            <div class="small form-floating mt-3 text-dark">
+                <input v-model="user_name" type="text" class="form-control" id="username_input"
+                placeholder="name@example.com">
+                <label for="floatingInput">Username</label>
+            </div>
+            <div id="username_login_invalid" class="small form-floating mt-2 d-none">
+                Please enter your username.
+            </div>
+            
+            <div class="small form-floating text-dark mt-3">
+                <input v-model="password" type="password" class="form-control" id="password_input" placeholder="Password">
+                <label for="floatingPassword">Password</label>
+            </div>
+            <div id="password_login_invalid" class="small form-floating mt-2 d-none">
+                Please enter your password.
+            </div>
+    
+            <div id="errors" class="small mt-3" style="height: 20px"></div>
+    
+            <div class="d-flex justify-content-center">
+                <button class="btn btn-main mt-3" :disabled="login_loading" @click="login"><font-awesome-icon :icon="['fas', 'spinner']" v-if="login_loading" spin class="me-3" />Log in</button>
+            </div>
+    
+            <hr class="mt-3" style="width: 340px">
+            <div class="mt-3 text-center">
+                Don't have an account?
+            </div>
+            
+            <div class="d-flex justify-content-center">
+                <router-link to="/signup"><button class="btn btn-main mt-3">Sign up for Makan Boleh</button></router-link>
+            </div>
+        </div>
     </div>
 </template>
 
 
 <script>
+    import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
     import axios from 'axios'
     import GoogleSignIn from '../components/GoogleSignIn.vue';
     const login_URL = 'http://localhost:5100/login'
@@ -65,22 +56,24 @@
     export default{
         components: {
             GoogleSignIn,
+            FontAwesomeIcon
         },
         data() {
             return {
                 user_name: '',
                 password:'',
-                user_details:''
+                user_details:'',
+                login_loading: false
             }
         },
         methods: {
             login(){
+                this.login_loading = true
+
                 var username = document.getElementById("username_input");
                 var username_invalid = document.getElementById("username_login_invalid");
                 var password = document.getElementById("password_input")
                 var password_invalid = document.getElementById("password_login_invalid");
-                // user: rach123
-                // pw: Password12345!
 
                 if(this.user_name.length == 0) {
                     username.classList = "form-control is-invalid";
@@ -90,6 +83,7 @@
                     };
                     username_invalid.classList.remove("d-none")
                     document.getElementById("errors").innerHTML = ''
+                    this.login_loading = false
                 } else if(this.password.length == 0) {
                     username.classList = "form-control";
                     username_invalid.classList.add("d-none");
@@ -100,6 +94,7 @@
                     };
                     password_invalid.classList.remove("d-none")
                     document.getElementById("errors").innerHTML = ''
+                    this.login_loading = false
                 }
                 else {
                     username.classList = "form-control";
@@ -114,9 +109,7 @@
                     .then(response => {
                         // this response will give all user details
                         // store this to session or sth
-                        // console.log(response.data);
-                        console.log(response.data)
-                        this.user_details = response.data
+
                         this.$store.state.user_details = response.data['data']['verification_result']['user']
                         this.$store.state.isAuthenticated = true
                         this.$router.push('/')
@@ -125,6 +118,7 @@
                         console.log(error.message);
                         console.log(error.response.data.code == 404)
                         document.getElementById("errors").innerHTML = error.response.data.msg
+                        this.login_loading = false
                     });
                 }
             }
@@ -134,12 +128,22 @@
 
 
 <style scoped>
+    .fill-space{
+        height: 100%;
+        position: relative;
+    }
+
     #login-body{
         height: 100%;
         display: flex;
-        justify-content: center;
         align-items: center;
         flex-direction: column;
+        overflow-y: scroll;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background-image: linear-gradient(180deg, #264726, #336033);
     }
 
     .logo_img{
