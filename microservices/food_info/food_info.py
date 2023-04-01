@@ -128,32 +128,6 @@ def all():
         }
     ), 404
 
-'''SEARCH FOR POST
-this function shows a specific posts
-input: search post using post_id via URL -> /search/<post_id>
-output: post JSON
-'''
-@app.route("/search/<int:post_id>")
-def find_post(post_id):
-    post = food_table.query.filter_by(post_id=post_id).first()
-
-    #if post exists, return post json
-    if post:
-        return jsonify(
-            {
-                "code": 200,
-                "data": post.json()
-            }
-        )
-    
-    #else, return error message
-    return jsonify(
-        {
-            "code": 404,
-            "message": "Post not found."
-        }
-    ), 404
-
 '''CREATE A POST
 this function creates a post
 input: JSON of the new post. it must have:
@@ -588,7 +562,7 @@ def nearby_food_guest():
                 {
                     "code": 200,
                     "data": {
-                        "user": filtered_posts
+                        "posts": filtered_posts
                     }
                 }
             )
@@ -601,35 +575,44 @@ def nearby_food_guest():
                 }
             ), 404
 
-
+'''FIND POSTS BASED ON USERNAME
+This function returns a list of posts based on username
+Input: None, parse username through URL
+Output: A list of post jsons
+'''
 @app.route("/filter_user/<string:username>")
 def filter_user(username):
-    posts_data = food_table.query.all()
+    posts_data = food_table.query.filter_by(username=username).all()
     output_list = []
-    for post in posts_data:
-        # prepare data JSON output
-        data = {}
-        data["post_id"] = post.post_id
-        data["post_name"] = post.post_name
-        data["creator"] = post.username
-        data["latitude"] = post.latitude
-        data["longitude"] = post.longitude
-        data["address"] = post.address
-        data["description"] = post.description
-        data["is_available"] = post.is_available
-        data["end_time"] = post.end_time
+    if posts_data:
+        for post in posts_data:
+            # prepare data JSON output
+            data = {}
+            data["post_id"] = post.post_id
+            data["post_name"] = post.post_name
+            data["creator"] = post.username
+            data["latitude"] = post.latitude
+            data["longitude"] = post.longitude
+            data["address"] = post.address
+            data["description"] = post.description
+            data["is_available"] = post.is_available
+            data["end_time"] = post.end_time
 
-        # retrieve list of diets in post
-    
-        diet_list = []
-        post_diets_available = diet_table.query.filter_by(username=username)
-        for entry in post_diets_available:
-            diet_list.append(entry.__dict__["diets_available"])
-
-        data["diets_available"] = diet_list # list of diets for post
-        if data["creator"] == username:
-            output_list.append(data)
+            # retrieve list of diets in post
         
-    return output_list
+            diet_list = []
+            post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+            for entry in post_diets_available:
+                diet_list.append(entry.__dict__["diets_available"])
+
+            data["diets_available"] = diet_list # list of diets for post
+            if data["creator"] == username:
+                output_list.append(data)
+            
+        return output_list
+    else:
+        return {
+
+        }
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
