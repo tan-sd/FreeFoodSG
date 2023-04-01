@@ -593,7 +593,7 @@ def nearby_food_guest():
 
 @app.route("/filter_user/<string:username>")
 def filter_user(username):
-    posts_data = food_table.query.all()
+    posts_data = food_table.query.filter_by(username=username).filter_by(is_available = 1).all()
     output_list = []
     for post in posts_data:
         # prepare data JSON output
