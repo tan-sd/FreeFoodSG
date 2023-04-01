@@ -5,7 +5,7 @@ import requests
 import os
 import amqp_setup
 
-monitor_binding_key = "*.sms.#"
+monitor_binding_key = "#.sms.#"
 '''
 Function: initiate the queue
 '''
@@ -45,7 +45,7 @@ def sendClientUpdate(body):
     # twilio account id
     account_sid = "ACa19a8bdec26a1726665512c7cdd46b8b"
     # twilio auth token
-    auth_token = "129c79176dd301a34abc383562c80f5b"
+    auth_token = "63a81c646c25631dcb76152906362f2e"
 
     client = Client(account_sid, auth_token)
     # for sending to one person

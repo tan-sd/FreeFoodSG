@@ -17,19 +17,21 @@ connection = pika.BlockingConnection(
     # - Try: simply re-run the program or refresh the page.
     # For rare cases, it's incompatibility between RabbitMQ and the machine running it,
     # - Use the Docker version of RabbitMQ instead: https://www.rabbitmq.com/download.html
+
 channel = connection.channel()
+
 # Set up the exchange if the exchange doesn't exist
 # - use a 'topic' exchange to enable interaction
 exchangename="notification"
 exchangetype="topic"
-# channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True)
+channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, durable=True)
     # 'durable' makes the exchange survive broker restarts
 
 # Here can be a place to set up all queues needed by the microservices,
 # - instead of setting up the queues using RabbitMQ UI.
 
 ############   sms queue    #############
-#delcare sms queue
+#declare sms queue
 queue_name = 'sms'
 channel.queue_declare(queue=queue_name, durable=True)
     # 'durable' makes the queue survive broker restarts
@@ -38,6 +40,7 @@ channel.queue_declare(queue=queue_name, durable=True)
 channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.sms.#') 
     # bind the queue to the exchange via the key
     # 'routing_key=#' => any routing_key would be matched
+print("sms queue set up")
 
 ############   email queue    #############
 #delcare email queue
@@ -49,6 +52,7 @@ channel.queue_declare(queue=queue_name, durable=True)
 channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.email.#') 
     # bind the queue to the exchange via the key
     # 'routing_key=#' => any routing_key would be matched
+print("email queue set up")
     
 
 """

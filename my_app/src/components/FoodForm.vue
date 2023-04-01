@@ -7,7 +7,7 @@
           <!-- TITLE AND CLOSE BTN -->
           <div class="modal-header bg-dark text-extra-light">
             <h5 class="modal-title" id="modal-title-foodform"><font-awesome-icon icon="fa-solid fa-utensils" /> Create Food Post</h5>
-            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            <button type="button" class="btn-close" id="food-form-close-btn" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
 
           <!-- FORM -->
@@ -79,7 +79,10 @@
   
               <!-- SUBMIT BTN -->
               <div class="d-flex justify-content-center mt-3">
-                  <button class="btn btn-main" type="button" @click="submit_new_post()"><font-awesome-icon icon="fa-solid fa-paper-plane" />&nbsp;&nbsp;Post</button>
+                  <button class="btn btn-main" type="button" @click="submit_new_post()" :disabled="uploading_data">
+                    <font-awesome-icon icon="fa-solid fa-paper-plane" v-if="!uploading_data" />
+                    <font-awesome-icon :icon="['fas', 'spinner']" v-if="uploading_data" spin />&nbsp;&nbsp;Post
+                  </button>
               </div>
             </form>
           </div>
@@ -127,6 +130,9 @@ const storage = getStorage(app);
         post_desc: '',
         diet_res: [],
         post_datetime: '',
+
+        uploading_data: false,
+
         month_list: [
           'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
         ],
@@ -160,6 +166,7 @@ const storage = getStorage(app);
 
       submit_new_post() {
         console.log(`=== [START] submit_new_post() ===`)
+        this.uploading_data = true
 
         //Handle errors
         if (
@@ -173,7 +180,7 @@ const storage = getStorage(app);
         }
 
         //Continue wo errors
-        // var vm = this
+        var vm = this
 
         axios.post("http://localhost:5100/post", {
             "username": this.$store.state.user_details.username,
@@ -186,10 +193,11 @@ const storage = getStorage(app);
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success: ", response.data.data.post_status.data.post.post_id)
+            console.log("Success: ", response)
             console.log(`=== [END] submit_new_post() ===`)
+            var generated_post_id = response.data.data.post_status.data.post.post_id
 
-            // this.upload_img()
+            vm.upload_img(generated_post_id)
         })
         .catch(function(error) {
             console.log(error)
@@ -218,7 +226,7 @@ const storage = getStorage(app);
         return `Buffet ends ${day_ends} at ${date.getHours()}:${date.getMinutes()}`;
       },
 
-      upload_img(local_filename) {
+      upload_img(food_id) {
         console.log(`=== [START] upload_img() ===`)
         var img_files = document.getElementById("foodform-upload-img-btn").files
         
@@ -230,7 +238,7 @@ const storage = getStorage(app);
 
             // step 1: define what file you want to label this image as
             // (put it as the food ID)
-            var file_name = `${local_filename}_${i}`
+            var file_name = `${food_id}/img_${i}`
 
             // step 2: nothing, the code will take care of the rest
             var uploadRef = ref(storage, file_name)
@@ -239,6 +247,23 @@ const storage = getStorage(app);
                 console.log('this is file number ' + i)
             })
         }
+
+        this.uploading_data = false
+        this.clear_form()
+        document.getElementById('food-form-close-btn').click()
+      },
+
+      clear_form() {
+        this.post_location = ''
+        this.post_lat = null
+        this.post_lng = null
+        this.post_title = ''
+        this.post_desc = ''
+        this.diet_res = []
+        this.post_datetime = ''
+
+        document.getElementById('foodform-upload-img-btn').value = ''
+        document.getElementById('googlemap_autocomplete_foodform').value = ''
       }
     }
   }
