@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-app.js";
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.18.0/firebase-analytics.js";
-import { getStorage, ref, getDownloadURL, uploadBytes } from 'https://www.gstatic.com/firebasejs/9.18.0/firebase-storage.js'
+import { getStorage, ref, getDownloadURL, uploadBytes, listAll } from 'https://www.gstatic.com/firebasejs/9.18.0/firebase-storage.js'
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -41,7 +41,7 @@ const root = Vue.createApp({
             // retrieve an img from firebase storage
 
             // test reference
-            const testphoto = ref(storage, "cambodian_tourist.jpg")
+            const testphoto = ref(storage, "cambodia/tuk_tuk.jpg")
         
             // get download url to get your img
             getDownloadURL(testphoto)
@@ -55,6 +55,43 @@ const root = Vue.createApp({
                 // Handle any errors
                 console.log(error)
                 console.log("you got an error")
+            });
+        },
+
+        retrieve_list(){
+            // retrieve a list of imges from firebase storage
+
+            // test reference to the folder
+            const list_ref = ref(storage, "cambodia/")
+
+            listAll(list_ref)
+            .then((res) => {
+              res.prefixes.forEach((folderRef) => {
+                // All the prefixes under listRef.
+                // You may call listAll() recursively on them.
+                console.log(folderRef)
+              });
+              res.items.forEach((itemRef) => {
+                // All the items under listRef.
+                console.log(res.items.length)
+                console.log(itemRef)    
+                getDownloadURL(itemRef)
+                .then((url) => {
+                    // `url` is the download URL for testphoto
+        
+                    const img = document.getElementById('listimg');
+                    img.innerHTML += "<img src='" + url + "' class='img-fluid'>"
+                    
+                })
+                .catch((error) => {
+                    // Handle any errors
+                    console.log(error)
+                    console.log("you got an error")
+                });
+              });
+            }).catch((error) => {
+              // Uh-oh, an error occurred!
+              console.log(error)
             });
         },
 

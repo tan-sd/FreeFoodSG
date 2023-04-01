@@ -596,14 +596,10 @@ def filter_user(username):
             for entry in post_diets_available:
                 diet_list.append(entry.__dict__["diets_available"])
 
-            data["diets_available"] = diet_list # list of diets for post
-            if data["creator"] == username:
-                output_list.append(data)
-            
-        return output_list
-    else:
-        return {
-
-        }
+        data["diets_available"] = diet_list # list of diets for post
+        if data["creator"] == username:
+            output_list.append(data)
+        
+    return output_list
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
