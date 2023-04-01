@@ -45,8 +45,11 @@ class User(db.Model):
     longitude = db.Column(db.Float(precision=6), nullable=False)
     dietary_type = db.Column(db.VARCHAR(64))
     travel_appetite = db.Column(db.Integer)
+    sms_notif = db.Column(db.Integer())
+    email_notif = db.Column(db.Integer())
 
-    def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite):
+
+    def __init__(self, user_id, first_name, last_name, username, number, email, password, address, latitude, longitude, dietary_type, travel_appetite, sms_notif, email_notif):
         self.user_id = user_id
         self.first_name = first_name
         self.last_name = last_name
@@ -59,6 +62,8 @@ class User(db.Model):
         self.longitude = longitude
         self.dietary_type = dietary_type
         self.travel_appetite = travel_appetite
+        self.sms_notif = sms_notif
+        self.email_notif = email_notif
 
     def json(self):
         return {
@@ -73,7 +78,9 @@ class User(db.Model):
             "latitude": self.latitude,
             "longitude":self.longitude,
             "dietary_type": self.dietary_type,
-            "travel_appetite": self.travel_appetite
+            "travel_appetite": self.travel_appetite,
+            "sms_notif": self.sms_notif,
+            "email_notif": self.email_notif
         }
 
     def get_distance(self, Location):

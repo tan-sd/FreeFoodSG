@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `longitude` decimal(10,6) ,
   `dietary_type` varchar(64) ,
   `travel_appetite` int(11),
+  'sms_notif' bit,
+  'email_notif' bit,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
