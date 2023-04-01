@@ -14,7 +14,7 @@
         <!-- MY BUFFETS -->
         <div v-if="to_display == 'mine' ">
             <!-- V-FOR MY_BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in my_buffets" :key="index" >
+            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index" >
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
                 <!-- HEADER GOES HERE v -->
@@ -31,7 +31,7 @@
                                 <!-- DIET RESTRICTIONS -->
                                 <div class="col-12">
                                     <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diet_res" :key="index">
+                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
                                             <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
                                         </i>
                                     </h6>
@@ -55,7 +55,10 @@
                         <div class="row">
                             <div class="col-12">
                                 <h6>
-                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.location }}
+                                    <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                </h6>
+                                <h6>
+                                    <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
                                 </h6>
 
                                 <p>
@@ -165,6 +168,7 @@
 
 <script>
     const get_all_food_URL = "http://localhost:5100/all";
+    const get_all_user_food_URL = "http://localhost:5100/filter_user"
 
     export default{
         props: [],
@@ -172,6 +176,7 @@
         data() {
             return{
                 food: [],
+                user_food: [],
                 buffets: [
                     {
                         description: 'Food at SOL',
@@ -260,6 +265,20 @@
                         console.log(error);
                     })
             },
+            get_all_user_food() {
+                console.log(`${get_all_user_food_URL}`)
+                console.log(`${this.$store.state.user_details.username}`)
+                const response = fetch(`${get_all_user_food_URL}/${this.$store.state.user_details.username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(response);
+                        if (data.code === 404) {
+                            console.log("error!");
+                        } else {
+                            this.user_food = data.data
+                        }
+                    })
+            },
             update_buffet_time_left() {
                 let curr_time = new Date();
 
@@ -274,7 +293,7 @@
                     e_buff.time_left = `${hr_left}hr ${min_left}min ${sec_left}s`;
                 }
 
-                for (let e_buff of this.my_buffets) {
+                for (let e_buff of this.user_food) {
                     // UPDATES TIME_LEFT
                     let end_time = new Date(e_buff.end_time);
     
@@ -396,6 +415,7 @@
             this.getLocation();
             this.update_buffet_time_left();
             this.get_all_food();
+            this.get_all_user_food();
         }
     }
 </script>
