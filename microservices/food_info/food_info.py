@@ -514,7 +514,7 @@ Output: A list of post jsons
 '''
 @app.route("/filter_user/<string:username>")
 def filter_user(username):
-    posts_data = food_table.query.filter_by(username=username).all()
+    posts_data = food_table.query.filter_by(username=username).filter_by(is_available=1).all()
     output_list = []
     # check if any posts
     if posts_data:
