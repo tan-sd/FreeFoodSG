@@ -486,7 +486,7 @@ input: JSON of the new post. it must have:
 }
 output: JSON of either success or failure of creation
 '''
-@app.route("/create_post", methods=['POST'])
+@app.route("/post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
     post_result = invoke_http(post_URL, method='POST', json=request.json)
@@ -559,44 +559,7 @@ def get_forum_posts():
             "forum_result": result
         }
     }
- 
 
-
-# show all forum posts 
-# def get_posts():
-
-#     print('\n-----Invoking forum microservice-----')
-#     forum_result = invoke_http(forum_URL, method='GET')
-#     print('forum_result:', forum_result)
-
-#     # Check the food result; if a failure, send it to the error microservice.
-#     code = forum_result["code"]
-#     if code not in range(200, 300):
-
-#     # # Inform the error microservice
-#     #     print('\n\n-----Invoking error microservice as order fails-----')
-#     #     invoke_http(error_URL, method="POST", json=forum_result)
-  
-#     #     print("Forum status ({:d}) sent to the error microservice:".format(
-#     #         code), forum_result)
-
-#     # 7. Return error
-#         return {
-#             "code": 500,
-#             "data": {"forum_result": forum_result},
-#             "message": "Retrieve forum failure sent for error handling."
-#         }
-    
-#     return {
-#         "code": 201,
-#         "data": {
-#             "forum_result": forum_result
-#         }
-#     }
-
-
-# to create a post in forum
-# input: forum_id (Int), username (Str), title (Str), description (Str), datetime (Str)
 
 '''
 
@@ -629,7 +592,6 @@ return {
     }
     
 '''
-
 # THIS ONE TO CREATE POSTS
 # input: username, title, description, datetime
 # output: get all posts in json object with key forum:
@@ -797,7 +759,7 @@ def push_new_comment(comment_details):
 
 ####################### END OF SCENARIO 3 ####################
 
-#SCENARIO 4#
+#SCENARIO 4 RETRIEVE ALL POSTS#
 @app.route('/all', methods=['GET'])
 
 def get_all():
@@ -807,6 +769,22 @@ def get_all():
     url = "http://localhost:1112/all"
     list_of_posts = invoke_http(url,method="GET")
     return list_of_posts
+
+#SCENARIO 5 FILTER POSTS BY USER##
+@app.route('/filter_user/<string:username>', methods=['GET'])
+def filter_user(username):
+    try:
+        url = "http://localhost:1112/filter_user/" + str(username)
+        list_of_posts = invoke_http(url,method='GET')
+        return jsonify(
+            {
+                "data": list_of_posts
+            }
+        )
+    except Exception as e:
+        return jsonify({
+            "message": str(e)
+        })
 
 # Execute this program if it is run as a main script (not by 'import')
 if __name__ == "__main__":
