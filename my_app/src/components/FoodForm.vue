@@ -173,7 +173,7 @@ const storage = getStorage(app);
         }
 
         //Continue wo errors
-        // var vm = this
+        var vm = this
 
         axios.post("http://localhost:5100/post", {
             "username": this.$store.state.user_details.username,
@@ -186,10 +186,11 @@ const storage = getStorage(app);
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success: ", response.data.data.post_status.data.post.post_id)
+            console.log("Success: ", response)
             console.log(`=== [END] submit_new_post() ===`)
+            var generated_post_id = response.data.data.post_status.data.post.post_id
 
-            // this.upload_img()
+            vm.upload_img(generated_post_id)
         })
         .catch(function(error) {
             console.log(error)
@@ -218,7 +219,7 @@ const storage = getStorage(app);
         return `Buffet ends ${day_ends} at ${date.getHours()}:${date.getMinutes()}`;
       },
 
-      upload_img(local_filename) {
+      upload_img(food_id) {
         console.log(`=== [START] upload_img() ===`)
         var img_files = document.getElementById("foodform-upload-img-btn").files
         
@@ -230,7 +231,7 @@ const storage = getStorage(app);
 
             // step 1: define what file you want to label this image as
             // (put it as the food ID)
-            var file_name = `${local_filename}_${i}`
+            var file_name = `${food_id}/img_${i}`
 
             // step 2: nothing, the code will take care of the rest
             var uploadRef = ref(storage, file_name)
