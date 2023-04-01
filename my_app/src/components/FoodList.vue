@@ -1,5 +1,4 @@
 <template>
-    <!-- {{ this.food }} -->
     <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
         <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
@@ -75,7 +74,7 @@
                         
                 </div>
                 </div>
-            </div>        
+            </div>       
         </div>
 
         <!-- OTHER BUFFETS -->
@@ -99,7 +98,7 @@
                                 <!-- DIET RESTRICTIONS -->
                                 <div class="col-12">
                                     <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diet_res" :key="index">
+                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
                                             <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
                                         </i>
                                     </h6>

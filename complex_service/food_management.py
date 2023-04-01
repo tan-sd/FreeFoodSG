@@ -10,49 +10,31 @@ app = Flask(__name__)
 CORS(app)
 
 # LOGIN USER URLs
-# LOGIN USER URLs
 verify_user_URL = 'http://localhost:1111/login'
 register_user_URL = 'http://localhost:1111/user'
 
 # ERROR MICROSERVICE URLs
 error_URL = 'noerror'
-# ERROR MICROSERVICE URLs
-error_URL = 'noerror'
 
 # ACTIVITY LOG URLs
 activity_URL = 'http://localhost:1114/create_log'
-# ACTIVITY LOG URLs
-activity_URL = 'http://localhost:1114/create_log'
 
-# SCENARIO 1: GET FOOD URLs
 # SCENARIO 1: GET FOOD URLs
 # related to user_info.py
 user_URL = 'http://localhost:1111/users'
 
 # for current users
 food_URL = 'http://localhost:1112/nearby_food_user'
-food_URL = 'http://localhost:1112/nearby_food_user'
 
 # for guest users
 nearby_food_URL = 'http://localhost:1112/nearby_food_guest'
-nearby_food_URL = 'http://localhost:1112/nearby_food_guest'
 
-# SCENARIO 2: CREATE FOOD URLs
 # SCENARIO 2: CREATE FOOD URLs
 post_URL = 'http://localhost:1112/create_post'
 
 # SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS URLs
-# SCENARIO 3: CREATE POST ON FORUM and ADD COMMENTS URLs
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
-
-# SCENARIO 4: GET ALL FOOD POSTS
-
-
-
-# SCENARIO 4: GET ALL FOOD POSTS
-
-
 
 # SCENARIO 4: GET ALL FOOD POSTS
 
@@ -143,7 +125,6 @@ def verfication(user_details):
     url = verify_user_URL
     verification_result = invoke_http(url, method='GET', json=user_details)
     activity_log("user")
-    activity_log("user")
     
     print('verification_result:', verification_result)
 
@@ -220,7 +201,6 @@ def user_register():
     # Simple check of input format and data of the request are JSON
     if request.is_json:
         try:
-
             user_login_details = request.get_json()
             print("\nReceived username and password in JSON:", user_login_details)
 
@@ -261,9 +241,6 @@ def register(user_details):
     verification_result = invoke_http(url, method='POST', json=user_details)
     activity_log("user") #to put in activity log
 
-    activity_log("user") #to put in activity log
-
-    
     print('verification_result:', verification_result)
 
     code = verification_result["code"]
@@ -295,11 +272,8 @@ def register(user_details):
 
 @app.route("/available_food", methods=['GET'])
 def get_available_food():
-    '''GET ALL NEARBY FOOD
-    Function: get all available food near the user
-@app.route("/available_food", methods=['GET'])
-def get_available_food():
-    '''GET ALL NEARBY FOOD
+    '''
+    GET ALL NEARBY FOOD
     Function: get all available food near the user
 
     Input: JSON object -> {
@@ -309,22 +283,6 @@ def get_available_food():
         "travel_appetite": int
     }
 
-    Output: list of all json food objects
-    {
-            "code": 201,
-            "data": {
-                "food_result": {
-                
-                    {
-                            "code":200,
-                            "data":{
-                                "filtered_food": [x for x in filtered_food]
-                            }
-                    }
-                
-                }
-    }
-    '''
     Output: list of all json food objects
     {
             "code": 201,
@@ -389,7 +347,6 @@ def filtered_food(location):
         print('\n\n-----Invoking error microservice as order fails-----')
         invoke_http(error_URL, method="POST", json=food_result)
         activity_log("error") #to put in activity log
-        activity_log("error") #to put in activity log
         # - reply from the invocation is not used; 
         # continue even if this invocation fails
         print("Food status ({:d}) sent to the error microservice:".format(
@@ -446,7 +403,6 @@ list of all json food objects
 
 # if there is no user credentials (for guest)
 @app.route("/guest/available_food", methods=['GET'])
-@app.route("/guest/available_food", methods=['GET'])
 def get_available_food2():
     if request.is_json:
         try:
@@ -481,7 +437,6 @@ def show_available_food(location):
 
     print('\n-----Invoking food microservice-----')
     food_result = invoke_http(food_URL, method='GET', json=location)
-    activity_log("food") #to put in activity log
     activity_log("food") #to put in activity log
     print('food_result:', food_result)
 
@@ -529,7 +484,6 @@ input: JSON of the new post. it must have:
 }
 output: JSON of either success or failure of creation
 '''
-@app.route("/create_post", methods=['POST'])
 @app.route("/create_post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
@@ -719,7 +673,6 @@ def create_post(post_details):
 
     forum_result = invoke_http(url, method='POST', json=post_details)
     activity_log("forum") #to put in activity log
-    activity_log("forum") #to put in activity log
     print('forum_result:', forum_result)
 
     # Check the food result; if a failure, send it to the error microservice.
@@ -844,17 +797,6 @@ def push_new_comment(comment_details):
 
 
 ####################### END OF SCENARIO 3 ####################
-
-#SCENARIO 4#
-@app.route('/all', methods=['GET'])
-
-def get_all():
-    '''
-    this function gets all posts
-    '''
-    url = "http://localhost:1112/all"
-    list_of_posts = invoke_http(url,method="GET")
-    return list_of_posts
 
 #SCENARIO 4#
 @app.route('/all', methods=['GET'])
