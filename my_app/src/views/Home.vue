@@ -4,7 +4,9 @@
       <Map class="map-main"/>
     </div>
 
-    <FoodList class="child-foodlist"/>
+    <div class="child-foodlist">
+      <FoodList/>
+    </div>
   </div>
   </template>
   

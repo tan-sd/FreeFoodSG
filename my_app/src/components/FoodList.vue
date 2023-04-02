@@ -31,7 +31,7 @@
         <!-- MY BUFFETS -->
         <div v-if="to_display == 'mine' ">
             <!-- V-FOR MY_BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index">
+            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="`userfood-${e_buff.post_id}`">
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
                     <!-- HEADER GOES HERE v -->
@@ -41,7 +41,7 @@
                             <div class="col-6 col-md-7 col-lg-8">
                                 <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
                                     <div class="carousel-inner" data-bs-interval="2000">
-                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
+                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`userfood-${e_buff.post_id}-${img_index}`">
                                             <img :src="e_imgsrc" class="d-block w-100">
                                         </div>
                                     </div>
@@ -119,7 +119,7 @@
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
             <div v-if="food.length > 0">
-                <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" id="accordion-list">
+                <div class="accordion-item" v-for="(e_buff, index) in food" :key="`food-${e_buff.post_id}`">
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
                         <!-- HEADER GOES HERE v -->
@@ -129,7 +129,7 @@
                                 <div class="col-6 col-md-7 col-lg-8">
                                     <div :id="`foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
                                         <div class="carousel-inner" data-bs-interval="2000">
-                                            <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
+                                            <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`food-${e_buff.post_id}-${img_index}`">
                                                 <img :src="e_imgsrc" class="d-block w-100">
                                             </div>
                                         </div>
@@ -253,42 +253,6 @@
                 pulling_food: true,
                 pulling_my_food: true,
 
-                // buffets: [
-                //     {
-                //         description: 'Food at SOL',
-                //         location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                //         lat: 1.3267935951952476,
-                //         long: 103.67878198117971,
-                //         distance: null,
-                //         end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                //         diet_res: ['halal', 'vegetarian', 'nobeef'],
-                //         time_left: '',
-                //         img: ['url1', 'url2']
-                //     },
-                // ],
-
-                // my_buffets: [
-                //     {
-                //         description: 'My Buffet 1',
-                //         location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                //         lat: 1.3267935951952476,
-                //         long: 103.67878198117971,
-                //         end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                //         diet_res: ['halal', 'vegetarian', 'nobeef'],
-                //         time_left: '',
-                //     },
-
-                //     {
-                //         description: 'My Buffet 2',
-                //         location: '1 Esplanade Dr, Singapore 038981',
-                //         lat: 1.2898355468246039,
-                //         long: 103.85527989652236,
-                //         end_time: '2023-03-12T22:00:00',
-                //         diet_res: ['halal'],
-                //         time_left: '',
-                //     },
-                // ],
-
                 diet_icons: {
                     'halal': 'fa-solid fa-star-and-crescent',
                     'vegetarian': 'fa-solid fa-leaf',
@@ -333,6 +297,10 @@
                         console.log("get_all_food() -", response);
                         if (data.code === 404) {
                             console.log("get_all_food() - error!");
+                            this.pulling_food = false
+                            this.update_buffet_images()
+                            this.update_buffet_distance()
+                            this.update_buffet_time_left()
                         } else {
                             this.food = data.data.food
                             this.pulling_food = false
@@ -353,6 +321,10 @@
                         console.log("get_all_user_food() response: ", response);
                         if (data.code === 404) {
                             console.log("get_all_user_food() - error!");
+                            this.pulling_my_food = false
+                            this.update_buffet_images()
+                            this.update_buffet_distance()
+                            this.update_buffet_time_left()
                         } else {
                             this.user_food = data
                             this.pulling_my_food = false
@@ -364,10 +336,13 @@
             },
 
             update_buffet_time_left() {
-                console.log(`=== [START] update_buffet_time_left() ===`)
-
                 // BREAK IF STILL PULLING DATA
                 if (this.pulling_food || this.pulling_my_food) {
+                    return
+                }
+
+                // BREAK IF NOT ON HOME PAGE
+                if (this.$route.fullPath != "/") {
                     return
                 }
 

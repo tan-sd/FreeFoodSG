@@ -149,7 +149,7 @@ import axios from 'axios';
             this.loading_post_button = true
             var vm = this
 
-            axios.post("http://localhost:5100/create_post", {
+            axios.post("http://localhost:1113/create", {
                 "username": this.$store.state.user_details.username,
                 "title": this.create_post_title,
                 "description": this.create_post_desc,
@@ -174,10 +174,9 @@ import axios from 'axios';
                 this.loading_posts = true
             }
 
-            axios.get('http://localhost:5100/posts')
+            axios.get('http://localhost:1113/all')
             .then(response => {
-                // console.log("HERE U GO: ", response.data.data.forum)
-                let response_data = response.data.data.forum_result.data.forum
+                let response_data = response.data.data.forum
 
                 // sorts list by datetime (latest first)
                 response_data.sort(function(a,b) {return Date.parse(b.datetime)-Date.parse(a.datetime)})
@@ -215,7 +214,7 @@ import axios from 'axios';
             }
 
             // ELSE SUBMIT COMMENT
-            axios.post("http://localhost:5100/create_comment", {
+            axios.post("http://localhost:1113/create_comment", {
                 "forum_id": forumid,
                 "commentor_username": this.$store.state.user_details.username,
                 "comment": comment,

@@ -369,8 +369,9 @@ def update_by_user_id():
 
     if request.get_json():
         data = request.get_json()
+        username = data['username']
         user = User.query.filter_by(username=username).first()
-        username = user.username
+        password = user.password
 
         if username:
 
@@ -380,7 +381,7 @@ def update_by_user_id():
                 user.last_name = data['last_name']
                 user.number = data['number']
                 user.email = data['email']
-                user.password = data['password']
+                user.password = password
                 user.address = data['address']
                 user.latitude = data['latitude']
                 user.longitude = data['longitude']
@@ -399,7 +400,7 @@ def update_by_user_id():
                 )
         
             except Exception as e:
-                print("Error occured while updating the post.")
+                print("Error occured while updating the post." + str(e))
                 return jsonify(
                     {
                         "code": 500,

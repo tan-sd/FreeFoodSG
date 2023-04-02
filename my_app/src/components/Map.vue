@@ -64,14 +64,14 @@
   <script>
     import axios from 'axios' 
     const food_info_url = 'http://localhost:1112/all'
-    const get_user_info = 'http://localhost:1111/profile'
+    const get_user_info_url = 'http://localhost:1111/profile'
     // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
             get_user_info(username) {
-                console.log(`${get_user_info}/${username}`)
-                const response = fetch(`${get_user_info}/${username}`)
+                console.log(`${get_user_info_url}/${username}`)
+                const response = fetch(`${get_user_info_url}/${username}`)
                     .then(response => response.json())
                     .then(data => {
                         console.log("get_user_info() -", response);

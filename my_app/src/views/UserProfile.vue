@@ -158,7 +158,7 @@
                     >
                     </GMapAutocomplete>
 
-                    <label for="googlemap_autocomplete_profile"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Location</label>
+                    <label for="googlemap_autocomplete_profile"><font-awesome-icon icon="fa-solid fa-location-dot" />&nbsp;Default Location</label>
                 </div>
         
                 <!-- Phone Number -->
@@ -209,9 +209,22 @@
                 </div>
                 <!-- Dietary Restrictions END -->
 
+                <!-- EMAIL AND SMS NOTIF -->
+                <div class="d-flex justify-content-center mb-3">
+                    <div class="form-check mx-2">
+                        <input class="form-check-input" type="checkbox" id="user-profile-email-checkbox" v-model="form_email_notif" value="1">
+                        <label class="form-check-label" for="user-profile-email-checkbox">Get Email Notifications</label>
+                    </div>
+
+                    <div class="form-check mx-2">
+                        <input class="form-check-input" type="checkbox" id="user-profile-sms-checkbox" v-model="form_sms_notif">
+                        <label class="form-check-label" for="user-profile-sms-checkbox">Get SMS Notifications</label>
+                    </div>
+                </div>
+
                 <!-- SUBMIT BUTTON -->
                 <div class="mb-5 d-flex justify-content-center">
-                    <button class="btn btn-main-fixed">Save Changes</button>
+                    <button class="btn btn-main-fixed" @click="submit_new_user_details()">Save Changes</button>
                 </div>
             </div>
         </div>
@@ -220,6 +233,8 @@
 
 
 <script>
+    import axios from 'axios'
+
     export default{
         data() {
             return {
@@ -231,6 +246,10 @@
                 dietary_res: [],
                 email: '',
                 travel_appetite: '',
+                sms_notif: '',
+                email_notif: '',
+                lat: '',
+                lng: '',
 
                 form_first_name: '',
                 form_last_name: '',
@@ -240,6 +259,10 @@
                 form_dietary_res: [],
                 form_email: '',
                 form_travel_appetite: '',
+                form_lat: '',
+                form_lng: '',
+                form_sms_notif: '',
+                form_email_notif: '',
 
                 edit_mode: false,
                 autoCompleteOptions: {
@@ -254,23 +277,29 @@
             update_user_details() {
                 var user_deets = this.$store.state.user_details
 
-                this.first_name = user_deets.first_name,
-                this.last_name = user_deets.last_name,
-                this.username = user_deets.username,
-                this.number = parseInt(user_deets.number),
-                this.address = user_deets.address,
-                this.email = user_deets.email,
-                this.travel_appetite = user_deets.travel_appetite,
+                this.first_name = user_deets.first_name
+                this.last_name = user_deets.last_name
                 this.username = user_deets.username
+                this.number = parseInt(user_deets.number)
+                this.address = user_deets.address
+                this.email = user_deets.email
+                this.travel_appetite = user_deets.travel_appetite
+                this.username = user_deets.username
+                this.sms_notif = ((user_deets.sms_notif == 1) ? true : false)
+                this.email_notif = ((user_deets.email_notif == 1) ? true : false)
+                this.lat = user_deets.lat
+                this.lng = user_deets.lng
 
-                this.form_first_name = user_deets.first_name,
-                this.form_last_name = user_deets.last_name,
-                this.form_username = user_deets.username,
-                this.form_number = parseInt(user_deets.number),
-                this.form_address = user_deets.address,
-                this.form_email = user_deets.email,
-                this.form_travel_appetite = user_deets.travel_appetite,
+                this.form_first_name = user_deets.first_name
+                this.form_last_name = user_deets.last_name
                 this.form_username = user_deets.username
+                this.form_number = parseInt(user_deets.number)
+                this.form_address = user_deets.address
+                this.form_email = user_deets.email
+                this.form_travel_appetite = user_deets.travel_appetite
+                this.form_username = user_deets.username
+                this.form_sms_notif = ((user_deets.sms_notif == 1) ? true : false)
+                this.form_email_notif = ((user_deets.email_notif == 1) ? true : false)
 
                 var str_dietres = user_deets.dietary_type
                 if (str_dietres == '') {
@@ -300,8 +329,57 @@
                 this.form_dietary_res = this.dietary_res
             },
 
-            setPlace() {
-                this.form_address = document.getElementById('googlemap_autocomplete_profile').value
+            submit_new_user_details() {
+                var to_check = [
+                    this.form_first_name,
+                    this.form_last_name,
+                    this.form_username,
+                    this.form_number,
+                    this.form_address,
+                    this.form_dietary_res,
+                    this.form_email,
+                    this.form_travel_appetite
+                ]
+
+                for (var e_var of to_check) {
+                    if (e_var.length == 0) {
+                        return false
+                    }
+                }
+
+                var new_user_deets = {
+                    first_name: this.form_first_name,
+                    last_name: this.form_last_name,
+                    username: this.form_username,
+                    number: this.form_number,
+                    address: this.form_address,
+                    dietary_type: (this.form_dietary_res).join(','),
+                    email: this.form_email,
+                    travel_appetite: this.form_travel_appetite,
+                    email_notif: (this.form_email_notif ? 1 : 0),
+                    sms_notif: (this.form_sms_notif ? 1 : 0),
+                    latitude: this.form_lat == '' ? this.lat : this.form_lat,
+                    longitude: this.form_lng == '' ? this.lng : this.form_lng
+                }
+
+                var vm = this
+
+                axios.put("http://localhost:1111/profile/update", new_user_deets)
+                .then(function(response) {
+                    console.log(response)
+                    vm.$store.state.user_details = new_user_deets
+                    vm.update_user_details()
+                    vm.edit_mode = false
+                })
+                .catch(function(error) {
+                    console.log(error)
+                })
+            },
+
+            setPlace(place) {
+                this.form_address = place.formatted_address
+                this.form_lat = place.geometry.location.lat()
+                this.form_lng = place.geometry.location.lng()
             }
         },
 
