@@ -556,6 +556,43 @@ def filter_user(username):
                 "message": "User does not have any posts."
             }
         ), 404
+    
+'''MAKE POST UNAVAILABLE 
+This function changes status of post from is_available = 1 to is_available = 0
+input: nothing, send post_id through URl
+output: success or failure of change of availability
+'''        
+@app.route("/remove/<string:post_id>", methods=['PUT'])
+def make_unavailable(post_id):
+    print("Making post unavailable...")
+    
+    post = food_table.query.filter_by(post_id=post_id).first()
+
+    if post:
+        try:
+            post.is_available = 0
+            db.session.commit()
+
+            print("Success! Post is now unavailable!")
+            return jsonify({
+                "code":201,
+                "message": "Success! Post is now unavailable."
+
+            }), 201
         
+        except Exception as e:
+            print("Error updating database!")
+            return jsonify({
+                "code":500,
+                "message":"Error updating database. System message: " + str(e)
+            }), 500
+        
+    else:
+        print("Post doesn't exist!")
+        return jsonify({
+            "code":404,
+            "message": "Post does not exist."
+        }), 404
+          
 if __name__ == '__main__':
     app.run(port=1112, debug=True)
