@@ -441,7 +441,7 @@ def nearby_food_guest():
         try:
             print("Finding nearby food...")
             user = request.get_json()
-            all_posts = food_table.query.all()
+            all_posts = food_table.query.filter_by(is_available=1).all()
             filtered_posts = []
 
             # filter for posts within specified user's travel appetite
