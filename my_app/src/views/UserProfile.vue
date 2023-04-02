@@ -209,6 +209,10 @@
                 </div>
                 <!-- Dietary Restrictions END -->
 
+                {{ dietary_res }}
+
+                {{ form_dietary_res }}
+
                 <!-- EMAIL AND SMS NOTIF -->
                 <div class="d-flex justify-content-center mb-3">
                     <div class="form-check mx-2">
@@ -287,8 +291,8 @@
                 this.username = user_deets.username
                 this.sms_notif = ((user_deets.sms_notif == 1) ? true : false)
                 this.email_notif = ((user_deets.email_notif == 1) ? true : false)
-                this.lat = user_deets.lat
-                this.lng = user_deets.lng
+                this.lat = user_deets.latitude
+                this.lng = user_deets.longitude
 
                 this.form_first_name = user_deets.first_name
                 this.form_last_name = user_deets.last_name
@@ -301,10 +305,14 @@
                 this.form_sms_notif = ((user_deets.sms_notif == 1) ? true : false)
                 this.form_email_notif = ((user_deets.email_notif == 1) ? true : false)
 
+                this.dietary_res = []
+                this.form_dietary_res = []
+                
                 var str_dietres = user_deets.dietary_type
                 if (str_dietres == '') {
                     return
                 } else {
+
                     for (var e_diet_res of str_dietres.split(",")) {
                         this.dietary_res.push(e_diet_res.toLowerCase())
                         this.form_dietary_res.push(e_diet_res.toLowerCase())
@@ -358,9 +366,11 @@
                     travel_appetite: this.form_travel_appetite,
                     email_notif: (this.form_email_notif ? 1 : 0),
                     sms_notif: (this.form_sms_notif ? 1 : 0),
-                    latitude: this.form_lat == '' ? this.lat : this.form_lat,
-                    longitude: this.form_lng == '' ? this.lng : this.form_lng
+                    latitude: (this.form_lat == '') ? this.lat : this.form_lat,
+                    longitude: (this.form_lng == '') ? this.lng : this.form_lng
                 }
+
+                console.log(new_user_deets)
 
                 var vm = this
 

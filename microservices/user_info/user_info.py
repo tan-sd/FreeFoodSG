@@ -372,6 +372,9 @@ def update_by_user_id():
         username = data['username']
         user = User.query.filter_by(username=username).first()
         password = user.password
+        print(data)
+        print(username)
+        print(password)
 
         if username:
 
