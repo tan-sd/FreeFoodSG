@@ -18,7 +18,7 @@
 
     <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
-        <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
+        <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="user_food.length > 0">
             <div class="col-6 d-flex justify-content-center">
                 <button class="btn" :class="{'fw-bold btn-main-secondary-fixed': to_display == 'mine', 'btn-main-light-fixed': to_display != 'mine'}" @click="to_display = 'mine' ">My Buffets</button>
             </div>
@@ -212,7 +212,7 @@
             </div>
         </div>
         <div v-else>
-            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
+            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-heart-crack" />&nbsp;&nbsp;No available food</div>
         </div>
     </div>
     </div>
@@ -221,8 +221,8 @@
 
 
 <script>
-    const get_all_food_URL = "http://localhost:5100/all";
-    const get_all_user_food_URL = "http://localhost:5100/filter_user";
+    const get_all_food_URL = "http://localhost:1112/all";
+    const get_all_user_food_URL = "http://localhost:1112/filter_user";
     const cancel_food_post_URL = "http://localhost:1112/remove";
 
     // FIREBASE STUFF
@@ -253,41 +253,41 @@
                 pulling_food: true,
                 pulling_my_food: true,
 
-                buffets: [
-                    {
-                        description: 'Food at SOL',
-                        location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                        lat: 1.3267935951952476,
-                        long: 103.67878198117971,
-                        distance: null,
-                        end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                        diet_res: ['halal', 'vegetarian', 'nobeef'],
-                        time_left: '',
-                        img: ['url1', 'url2']
-                    },
-                ],
+                // buffets: [
+                //     {
+                //         description: 'Food at SOL',
+                //         location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
+                //         lat: 1.3267935951952476,
+                //         long: 103.67878198117971,
+                //         distance: null,
+                //         end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
+                //         diet_res: ['halal', 'vegetarian', 'nobeef'],
+                //         time_left: '',
+                //         img: ['url1', 'url2']
+                //     },
+                // ],
 
-                my_buffets: [
-                    {
-                        description: 'My Buffet 1',
-                        location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                        lat: 1.3267935951952476,
-                        long: 103.67878198117971,
-                        end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                        diet_res: ['halal', 'vegetarian', 'nobeef'],
-                        time_left: '',
-                    },
+                // my_buffets: [
+                //     {
+                //         description: 'My Buffet 1',
+                //         location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
+                //         lat: 1.3267935951952476,
+                //         long: 103.67878198117971,
+                //         end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
+                //         diet_res: ['halal', 'vegetarian', 'nobeef'],
+                //         time_left: '',
+                //     },
 
-                    {
-                        description: 'My Buffet 2',
-                        location: '1 Esplanade Dr, Singapore 038981',
-                        lat: 1.2898355468246039,
-                        long: 103.85527989652236,
-                        end_time: '2023-03-12T22:00:00',
-                        diet_res: ['halal'],
-                        time_left: '',
-                    },
-                ],
+                //     {
+                //         description: 'My Buffet 2',
+                //         location: '1 Esplanade Dr, Singapore 038981',
+                //         lat: 1.2898355468246039,
+                //         long: 103.85527989652236,
+                //         end_time: '2023-03-12T22:00:00',
+                //         diet_res: ['halal'],
+                //         time_left: '',
+                //     },
+                // ],
 
                 diet_icons: {
                     'halal': 'fa-solid fa-star-and-crescent',
@@ -354,7 +354,7 @@
                         if (data.code === 404) {
                             console.log("get_all_user_food() - error!");
                         } else {
-                            this.user_food = data.data
+                            this.user_food = data
                             this.pulling_my_food = false
                             this.update_buffet_images()
                             this.update_buffet_distance()
@@ -364,6 +364,8 @@
             },
 
             update_buffet_time_left() {
+                console.log(`=== [START] update_buffet_time_left() ===`)
+
                 // BREAK IF STILL PULLING DATA
                 if (this.pulling_food || this.pulling_my_food) {
                     return

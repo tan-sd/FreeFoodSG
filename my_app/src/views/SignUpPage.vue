@@ -8,7 +8,7 @@
                     <div class="col-md-6 mb-3">
                         <div class="small form-floating text-dark">
                             <input v-model="first_name" v-on:keypress="is_letter($event)" type="text" class="form-control" id="first_name_input" placeholder="First Name">
-                            <label for="floatingInput">First Name</label>
+                            <label for="first_name_input">First Name</label>
                         </div>
                         <div id="first_name_signup_invalid" class="small form-floating mt-2 d-none">
                             Please enter your first name.
@@ -17,7 +17,7 @@
                     <div class="col-md-6 mb-3">
                         <div class="small form-floating text-dark">
                             <input v-model="last_name" v-on:keypress="is_letter($event)" type="text" class="form-control" id="last_name_input" placeholder="Last Name">
-                            <label for="floatingInput">Last Name</label>
+                            <label for="last_name_input">Last Name</label>
                         </div>
                         <div id="last_name_signup_invalid" class="small form-floating mt-2 d-none">
                             Please enter your last name.
@@ -28,7 +28,7 @@
                     <div class="small form-floating text-dark">
                         <input v-model="user_name" type="text" class="form-control" id="username_input"
                         placeholder="Username">
-                        <label for="floatingInput">Username</label>
+                        <label for="username_input">Username</label>
                     </div>
                     <div id="username_signup_invalid" class="small form-floating mt-2 d-none">
                     </div>
@@ -58,7 +58,7 @@
                         <span class="input-group-text">+65</span>
                         <div class="small form-floating text-dark">
                             <input v-model="phone_number" type="number" class="form-control" id="phone_number_input" placeholder="Phone Number">
-                            <label for="floatingInputGroup1">Phone Number</label>
+                            <label for="phone_number_input">Phone Number</label>
                         </div>
                     </div>
                     <div id="phone_number_signup_invalid" class="small form-floating mt-2 d-none">
@@ -142,10 +142,10 @@
                         <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="sms_noti">
                     </div>
                     <div class="form-check">
-                        <label class="small form-check-label" for="defaultCheck1">
+                        <label class="small form-check-label" for="defaultCheck2">
                             Recieve Email Notification?
                         </label>
-                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="email_noti">
+                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck2" v-model="email_noti">
                     </div>
                 </div>
             </div>

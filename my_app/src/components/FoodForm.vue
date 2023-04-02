@@ -1,4 +1,5 @@
 <template>
+  <div>
     <button class="btn btn-main" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-foodpost` : ``" @click="reroute_to_login()"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
     <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
@@ -15,14 +16,14 @@
             <form>
               <!-- POST TITLE -->
               <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="floatingInput" placeholder="Title" v-model="post_title">
-                  <label for="floatingInput">Title</label>
+                  <input type="text" class="form-control" id="foodform-post-title" placeholder="Title" v-model="post_title">
+                  <label for="foodform-post-title">Title</label>
               </div>
               
               <!-- POST DESC -->
               <div class="form-floating mb-3">
-                  <textarea class="form-control" id="floatingInput" placeholder="Description" style="height: 80px; resize: none;" v-model="post_desc"></textarea>
-                  <label for="floatingInput">Description</label>
+                  <textarea class="form-control" id="foodform-post-desc" placeholder="Description" style="height: 80px; resize: none;" v-model="post_desc"></textarea>
+                  <label for="foodform-post-desc">Description</label>
               </div>
   
               <!-- POST ADDRESS -->
@@ -89,6 +90,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -182,7 +184,7 @@ const storage = getStorage(app);
         //Continue wo errors
         var vm = this
 
-        axios.post("http://localhost:5100/post", {
+        axios.post("http://localhost:1112/create_post", {
             "username": this.$store.state.user_details.username,
             "post_name": this.post_title,
             "latitude": this.post_lat,
@@ -195,7 +197,7 @@ const storage = getStorage(app);
         .then(function (response) {
             console.log("Success: ", response)
             console.log(`=== [END] submit_new_post() ===`)
-            var generated_post_id = response.data.data.post_status.data.post.post_id
+            var generated_post_id = response.data.data.post.post_id
 
             vm.upload_img(generated_post_id)
         })

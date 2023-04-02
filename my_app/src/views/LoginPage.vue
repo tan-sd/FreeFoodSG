@@ -51,7 +51,7 @@
     import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
     import axios from 'axios'
     import GoogleSignIn from '../components/GoogleSignIn.vue';
-    const login_URL = 'http://localhost:5100/login'
+    const login_URL = 'http://localhost:1111/login'
 
     export default{
         components: {
@@ -109,14 +109,12 @@
                     .then(response => {
                         // this response will give all user details
                         // store this to session or sth
-
-                        this.$store.state.user_details = response.data['data']['verification_result']['user']
+                        this.$store.state.user_details = response.data.user
                         this.$store.state.isAuthenticated = true
                         this.$router.push('/')
                     })
                     .catch(error => {
-                        console.log(error.message);
-                        console.log(error.response.data.code == 404)
+                        console.log("error response: ", error)
                         document.getElementById("errors").innerHTML = error.response.data.msg
                         this.login_loading = false
                     });
