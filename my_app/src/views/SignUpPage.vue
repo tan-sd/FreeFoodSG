@@ -120,17 +120,32 @@
                     <br>
                     <div class="d-flex justify-content-around">
                         <div class="form-check form-check-inline">
-                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value="Near" checked>
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value=0.5 checked>
                             <label class="small form-check-label" for="inlineRadio1">Near</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value="Medium">
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value=1>
                             <label class="small form-check-label" for="inlineRadio2">Medium</label>
                         </div>
                         <div class="form-check form-check-inline">
-                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value="Far">
+                            <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value=2>
                             <label class="small form-check-label" for="inlineRadio3">Far</label>
                         </div>
+                    </div>
+                </div>
+                <div class="bg-white rounded ps-3 pt-3 pb-3 text-dark mt-3">
+                    <label class="small form-label">Notifications</label>
+                    <div class="form-check">
+                        <label class="small form-check-label" for="defaultCheck1">
+                            Recieve SMS Notification?
+                        </label>
+                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="sms_noti">
+                    </div>
+                    <div class="form-check">
+                        <label class="small form-check-label" for="defaultCheck1">
+                            Recieve Email Notification?
+                        </label>
+                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="email_noti">
                     </div>
                 </div>
             </div>
@@ -164,7 +179,7 @@
     /* eslint-disable no-useless-escape */
     import axios from 'axios'
     // import bcrypt from 'bcryptjs';
-    const register_user_URL = "http://localhost:5100/user";
+    const register_user_URL = "http://localhost:1111/user";
     // 'http://localhost:5100/user'
 
     // "user_id": self.user_id,
@@ -192,6 +207,8 @@
                 user_email: '',
                 dietary_type: [],
                 travel_appetite: 'Near',
+                email_noti: 0,
+                sms_noti: 0,
                 errors: 0,
                 autoCompleteOptions: {
                     componentRestrictions: {
@@ -367,7 +384,9 @@
                         "latitude": null,
                         "longitude": null,
                         "dietary_type": this.dietary_type,
-                        "travel_appetite": this.travel_appetite
+                        "travel_appetite": this.travel_appetite,
+                        "sms_notif": this.sms_noti,
+                        "email_notif": this.email_noti
                     };
 
                     console.log(this.$refs.gmap_autocomplete.$refs.input.value)
@@ -385,7 +404,7 @@
 
                         console.log(`${register_user_URL}/${this.user_name}`)
 
-                        axios.post(`${register_user_URL}`,
+                        axios.post(`${register_user_URL}/${this.user_name}`,
                         json_data
                         )
                             .then(response => {
@@ -397,7 +416,7 @@
                             });
                     })
                     .catch(error => {
-                        console.log(error);
+                        console.log(error.message);
                     })
                 }
 
