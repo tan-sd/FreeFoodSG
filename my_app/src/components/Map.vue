@@ -21,7 +21,7 @@
             @click="toggleAccordion(index)"
         />
         <GMapCircle
-            :radius="this.appetites[this.user_appetite]"
+            :radius="this.user_appetite*100"
             :center="currentLocation"
             :options="circleOptions"
         />
@@ -238,11 +238,11 @@
         },
         data() {
             return {
-                appetites: {
-                    Near: 1000,
-                    Medium: 2500,
-                    Far: 5000,
-                },
+                // appetites: {
+                //     Near: 1000,
+                //     Medium: 2500,
+                //     Far: 5000,
+                // },
                 user_appetite: null,
                 username: null,
                 showClearButton: false,
