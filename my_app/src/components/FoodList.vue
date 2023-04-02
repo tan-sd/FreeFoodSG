@@ -192,6 +192,15 @@
                                         {{ e_buff.description }}
                                     </p>
                                 </div>
+                                <div class="col-12 d-flex justify-content-center align-items-center">
+                                    <div>
+                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                            <button class="btn btn-main">
+                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                            </button>
+                                        </a>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
