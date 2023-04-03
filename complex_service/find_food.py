@@ -13,7 +13,7 @@ this complex service has two main functions
 '''
 
 verify_user_URL = 'http://localhost:1111/login'
-register_user_URL = 'http://localhost:1111/user'
+register_user_URL = 'http://127.0.0.1:1111/user'
 user_URL = 'http://localhost:1111/users'
 nearby_food_user_URL = 'http://localhost:1112/nearby_food_user'
 nearby_food_guest_URL = 'http://localhost:1112/nearby_food_guest'
