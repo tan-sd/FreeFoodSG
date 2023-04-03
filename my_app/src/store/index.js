@@ -5,6 +5,7 @@ export default createStore({
         isAuthenticated: false, // RMB CHANGE BACK TO FALSE AFTER TESTING
         user_details: {
         },
+        username: null,
         markerId: null,
         foodPostId: null,
     },
