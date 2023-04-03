@@ -53,7 +53,6 @@ def post_food():
             data = request.get_json()
             username = data['username']
             post_result = invoke_http(create_post_URL, method='POST', json=request.json)
-            print('Post status:', post_result)
             code = post_result["code"]
         
             if code not in range(200, 300):
@@ -68,8 +67,7 @@ def post_food():
             # when it is successful send user details + food details
 
             url = user_URL + '/' + username
-            print(url)
-
+            print('\n-----Invoking user_info microservice-----')
             user_result = invoke_http(url, method='GET', json=request.json)
             # print(user_result)
             username = user_result['data']['username']
@@ -97,14 +95,14 @@ def post_food():
             # return output
             print(f"\n this is the OUTPUT: {output} \n")
             print(f"\nthis is the output DATATYPE: {type(output)}\n")
-            msg_result = invoke_http(publish_msg_URL, method='POST', json= output)
 
-            print(msg_result)
+            print('\n-----Invoking publish_message microservice-----')
+            msg_result = invoke_http(publish_msg_URL, method='POST', json= output)
 
             return jsonify({
                 "code": 201,
                 "data": {
-                    "Post_result": msg_result,
+                    "Post_result": post_result,
                 }
             })
         

@@ -1,4 +1,5 @@
 <template>
+  <div>
     <button class="btn btn-main" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-foodpost` : ``" @click="reroute_to_login()"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
     <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
@@ -15,14 +16,14 @@
             <form>
               <!-- POST TITLE -->
               <div class="form-floating mb-3">
-                  <input type="text" class="form-control" id="floatingInput" placeholder="Title" v-model="post_title">
-                  <label for="floatingInput">Title</label>
+                  <input type="text" class="form-control" id="foodform-post-title" placeholder="Title" v-model="post_title">
+                  <label for="foodform-post-title">Title</label>
               </div>
               
               <!-- POST DESC -->
               <div class="form-floating mb-3">
-                  <textarea class="form-control" id="floatingInput" placeholder="Description" style="height: 80px; resize: none;" v-model="post_desc"></textarea>
-                  <label for="floatingInput">Description</label>
+                  <textarea class="form-control" id="foodform-post-desc" placeholder="Description" style="height: 80px; resize: none;" v-model="post_desc"></textarea>
+                  <label for="foodform-post-desc">Description</label>
               </div>
   
               <!-- POST ADDRESS -->
@@ -89,6 +90,7 @@
         </div>
       </div>
     </div>
+  </div>
 </template>
 
 <script>
@@ -115,6 +117,9 @@
       appId: "1:269223674891:web:b089695c57872fc6fab30e",
       measurementId: "G-17HRT79G1H"
   };
+
+  // MITT STUFF
+  import emitter from '../mitt/mitt.js'
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
@@ -147,13 +152,13 @@ const storage = getStorage(app);
     computed: {
       isAuthenticated() {
         // console.log(this.$store.getters.isAuthenticated)
-        return this.$store.getters.isAuthenticated;
+        return this.$store.state.isAuthenticated;
       }
     },
 
     methods: {
       reroute_to_login() {
-        if (!this.isAuthenticated) {
+        if (!(this.$store.state.isAuthenticated)) {
           router.push({path: '/login'})
         }
       },
@@ -182,7 +187,7 @@ const storage = getStorage(app);
         //Continue wo errors
         var vm = this
 
-        axios.post("http://localhost:5100/post", {
+        axios.post("http://127.0.0.1:5102/post", {
             "username": this.$store.state.user_details.username,
             "post_name": this.post_title,
             "latitude": this.post_lat,
@@ -193,11 +198,13 @@ const storage = getStorage(app);
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success: ", response)
-            console.log(`=== [END] submit_new_post() ===`)
-            var generated_post_id = response.data.data.post_status.data.post.post_id
+            console.log("Success Horsey: ", response)
+
+            var generated_post_id = response.data.data.Post_result.data.post.post_id
 
             vm.upload_img(generated_post_id)
+            emitter.emit("updateFoodlistPosts")
+            console.log(`=== [END] submit_new_post() ===`)
         })
         .catch(function(error) {
             console.log(error)

@@ -530,6 +530,7 @@ Output: A list of post jsons
 @app.route("/filter_user/<string:username>")
 def filter_user(username):
     posts_data = food_table.query.filter_by(username=username).filter_by(is_available=1).all()
+
     output_list = []
     # check if any posts
     if posts_data:
@@ -554,9 +555,11 @@ def filter_user(username):
             for entry in post_diets_available:
                 diet_list.append(entry.__dict__["diets_available"])
 
-        data["diets_available"] = diet_list # list of diets for post
-        if data["creator"] == username:
-            output_list.append(data)
+            data["diets_available"] = diet_list # list of diets for post
+
+            if data["creator"] == username:
+                output_list.append(data)
+                
         print("Filtered posts according to user!")
         return output_list
 

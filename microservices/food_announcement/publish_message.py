@@ -63,7 +63,7 @@ def send_notif():
     amqp_setup.channel.basic_publish(exchange="notification", routing_key=key, 
     body=message_to_publish, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-    success = {"code":131, "message":"the function works u fk but pls check the output"}
+    success = {"code":201, "message":"Success"}
     return success
 
 # Execute this program if it is run as a main script (not by 'import')

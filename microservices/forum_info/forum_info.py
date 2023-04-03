@@ -208,16 +208,19 @@ output:
 '''
 
 # RETRIEVE SPECIFIC FORUM POST
-@app.route("/search/<int:forum_id>", methods=['GET'])
-def search(forum_id):
-    forum = forum_db.query.filter_by(forum_id=forum_id).first()
-
+@app.route("/search/<string:username>")
+def search(username):
+    forum = forum_db.query.filter_by(username=username).all()
+    result = []
+    for e_post in forum:
+        e_post = e_post.json()
+        result.append(e_post["forum_id"])
     #if forum exists, return forum json
     if forum:
         return jsonify(
             {
                 "code": 200,
-                "data": forum.json()
+                "data": result
             }
         )
     
@@ -568,4 +571,4 @@ def create_comment():
         ), 404
 
 if __name__ == '__main__':
-    app.run(port=1113, debug=True)
+    app.run(port=1115, debug=True)

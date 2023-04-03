@@ -21,7 +21,7 @@
             </div>
             
             <div class="small form-floating text-dark mt-3">
-                <input v-model="password" type="password" class="form-control" id="password_input" placeholder="Password">
+                <input v-model="password" type="password" class="form-control" id="password_input" placeholder="Password" @keyup.enter="login">
                 <label for="floatingPassword">Password</label>
             </div>
             <div id="password_login_invalid" class="small form-floating mt-2 d-none">
@@ -51,7 +51,7 @@
     import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
     import axios from 'axios'
     import GoogleSignIn from '../components/GoogleSignIn.vue';
-    const login_URL = 'http://localhost:5100/login'
+    const login_URL = 'http://localhost:1111/login'
 
     export default{
         components: {
@@ -63,7 +63,8 @@
                 user_name: '',
                 password:'',
                 user_details:'',
-                login_loading: false
+                login_loading: false,
+                sessionUserName: '',
             }
         },
         methods: {
@@ -109,14 +110,16 @@
                     .then(response => {
                         // this response will give all user details
                         // store this to session or sth
-
-                        this.$store.state.user_details = response.data['data']['verification_result']['user']
+                        console.log(response.data.user.username)
+                        this.$store.state.user_details = response.data.user
+                        this.$store.state.username = response.data.user.username
                         this.$store.state.isAuthenticated = true
+                        // localStorage.setItem('username', response.data.user.user_name)
+
                         this.$router.push('/')
                     })
                     .catch(error => {
-                        console.log(error.message);
-                        console.log(error.response.data.code == 404)
+                        console.log("error response: ", error)
                         document.getElementById("errors").innerHTML = error.response.data.msg
                         this.login_loading = false
                     });

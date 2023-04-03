@@ -63,15 +63,19 @@
 
   <script>
     import axios from 'axios' 
+
+    // MITT STUFF
+    import emitter from '../mitt/mitt.js'
+
     const food_info_url = 'http://localhost:1112/all'
-    const get_user_info = 'http://localhost:1111/profile'
+    const get_user_info_url = 'http://localhost:1111/profile'
     // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
             get_user_info(username) {
-                console.log(`${get_user_info}/${username}`)
-                const response = fetch(`${get_user_info}/${username}`)
+                console.log(`${get_user_info_url}/${username}`)
+                const response = fetch(`${get_user_info_url}/${username}`)
                     .then(response => response.json())
                     .then(data => {
                         console.log("get_user_info() -", response);
@@ -108,6 +112,16 @@
                 map.panTo(this.currentLocation)
                 this.zoomValue = 14
             },
+            re_center_custom(latlng) {
+                console.log(`=== [START] re_center_custom(lat: ${latlng.lat}, lng: ${latlng.lng}) ===`)
+
+                const map = this.$refs.map
+                map.panTo({
+                    "lat": latlng.lat,
+                    "lng": latlng.lng 
+                })
+                this.zoomValue = 14
+            },
             clear_search() {
                 this.$refs.autocomplete.$refs.input.value = '';
                 this.showClearButton = false
@@ -139,6 +153,7 @@
                         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
                         // console.log(response.data.data.food)
                         var foods = response.data.data.food
+                        this.markers = [this.markers[0] ]
                         // store each food JSON in the markers array
                         for (let i = 0; i<foods.length; i++) {
                             this.markers.push({
@@ -235,6 +250,17 @@
             console.log("Getting food post information from dB")
             this.get_nearest_food()
             console.log("Got food post information from dB")
+
+            var vm = this
+            emitter.on('updateFoodlistPosts', function(){
+                console.log("RECEIVING UpdateFoodListPosts FROM MAP.VUE =========")
+                vm.get_nearest_food()
+            })
+
+            emitter.on('zoomHere', function(latlng){
+                console.log(`RECEIVING zoomHere FROM MAP.VUE (lat: ${latlng.lat}, lng: ${latlng.lng}) ========="`)
+                vm.re_center_custom(latlng)
+            })
         },
         data() {
             return {
