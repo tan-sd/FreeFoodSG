@@ -152,13 +152,13 @@ const storage = getStorage(app);
     computed: {
       isAuthenticated() {
         // console.log(this.$store.getters.isAuthenticated)
-        return this.$store.getters.isAuthenticated;
+        return this.$store.state.isAuthenticated;
       }
     },
 
     methods: {
       reroute_to_login() {
-        if (!this.isAuthenticated) {
+        if (!(this.$store.state.isAuthenticated)) {
           router.push({path: '/login'})
         }
       },
