@@ -90,7 +90,8 @@ def post_food():
             output = {
 
                 "food": data,
-                "user": user
+                "user": user,
+                "post_type": "food"
             }
 
             # return output
