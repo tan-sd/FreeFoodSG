@@ -8,6 +8,9 @@ CORS(app)
 
 forum_URL = 'http://localhost:1113/all'
 create_forum_URL = 'http://localhost:1113'
+find_forum_URL = 'http://localhost:1113/search/'
+user_URL = 'http://localhost:1111/profile/'
+notification_URL = 'http://localhost:5100/send_notif' 
 
 '''
 
@@ -195,14 +198,46 @@ def create_comment():
     
     # If json given
     try:
-        print("[LOOK HERE] Valid JSON passed, running create_comment()")
+        print("Valid JSON passed, running create_comment()")
         comment_details = request.get_json()
         # print("\nReceived post details in JSON:", comment_details)
 
-        # do the actual work
+        print("'\n-----Invoking forum microservice-----'")
+        # invoke forum info to push to DB
         result = push_new_comment(comment_details)
-        forum_id = result["data"]["data"]["forum_result"]["data"]["forum_id"]
-        print(forum_id)
+        #invoke forum info to get forum information
+        forum_id = result["data"]["data"]["forum_id"]
+        url = find_forum_URL + str(forum_id)
+        forum_json = invoke_http(url,method='GET')
+        username = forum_json["data"]["username"]
+        forum_info = forum_json["data"]
+        print("'\n-----Username Retrieved-----'")
+
+        #invoke user info to get user information 
+        print("'\n-----Invoking user microservice-----'")
+        username_URL = user_URL + username
+        user_json = invoke_http(username_URL,method='GET')
+        print("'\n-----User information retrieved-----'")
+
+        #invoke notification
+        #prepare information for notification service
+        json_to_send = {
+            "post": forum_info,
+            "commment": comment_details,
+            "user":{
+                "name":username,
+                "number": user_json["data"]["number"],
+                "email": user_json["data"]["email"],
+                "sms_notif": user_json["data"]["sms_notif"],
+                "email_notif":user_json["data"]["email_notif"]
+
+            }
+        }
+
+        #invoke notification
+        print("'\n-----Invoking notification microservice-----'")
+        success = invoke_http(notification_URL,method='POST',json=json_to_send)
+        print(success)
         return jsonify(result['data']), result["code"]
 
     except Exception as e:
