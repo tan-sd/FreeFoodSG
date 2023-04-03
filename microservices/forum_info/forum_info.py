@@ -298,7 +298,7 @@ def create():
 
 
 '''EDIT FORUM POST
-this function deletes the entire post + comments (later)
+this function puts edit post to unavailable
 input: it must have:
 
 {
