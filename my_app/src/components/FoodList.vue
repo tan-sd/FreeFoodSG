@@ -38,7 +38,7 @@
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
                     <!-- HEADER GOES HERE v -->
-                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1, e_buff)">
                         <div class="row vw-100">
                             <!-- IMAGE CAROUSEL -->
                             <div class="col-6 col-md-7 col-lg-8">
@@ -132,7 +132,7 @@
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
                         <!-- HEADER GOES HERE v -->
-                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index)" :id="`accordionList${index+1}`">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index, e_buff)" :id="`accordionList${index+1}`">
                             <div class="row vw-100">
                                 <!-- IMAGE CAROUSEL -->
                                 <div class="col-6 col-md-7 col-lg-8">
@@ -227,7 +227,9 @@
                 </div>
             </div>
             <div v-else>
-                <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-heart-crack" />&nbsp;&nbsp;No available food</div>
+                <div class="d-flex align-items-center justify-content-center my-auto fst-italic text-dark" style="height: 90vh; font-size: 23px;">
+                    <span class="text-primary"><font-awesome-icon icon="fa-solid fa-heart-crack" /></span>&nbsp;&nbsp;No available food...
+                </div>
             </div>
         </div>
     </div>
@@ -244,8 +246,8 @@
     import { initializeApp } from "firebase/app";
     import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage'
     
-    // import mitt from 'mitt';
-    // const emitter = mitt();
+    // MITT STUFF
+    import emitter from '../mitt/mitt.js'
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
@@ -289,17 +291,26 @@
         },
 
         methods: {
-            onPostClick(index) {
+            onPostClick(index, buff_obj) {
                 this.$store.state.foodPostId = index
-                console.log(this.$store.state.foodPostId)
+                // console.log(this.$store.state.foodPostId)
+
+                emitter.emit("zoomHere", {
+                    "lat": buff_obj.latitude, 
+                    "lng": buff_obj.longitude
+                })
             },
             cancelFood() {
+                var vm = this
                 fetch(`${cancel_food_post_URL}/${this.foodID}`,{
                     method: 'PUT'
                     })
                     .then(response => response.json())
                     .then(data => {
                         console.log('Success:', data);
+                        vm.get_all_user_food()
+                        vm.get_all_food()
+                        emitter.emit('updateFoodlistPosts')
                     })
                     .catch((error) => {
                         console.error('Error:', error);
@@ -572,11 +583,12 @@
         },
 
         mounted() {
-            // const thisInstance = this
-            // emitter.on('updateFoodlistPosts', function(){
-            //     thisInstance.get_all_food()
-            //     thisInstance.get_all_user_food()
-            // })
+            var vm = this
+            emitter.on('updateFoodlistPosts', function(){
+                console.log("EMITTING NOW FROM FOODLIST.VUE=========")
+                vm.get_all_food()
+                vm.get_all_user_food()
+            })
         },
 
         created() {

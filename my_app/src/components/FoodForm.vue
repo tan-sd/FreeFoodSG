@@ -118,6 +118,9 @@
       measurementId: "G-17HRT79G1H"
   };
 
+  // MITT STUFF
+  import emitter from '../mitt/mitt.js'
+
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
 
@@ -200,6 +203,7 @@ const storage = getStorage(app);
             var generated_post_id = response.data.data.post.post_id
 
             vm.upload_img(generated_post_id)
+            emitter.emit("updateFoodlistPosts")
         })
         .catch(function(error) {
             console.log(error)

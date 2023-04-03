@@ -149,7 +149,7 @@ import axios from 'axios';
             this.loading_post_button = true
             var vm = this
 
-            axios.post("http://localhost:1113/create", {
+            axios.post("http://localhost:1115/create", {
                 "username": this.$store.state.user_details.username,
                 "title": this.create_post_title,
                 "description": this.create_post_desc,
@@ -174,7 +174,7 @@ import axios from 'axios';
                 this.loading_posts = true
             }
 
-            axios.get('http://localhost:1113/all')
+            axios.get('http://localhost:1115/all')
             .then(response => {
                 let response_data = response.data.data.forum
 
@@ -214,7 +214,7 @@ import axios from 'axios';
             }
 
             // ELSE SUBMIT COMMENT
-            axios.post("http://localhost:1113/create_comment", {
+            axios.post("http://localhost:1115/create_comment", {
                 "forum_id": forumid,
                 "commentor_username": this.$store.state.user_details.username,
                 "comment": comment,
