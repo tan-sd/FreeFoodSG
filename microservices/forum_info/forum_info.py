@@ -207,9 +207,34 @@ output:
 
 '''
 
-# RETRIEVE SPECIFIC FORUM POST
-@app.route("/search/<int:forum_id>", methods=['GET'])
-def search(forum_id):
+# RETRIEVE SPECIFIC FORUM POST BY USERNAME
+@app.route("/search/<string:username>")
+def search(username):
+    forum = forum_db.query.filter_by(username=username).all()
+    result = []
+    for e_post in forum:
+        e_post = e_post.json()
+        result.append(e_post["forum_id"])
+    #if forum exists, return forum json
+    if forum:
+        return jsonify(
+            {
+                "code": 200,
+                "data": result
+            }
+        )
+    
+    #else, return error message
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Post not found."
+        }
+    ), 404
+
+# RETRIEVE SPECIFIC FORUM POST BY FORUM_ID
+@app.route("/search_id/<int:forum_id>", methods=['GET'])
+def search_id(forum_id):
     forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
     #if forum exists, return forum json
@@ -228,7 +253,6 @@ def search(forum_id):
             "message": "Post not found."
         }
     ), 404
-
 
 '''CREATE FORUM POST
 this function creates post
@@ -338,13 +362,13 @@ def edit(forum_id):
 
         #attempt to edit
         try:
-            data = request.get_json()
+            # data = request.get_json()
 
             #update fields
-            forum.title = data['title']
-            forum.description = data['description'] 
-            forum.datetime = data['datetime'] 
-            forum.is_available = data['is_available']
+            # forum.title = data['title']
+            # forum.description = data['description'] 
+            # forum.datetime = data['datetime'] 
+            forum.is_available = 0
 
             #commit changes
             db.session.commit()
@@ -573,4 +597,4 @@ def create_comment():
         ), 404
 
 if __name__ == '__main__':
-    app.run(port=1113, debug=True)
+    app.run(port=1115, debug=True)

@@ -4,7 +4,9 @@
       <Map class="map-main"/>
     </div>
 
-    <FoodList class="child-foodlist"/>
+    <div class="child-foodlist">
+      <FoodList/>
+    </div>
   </div>
   </template>
   
@@ -36,6 +38,7 @@
 
 
 <style scoped>
+
   .fill-space{
     height: 100%;
   }
@@ -52,7 +55,6 @@
 
   .child-foodlist{
     flex: 0 1 auto;
-    z-index: 1;
   }
 
   /* .map-main{
