@@ -141,7 +141,7 @@ Output: user details as json
 }
 
 '''
-@app.route("/user", methods=['GET', 'POST'])
+@app.route("/user", methods=['POST'])
 def user_register():
 
     print('in register function')

@@ -251,7 +251,7 @@ input: updated full JSON of new post, it must have:
 }
 output: JSON message of either success or failure of edit
 '''
-@app.route("/edit/<post_id>", methods=['PUT'])
+@app.route("/edit/<string:post_id>", methods=['PUT'])
 def edit(post_id):
     print("Editing post...")
     post = food_table.query.filter_by(post_id=post_id).first()
@@ -527,7 +527,7 @@ This function returns a list of posts based on username
 Input: None, parse username through URL
 Output: A list of post jsons
 '''
-@app.route("/filter_user/<string:username>")
+@app.route("/filter_user/<string:username>", methods=['GET'])
 def filter_user(username):
     posts_data = food_table.query.filter_by(username=username).filter_by(is_available=1).all()
     output_list = []
