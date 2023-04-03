@@ -332,7 +332,6 @@ output:
 def edit(forum_id):
     
     forum = forum_db.query.filter_by(forum_id=forum_id).first()
-    print(forum.json())
 
     #check if post exists
     if forum:

@@ -37,10 +37,7 @@ def post_food():
         try:
             post_result = invoke_http(create_post_URL, method='POST', json=request.json)
             print('Post status:', post_result)
-            code = post_result["çode"]
-            # CHECK OUTPUT
-            # print(jsonify(post_result), post_result["code"])
-            # return jsonify(post_result), post_result["code"]
+            code = post_result["code"]
         
             if code not in range(200, 300):
 
@@ -48,9 +45,11 @@ def post_food():
                 return {
                     "code": 500,
                     "data": {"post_result": post_result},
-                    "message": "Post creation failure sent for error handling."
+                    "message": "Error creating post."
                 }
             
+            print("Food post created successfully!")
+            activity_log("food_info")
             return {
                 "code": 201,
                 "data": {
