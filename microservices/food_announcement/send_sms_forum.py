@@ -5,13 +5,13 @@ import requests
 import os
 import amqp_setup
 
-monitor_binding_key = "#.sms.#"
+monitor_binding_key = "#.sms.forum.#"
 '''
 Function: initiate the queue
 '''
 def receive_sms():
     amqp_setup.check_setup()
-    queue_name = 'sms'
+    queue_name = 'sms_forum'
 
     # set up queue and look for incoming messages
     amqp_setup.channel.basic_consume(
@@ -40,27 +40,38 @@ Input: JSON object -> {
 Output: SMS sent to users + a line printing the result of each SMS + success line when code completes
 '''
 def sendClientUpdate(body):
-    food = body['food']
+    comment = body['comment']
+    post = body['post']
     user = body['user']
+
     # twilio account id
     account_sid = "ACa19a8bdec26a1726665512c7cdd46b8b"
     # twilio auth token
-    auth_token = "63a81c646c25631dcb76152906362f2e"
+    auth_token = "ae4f1d734eaddf6693475b0acd224d2f"
 
     client = Client(account_sid, auth_token)
     # for sending to one person
 
+    # user info
     recipient_number = user['number']
     recipient_name = user['name']
-    food_location = food['address']
-    food_name = food['post_name']
-    food_latitude = food['latitude']
-    food_longitude = food['longitude']
-    food_description = food['description']
-    food_allergens = food['allergens']
-    food_end_time = food['end_time']
+
+    # comment info
+    commenter_name = comment['commentor_username']
+    comment_content = comment['comment']
+    comment_datetime = comment['datetime']
+
+    # post info
+    # poster_name = post["username"]
+    post_title = post["title"]
+    # post_description = post["description"]
+    # post_datetime = post["datetime"]
+
+    ## INCLUDE YOUR FORUM VARIABLES HERE ##
     
-    msg = f"Dear {recipient_name}, there's food nearby!\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Lat, Long: {food_latitude}, {food_longitude}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}"
+    ## write your message here ##
+    msg = f'Dear {recipient_name},\n\nUser {commenter_name} has commented on your post: {post_title}!\n\n{commenter_name} commented:\n{comment_content}\n- {comment_datetime}.'
+
     # create your text message
     message = client.messages.create(
         to=recipient_number,
