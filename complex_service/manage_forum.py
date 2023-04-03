@@ -12,56 +12,20 @@ find_forum_URL = 'http://localhost:1115/search/'
 user_URL = 'http://localhost:1111/profile/'
 notification_URL = 'http://localhost:5100/send_notif' 
 
-'''
-
-Function: display all posts in forum + with comments
-
-Input: nothing
-
-Output: 
-
-return {
-        "code": 201,
-        "data": {
-            "forum_result": 
-                {
-                "code": 200,
-                "data": {
-                    "forum": [forum.json() for forum in forum_list]
-                }
-            }
-        }
-    }
-    
-'''
-
-@app.route("/posts", methods=['GET'])
-def get_forum_posts():
-
-    result = invoke_http(forum_URL, method='GET')
-    activity_log("forum_info") #to put in activity log
-    code = result["code"]
-    if code not in range(200, 300):
-        activity_log("forum_info_error")
-        return {
-            "code": 500,
-            "data": {"forum_result": result},
-            "message": "Retrieve forum failure sent for error handling."
-        }
-    
-    return {
-        "code": 201,
-        "data": {
-            "forum_result": result
-        }
-    }
-
 
 '''
 
 Function: to create a post in forum
 
-Input: post details
+Input: 
+
+{          
+    "username": "tommy",
+    "title": "free french fries",
+    "description": "I had a party just now! You are welcome to join.",
+    "datetime": "2021-01-01 15:10:10",
+    "is_available": 1,
+}
 
 Output: 
 
@@ -155,10 +119,10 @@ def create_post(post_details):
 Function: create comments
 
 Input: {
-    forum_id: <int>,
-    commentor_username: <string>,
-    comment: <string>,
-    datetime: <string>
+    forum_id: 1,
+    commentor_username: "SJB123",
+    comment: "This is a coment",
+    datetime: "2021-01-01 15:10:10"
 }
 
 Output: 

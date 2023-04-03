@@ -330,10 +330,10 @@ output:
 '''
 
 # EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
-@app.route("/edit/<string:username>", methods=['PUT'])
-def edit(username):
+@app.route("/edit/<int:forum_id>", methods=['PUT'])
+def edit(forum_id):
     
-    forum = forum_db.query.filter_by(username=username).all()
+    forum = forum_db.query.filter_by(forum_id=forum_id).all()
 
     #check if post exists
     if forum:
