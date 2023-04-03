@@ -66,15 +66,9 @@ const root = Vue.createApp({
 
             listAll(list_ref)
             .then((res) => {
-              res.prefixes.forEach((folderRef) => {
-                // All the prefixes under listRef.
-                // You may call listAll() recursively on them.
-                console.log(folderRef)
-              });
               res.items.forEach((itemRef) => {
                 // All the items under listRef.
-                console.log(res.items.length)
-                console.log(itemRef)    
+                console.log(res.items.length) 
                 getDownloadURL(itemRef)
                 .then((url) => {
                     // `url` is the download URL for testphoto

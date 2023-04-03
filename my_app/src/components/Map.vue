@@ -14,9 +14,14 @@
             :key="index"
             v-for="(m, index) in markers"
             :position="m.position"
+            :icon="{
+                url: m.icon,
+                scaledSize: m.scaledSize
+            }"
+            @click="toggleAccordion(index)"
         />
         <GMapCircle
-            :radius="500"
+            :radius="this.user_appetite*100"
             :center="currentLocation"
             :options="circleOptions"
         />
@@ -57,16 +62,51 @@
   </template>
 
   <script>
+    import axios from 'axios' 
+    const food_info_url = 'http://localhost:1112/all'
+    const get_user_info = 'http://localhost:1111/profile'
+    // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
         methods: {
+            get_user_info(username) {
+                console.log(`${get_user_info}/${username}`)
+                const response = fetch(`${get_user_info}/${username}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("get_user_info() -", response);
+                        if (data.code === 404) {
+                            console.log("get_user_info() - error!");
+                        } else {
+                            this.user_appetite = data.data.travel_appetite
+                            console.log(this.user_appetite)
+                        }
+                    })
+            },
+            toggleAccordion(index) {
+                this.$store.state.markerId = index
+                console.log(this.$store.state.markerId)
+                console.log(`#accordionList${index}`)
+                const selectedAccordion = document.querySelector(`#accordionList${index}`)
+                console.log(selectedAccordion)
+                selectedAccordion.setAttribute('aria-expanded',"true")
+                selectedAccordion.classList.remove('collapsed')
+
+                const selectedAccordionBody = document.querySelector(`.accordionBody${index}`)
+                console.log(selectedAccordionBody)
+                selectedAccordionBody.classList.add('show')
+                // const accordionElement = this.$refs.index
+                // accordionElement.classList.toggle('active')
+            },
             onInput() {
                 this.showClearButton = this.$refs.autocomplete.$refs.input.value.length > 0;
             },
+            // Adam, will need you to use this function and pass the values from FoodList.vue line 167 to the panTo() function
+            // the values should be in the form of a JSON object, can refer to line 143 in this vue file.
             re_center() {
                 const map = this.$refs.map
                 map.panTo(this.currentLocation)
-                this.zoomValue = 15
+                this.zoomValue = 14
             },
             clear_search() {
                 this.$refs.autocomplete.$refs.input.value = '';
@@ -83,9 +123,105 @@
                 return new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject);
                 });
+            },
+            // '''
+            // Function: getting all nearest food post
+            // Input: user  current lat, lng from markers[0]
+            // Output: all food posts will be stored from markers[1] onwards
+            // '''
+            async get_nearest_food() {
+                // return all regardless of user or guest
+                axios.get(`${food_info_url}`, {
+                        latitude: this.markers[0].position.lat,
+                        longitude: this.markers[0].position.lng
+                })
+                    .then(response => {
+                        // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                        // console.log(response.data.data.food)
+                        var foods = response.data.data.food
+                        // store each food JSON in the markers array
+                        for (let i = 0; i<foods.length; i++) {
+                            this.markers.push({
+                                            position: {
+                                                lat: foods[i].latitude,
+                                                lng: foods[i].longitude,
+                                            },
+                                            post_id: foods[i].post_id,
+                                            icon: require("../assets/images/flaticon/food.png"),
+                                            scaledSize: {width: 45, height: 45}
+                                        })
+                        }
+                        console.log("All markers created!")
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                        console.log(error.response.data.code == 404)
+                        document.getElementById("errors").innerHTML = error.response.data.msg
+                    });
+                // check if user is a guest
+                // if (!this.$store.state.isAuthenticated) {
+                //     console.log("It's a guest user! Calling food post for guest.")
+                //     axios.get(`${guest_url}`, {
+                //         latitude: this.markers[0].position.lat,
+                //         longitude: this.markers[0].position.lng
+                // })
+                //     .then(response => {
+                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                //         // console.log(response.data.data.food)
+                //         var foods = response.data.data.food
+                //         // store each food JSON in the markers array
+                //         for (let i = 0; i<foods.length; i++) {
+                //             this.markers.push({
+                //                             position: {
+                //                                 lat: foods[i].latitude,
+                //                                 lng: foods[i].longitude,
+                //                             },
+                //                             post_id: foods[i].post_id,
+                //                             icon: require("../assets/images/flaticon/food.png")
+                //                         })
+                //         }
+                //         console.log("All markers created!")
+                //     })
+                //     .catch(error => {
+                //         console.log(error.message);
+                //         console.log(error.response.data.code == 404)
+                //         document.getElementById("errors").innerHTML = error.response.data.msg
+                //     });
+                // } else {
+                //     console.log("It's a registered user! Calling food post for user.")
+                //     axios.get(`${food_info_url}`, {
+                //         latitude: this.markers[0].position.lat,
+                //         longitude: this.markers[0].position.lng,
+                //         travel_appetite: this.$store.state.user_details.travel_appetite
+                // })
+                //     .then(response => {
+                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
+                //         // console.log(response.data.data.food)
+                //         var foods = response.data.data.food
+                //         // store each food JSON in the markers array
+                //         for (let i = 0; i<foods.length; i++) {
+                //             this.markers.push({
+                //                             position: {
+                //                                 lat: foods[i].latitude,
+                //                                 lng: foods[i].longitude,
+                //                             },
+                //                             post_id: foods[i].post_id,
+                //                             icon: require("../assets/images/flaticon/food.png")
+                //                         })
+                //         }
+                //         console.log("All markers created!")
+                //     })
+                //     .catch(error => {
+                //         console.log(error.message);
+                //         console.log(error.response.data.code == 404)
+                //         document.getElementById("errors").innerHTML = error.response.data.msg
+                //     });
+                console.log(this.markers[0].position.lat)
+                
             }
         },
         mounted() {
+            console.log("Getting user's current location")
             this.get_location().then(position => {
                 this.markers[0].position.lat = position.coords.latitude;
                 this.markers[0].position.lng = position.coords.longitude;
@@ -93,10 +229,22 @@
                 this.center.lng = position.coords.longitude;
                 this.currentLocation.lat = position.coords.latitude;
                 this.currentLocation.lng = position.coords.longitude;
+                this.get_user_info(this.$store.state.user_details.username)
             });
+            console.log("Got user's current location")
+            console.log("Getting food post information from dB")
+            this.get_nearest_food()
+            console.log("Got food post information from dB")
         },
         data() {
             return {
+                // appetites: {
+                //     Near: 1000,
+                //     Medium: 2500,
+                //     Far: 5000,
+                // },
+                user_appetite: null,
+                username: null,
                 showClearButton: false,
                 search: '',
                 actLocation: "",
@@ -115,6 +263,7 @@
                             lat: null,
                             lng: null,
                         },
+                        
                     }
                 ],
                 autoCompleteOptions: {

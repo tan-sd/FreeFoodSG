@@ -20,7 +20,8 @@ CORS(app)
 
 
 @app.route("/send_notif", methods=['POST'])
-def send_sms ():
+
+def send_notif():
     # data = request.get_data()
     msg_json = request.get_json()
     message_to_publish = json.dumps(request.get_json())

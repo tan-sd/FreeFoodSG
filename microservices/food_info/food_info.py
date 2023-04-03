@@ -3,9 +3,11 @@
 import os
 import haversine as hs
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy 
 from flask_cors import CORS
 from datetime import datetime
+import uuid
+import json
 
 # INITIALISING APP
 app = Flask(__name__)
@@ -23,23 +25,20 @@ db = SQLAlchemy(app)
 CORS(app)
 
 # DECLARING DATABASE CLASS
-class food_db(db.Model):
+class food_table(db.Model):
     __tablename__ = 'food_table'
 
-    post_id = db.Column(db.Integer, primary_key=True)
+    post_id = db.Column(db.VARCHAR(64), primary_key=True)
     username = db.Column(db.VARCHAR(64), nullable=False) # username of creator
     post_name = db.Column(db.VARCHAR(64), nullable=False)
     latitude =  db.Column(db.Float(precision=6), nullable=False)
     longitude = db.Column(db.Float(precision=6), nullable=False)
     address = db.Column(db.VARCHAR(128), nullable=False)
-    description = db.Column(db.VARCHAR(300))
-    allergens = db.Column(db.VARCHAR(64))
+    description = db.Column(db.VARCHAR(248))
     is_available = db.Column(db.Integer(), nullable=False)
     end_time = db.Column(db.DateTime(), nullable=False)
-    photo_name = db.Column(db.VARCHAR(64))
-    photo_path = db.Column(db.VARCHAR(128))
 
-    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, allergens, is_available, end_time, photo_name, photo_path):
+    def __init__(self, post_id, username, post_name, latitude, longitude, address, description, is_available, end_time):
         self.post_id = post_id
         self.username = username # username of creator
         self.post_name = post_name
@@ -47,11 +46,8 @@ class food_db(db.Model):
         self.longitude = longitude
         self.address = address
         self.description = description
-        self.allergens = allergens
         self.is_available = is_available
         self.end_time = end_time
-        self.photo_name = photo_name
-        self.photo_path = photo_path
 
     def json(self):
         post = {
@@ -62,313 +58,556 @@ class food_db(db.Model):
             'longitude': self.longitude,
             'address': self.address,
             'description': self.description,
-            'allergens' : self.allergens, 
             'is_available' : self.is_available,
-            'end_time' : self.end_time,
-            'photo_name' : self.photo_name,
-            'photo_path' : self.photo_path
+            'end_time' : self.end_time
         }
         return post
 
-# SHOW ALL POSTS
+class diet_table(db.Model):
+    __tablename__ = 'dietary_table'
 
-@app.route("/")
-def main_page():
-    return 'this is the main page'
+    post_id = db.Column(db.VARCHAR(64), db.ForeignKey('food_table.post_id'), primary_key=True)
+    diets_available = db.Column(db.VARCHAR(64), primary_key=True)
 
-@app.route("/all")
+    def __init__(self, post_id, diets_available):
+        self.post_id = post_id
+        self.diets_available = diets_available
+    
+    def json(self):
+        diet = {
+            'post_id': self.post_id,
+            'diets_available': self.diets_available
+        }
+        return diet
+    
+'''SHOW ALL AVAILABLE POSTS
+this function shows all posts that are available
+input: None, access this using the URL
+output: list of post JSONs
+'''
+@app.route("/all", methods=['GET'])
 def all():
-    food_list = food_db.query.all()
-    if len(food_list):
+    posts_data = food_table.query.filter_by(is_available=1).all()
+    print("Getting all available posts from database...")
+    if posts_data:
+        output_list = []
+        for post in posts_data:
+            # prepare data JSON output
+            data = {}
+            data["post_id"] = post.post_id
+            data["post_name"] = post.post_name
+            data["creator"] = post.username
+            data["latitude"] = post.latitude
+            data["longitude"] = post.longitude
+            data["address"] = post.address
+            data["description"] = post.description
+            data["is_available"] = post.is_available
+            data["end_time"] = post.end_time
+
+            # retrieve list of diets in post
+        
+            diet_list = []
+            post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+            for entry in post_diets_available:
+                diet_list.append(entry.__dict__["diets_available"])
+
+            data["diets_available"] = diet_list # list of diets for post
+            output_list.append(data)
+        
+        print("Available posts retrieved!")
         return jsonify(
             {
                 "code": 200,
                 "data": {
-                    "food": [food.json() for food in food_list]
+                    "food": output_list
                 }
             }
         )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There is no food."
-        }
-    ), 404
-
-# RETRIEVE SPECIFIC POST
-@app.route("/search/<string:post_id>")
-def find_post(post_id):
-    post = food_db.query.filter_by(post_id=post_id).first()
-
-    #if post exists, return post json
-    if post:
-        return jsonify(
-            {
-                "code": 200,
-                "data": post.json()
-            }
-        )
     
-    #else, return error message
-    return jsonify(
-        {
-            "code": 404,
-            "message": "Post not found."
-        }
-    ), 404
-
-# CREATE A POST
-@app.route("/create/<int:post_id>", methods=['POST'])
-def create_post(post_id):
-
-    #check if post is already in the db
-    if(food_db.query.filter_by(post_id=post_id).first()):
+    else:
+        print("No available food!")
         return jsonify(
             {
-                "code": 400,
+                "code": 404,
+                "message": "There is no available food."
+            }
+        ), 404
+
+'''CREATE A POST
+this function creates a post
+input: JSON of the new post. it must have:
+{
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MM:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"]
+}
+output: JSON of either success or failure of creation
+'''
+@app.route("/create_post", methods=['POST'])
+def create_post():
+    print("Calling create_post ===========")
+    #if json, try adding
+    if request.is_json:
+        data = request.get_json()
+        print(data)
+        print("Adding post into database...")
+        
+        #if successful add
+        if add_to_db(data) == True:
+            print("Post added successfully!")
+            return jsonify(
+            {
+                "code": 201,
                 "data": {
-                    "post_id": post_id
+                    "post": data
                 },
-                "message": "Post already exists."
+                "message": "Post created successfully"
             }
-        ), 400
-    
-    #else, carry on making the post
-    data = request.get_json()
-    post = food_db(**data, is_available=1)
+        ), 201
 
-    #attempt to add post into db
+        else:
+            print('got error')
+
+        
+    else:
+        print("Error adding post into database: ")
+        print(add_to_db(data))
+        return add_to_db(data)
+   
+def add_to_db(data):
+    '''
+    this function adds a post into the database for create_post
+    input: post json
+    output: true if successful, json error description if failed
+    '''   
+
+    print(' inside add to db ')
+    data["post_id"] = create_id()
+    data["is_available"] = 1 # to show that post is currently available
+    diet = data["diets_available"] # e.g. ["no prawns", "halal", "nuts"]
+    del data["diets_available"] # to set up JSON to send into food_table, since it does not have a diets field
+
+
+    print(diet)
+    print(data)
     try:
+        # adds entry into food table
+        post = food_table(**data)
+
+        print(post)
         db.session.add(post)
         db.session.commit()
 
-    #if post cannot be made, return error message
-    except:
+        # adds entries into diet table, based on diets of the post
+        if diet:
+            for item in diet:
+                diet_row = diet_table(post_id=data["post_id"],diets_available=item)
+                db.session.add(diet_row)
+                db.session.commit()
+
+    except Exception as e:
+
+        print(e)
         return jsonify(
             {
                 "code":500,
-                "data":{
-                    "post_id":post_id
-                },
-                "message": "An error occurred when creating a post. Please check if all fields meet the constraints of the database."
+                "message": "Cannot add post. System Message: " + str(e)
             }
         ), 500
     
-    #if no errors, return success message
-    return jsonify(
-        {
-            "code": 201,
-            "data": post.json(),
-            "message": "Post created successfully."
-        }
-    ), 201
+    return True
 
-# DELETE A POST
-@app.route("/delete/<int:post_id>", methods=['DELETE'])
-def delete(post_id):
-    post = food_db.query.filter_by(post_id=post_id).first()
-
-    #check if post exists
-    if post:
-
-        #attempt to delete post from db
-        try:
-            db.session.delete(post)
-            db.session.commit()
-
-        #if post cannot be deleted, return error message
-        except:
-             return jsonify(
-            {
-                "code": 500,
-                "data": {
-                    "post_id": post_id
-                },
-                "message": "An error occurred when deleting the post. Please check if the post still exists."
-            }
-        ), 500
-
-        #if no errors, return success message
-        return jsonify(
-            {
-                "code": 201,
-                "data": post.json(),
-                "message":"Post successfully deleted."
-            }
-        ), 201
+def create_id():
+    '''
+    this function creates a new id for the incoming new post and checks if the id already exists in database
+    input: nothing
+    output: id of new post
+    '''
+    exist = True
+    while exist:
+        new_post_id = str(uuid.uuid4())
+        exist = food_table.query.filter_by(post_id=new_post_id).first()
+    
+    return new_post_id
         
-    #else, notify that the post doesn't exist
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "post_id": post_id
-            },
-            "message": "Post not found."
-        }
-    )
-
-# EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
-@app.route("/edit/<int:post_id>", methods=['PUT'])
+'''EDIT A POST
+this function edits a post given a post_id
+input: updated full JSON of new post, it must have:
+{
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MI:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"],
+    "is_available": 1
+}
+output: JSON message of either success or failure of edit
+'''
+@app.route("/edit/<post_id>", methods=['PUT'])
 def edit(post_id):
-    
-    post = food_db.query.filter_by(post_id=post_id).first()
+    print("Editing post...")
+    post = food_table.query.filter_by(post_id=post_id).first()
 
-    #check if post exists
+    # check if post exists
     if post:
-
         #attempt to edit
         try:
             data = request.get_json()
 
             #update fields
+            post.username = data['username']
             post.post_name = data['post_name']
             post.latitude = data['latitude'] 
             post.longitude = data['longitude'] 
+            post.address = data['address']
             post.description = data['description']  
-            post.allergens = data['allergens'] 
             post.is_available = data['is_available'] 
-
-            #commit changes
             db.session.commit()
 
+            edit_diets_table(post_id,data['diets_available'])
+           
             #if no errors, return success message
+            print("Post edited successfully!")
             return jsonify(
                 {
                     "code": 200,
-                    "data": post.json(),
-                    "message": "Post edited successfully. See above for updated post details."
+                    "message": "Post edited successfully."
                 }
             ), 200
         
         #if post cannot be edited, return error message
         except Exception as e:
+            print("Error occured while updating the post.")
             return jsonify(
                 {
                     "code": 500,
                     "data": {
                         "post_id": post_id
                     },
-                    "message": "An error occurred while updating the post. " + str(e)
+                    "message": "An error occurred while updating the post. System Message: " + str(e)
                 }
             ), 500
-            
-    #else, notify that post does not exist
-    return jsonify(
-        {
-            "code": 404,
-            "data": {
-                "post_id": post_id
-            },
-            "message": "Post not found."
-        }
-    ), 404
     
-'''
-Details for wrapper function below
+    # if post does not exist
+    else:
+        # notify that post does not exist
+        print("Post does not exist!")
 
-Function: search for food posts which are within a specified user's travel appetite
-Input: user JSON object
+
+        return jsonify(
+            {
+                "code": 404,
+                "data": {
+                    "post_id": post_id
+                },
+                "message": "Post does not exist."
+            }
+        ), 404        
+def edit_diets_table(post_id, diet_list):
+    '''
+    this function removes all current diets and re-adds diets
+    input: post_id that is being created, list of diets
+    output: True if successful, JSON error msg if failure
+    '''
+    # remove all current diets
+    current_diets = diet_table.query.filter_by(post_id=post_id)
+    for entry in current_diets:
+        db.session.delete(entry)
+        db.session.commit()
+
+    try:
+        for item in diet_list:
+            # if current table has a diet that is now being removed
+            diet_row = diet_table(post_id=post_id,diets_available=item)
+            db.session.add(diet_row)
+            db.session.commit()
+        
+        return True
+
+    except Exception as e:
+        return jsonify(
+            {
+                "code":500,
+                "message": "System Error Message: " + str(e)
+            }
+        ), 500
+    
+'''NEARBY FOOD FOR USER
+Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
+Input: user JSON object, it must include:
+{
+    "latitude": 1.296273,
+    "longitude": 103.850158,
+    "dietary_type": ["halal","no prawns"],
+    "travel_appetite": 2
+}
 Output: array of food post JSON objects that fulfill the criteria
 '''
-# NEED TO FILTER ACCORDING TO ALLERGY TOO
-@app.route("/filter_post", methods=['GET'])
+@app.route("/nearby_food_user", methods=['POST'])
+def nearby_food_user():
+    # check if JSON
+    if request.is_json:
+        try:
+            print("Finding nearby food...")
+            user = request.get_json()
+            all_posts = food_table.query.filter_by(is_available=1).all()
+            filtered_posts = []
+
+            # filter for posts within specified user's travel appetite
+            for post in all_posts:
+                user_latitude = user['latitude']
+                user_longitude = user['longitude']
+
+                # prepare data JSON output
+                data = {}
+                data["post_id"] = post.post_id
+                data["post_name"] = post.post_name
+                data["creator"] = post.username
+                data["latitude"] = post.latitude
+                data["longitude"] = post.longitude
+                data["address"] = post.address
+                data["description"] = post.description
+                data["is_available"] = post.is_available
+                data["end_time"] = post.end_time
+
+                # retrieve list of diets in post
+                diet_list = []
+                post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+                for entry in post_diets_available:
+                    diet_list.append(entry.__dict__["diets_available"])
+
+                data["diets_available"] = diet_list # list of diets for post
+
+                # get distance from user to post
+                distance = hs.haversine((post.latitude,post.longitude),(user_latitude, user_longitude))              
+                if check_if_valid(distance,diet_list,user,post):
+                    filtered_posts.append(data)
+            print("Found nearby food!")
+            return jsonify(
+                {
+                    "code": 200,
+                    "data": {
+                        "posts": filtered_posts
+                    }
+                }
+            )
+    
+        except Exception as e:
+            print("Finding food error.")
+            return jsonify(
+                {
+                    "code": 404,
+                    "message": "Error occurred. System message: " + str(e)
+                }
+            ), 404
+    
+    # if not JSON
+    else:
+        data = request.get_data()
+        print("User not in JSON!")
+        print(data)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "data": data,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
+    
+def check_if_valid(distance,diet_list,user,post):
+    '''
+    this function checks if a post is a valid post
+    input: distance of post to user, diets_availability of post, user JSON
+    output: True if valid, False otherwise
+    '''
+    if user["travel_appetite"] > distance and post.__dict__["is_available"] == 1:
+        for diet in user["dietary_type"]:
+            if diet not in diet_list:
+                return False
+
+        return True
+    else:
+        return False
+
+'''NEARBY FOOD GUEST
+Function: search for food posts which are within a specified user's travel appetite and user's dietary requirements
+Input: user JSON object, it must include:
+{
+    "latitude": 1.296273,
+    "longitude": 103.850158
+}
+Output: array of food post JSON objects that fulfill the criteria
+
+'''
+@app.route("/nearby_food_guest", methods=['POST'])
 # search for users that are within the distance
-def filter_post():
+def nearby_food_guest():
     # check input format and data is JSON
     if request.is_json:
         try:
-            # get query info
-            query = request.get_json()
-            print("\nReceived a query in JSON:", query)
+            print("Finding nearby food...")
+            user = request.get_json()
+            all_posts = food_table.query.filter_by(is_available=1).all()
+            filtered_posts = []
 
-            # do the actual checking
-            # return list of food post objects from food_dB
-            all_food_info = food_db.query.all()
-            filtered_food = []
-            if len(all_food_info):
-                # filter for posts within specified user's travel appetite
-                for food in all_food_info:
-                    food_latitude = food.latitude
-                    food_longitude = food.longitude
-                    user_latitude = query['latitude']
-                    user_longitude = query['longitude']
-                    user_travel_appetite = query['travel_appetite']
-                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
+            # filter for posts within specified user's travel appetite
+            for post in all_posts:
+                user_latitude = user['latitude']
+                user_longitude = user['longitude']
 
-                    if distance <= user_travel_appetite:
-                        filtered_food.append(food)
-                # return list of food post objects where the post is within the user's travel appetite
-                return jsonify(
-                    {
-                        "code": 200,
-                        "data": {
-                            "user": [info.json() for info in filtered_food]
-                        }
-                    }
-                )
+                # prepare data JSON output
+                data = {}
+                data["post_id"] = post.post_id
+                data["post_name"] = post.post_name
+                data["creator"] = post.username
+                data["latitude"] = post.latitude
+                data["longitude"] = post.longitude
+                data["address"] = post.address
+                data["description"] = post.description
+                data["is_available"] = post.is_available
+                data["end_time"] = post.end_time
+
+                diet_list = []
+                post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+                for entry in post_diets_available:
+                    diet_list.append(entry.__dict__["diets_available"])
+
+                data["diets_available"] = diet_list # list of diets for post
+
+                # preset the TA to 2km here
+                user_travel_appetite = 2
+                distance = hs.haversine((post.latitude,post.longitude),(user_latitude, user_longitude))
+                if distance <= user_travel_appetite:
+                    filtered_posts.append(data)
+                    # list of food post objects where the post is within the user's travel appetite
+
+            print("Found nearby food!")
             
-            else:
-                # the else comes here
-                return jsonify(
-                    {
-                        "code": 404,
-                        "message": "No information to be displayed."
+            return jsonify(
+                {
+                    "code": 200,
+                    "data": {
+                        "posts": filtered_posts
                     }
-                ), 404
-        except:
-            pass
+                }
+            )
+    
+        except Exception as e:
+            print("Finding food error.")
+            return jsonify(
+                {
+                    "code": 404,
+                    "message": "Error occurred. System message: " + str(e)
+                }
+            ), 404
 
-# for guest users
-@app.route("/nearby_food", methods=['GET'])
-# search for users that are within the distance
-def guest_display():
-    # check input format and data is JSON
-    if request.is_json:
+    else:
+        user = request.get_data()
+        print("User not in JSON!")
+        print(user)
+        print()
+        return jsonify(
+            {
+                "code": 403,
+                "user": user,
+                "message": "Request is not in JSON. System message: " + str(e)
+            }
+        ), 403
+'''FIND POSTS BASED ON USERNAME
+This function returns a list of posts based on username
+Input: None, parse username through URL
+Output: A list of post jsons
+'''
+@app.route("/filter_user/<string:username>")
+def filter_user(username):
+    posts_data = food_table.query.filter_by(username=username).filter_by(is_available=1).all()
+    output_list = []
+    # check if any posts
+    if posts_data:
+        print("Filtering posts according to user...")
+        for post in posts_data:
+            # prepare data JSON output
+            data = {}
+            data["post_id"] = post.post_id
+            data["post_name"] = post.post_name
+            data["creator"] = post.username
+            data["latitude"] = post.latitude
+            data["longitude"] = post.longitude
+            data["address"] = post.address
+            data["description"] = post.description
+            data["is_available"] = post.is_available
+            data["end_time"] = post.end_time
+
+            # retrieve list of diets in post
+        
+            diet_list = []
+            post_diets_available = diet_table.query.filter_by(post_id=post.post_id)
+            for entry in post_diets_available:
+                diet_list.append(entry.__dict__["diets_available"])
+
+        data["diets_available"] = diet_list # list of diets for post
+        if data["creator"] == username:
+            output_list.append(data)
+        print("Filtered posts according to user!")
+        return output_list
+
+    
+    else:
+        data = request.get_data()
+        print("User does not have any posts.")
+
+        return jsonify(
+            {
+                "code": 404,
+                "message": "User does not have any posts."
+            }
+        ), 404
+    
+'''MAKE POST UNAVAILABLE 
+This function changes status of post from is_available = 1 to is_available = 0
+input: nothing, send post_id through URl
+output: success or failure of change of availability
+'''        
+@app.route("/remove/<string:post_id>", methods=['PUT'])
+def make_unavailable(post_id):
+    print("Making post unavailable...")
+    
+    post = food_table.query.filter_by(post_id=post_id).first()
+
+    if post:
         try:
-            # get query info
-            query = request.get_json()
-            print("\nReceived a query in JSON:", query)
+            post.is_available = 0
+            db.session.commit()
 
-            # do the actual checking
-            # return list of food post objects from food_dB
-            all_food_info = food_db.query.all()
-            filtered_food = []
-            if len(all_food_info):
-                # filter for posts within specified user's travel appetite
-                for food in all_food_info:
-                    food_latitude = food.latitude
-                    food_longitude = food.longitude
-                    user_latitude = query['latitude']
-                    user_longitude = query['longitude']
+            print("Success! Post is now unavailable!")
+            return jsonify({
+                "code":201,
+                "message": "Success! Post is now unavailable."
 
-                    # preset the TA to 2km here
-                    user_travel_appetite = 2
-                    distance = hs.haversine((food_latitude,food_longitude),(user_latitude, user_longitude))
-
-                    if distance <= user_travel_appetite:
-                        filtered_food.append(food)
-                # return list of food post objects where the post is within the user's travel appetite
-                return jsonify(
-                    {
-                        "code": 200,
-                        "data": {
-                            "user": [info.json() for info in filtered_food]
-                        }
-                    }
-                )
-            
-            else:
-                # the else comes here
-                return jsonify(
-                    {
-                        "code": 404,
-                        "message": "No information to be displayed."
-                    }
-                ), 404
-        except:
-            pass
-
-
+            }), 201
+        
+        except Exception as e:
+            print("Error updating database!")
+            return jsonify({
+                "code":500,
+                "message":"Error updating database. System message: " + str(e)
+            }), 500
+        
+    else:
+        print("Post doesn't exist!")
+        return jsonify({
+            "code":404,
+            "message": "Post does not exist."
+        }), 404
+          
 if __name__ == '__main__':
     app.run(port=1112, debug=True)

@@ -3,9 +3,7 @@ USE `user_info`;
 
 DROP TABLE IF EXISTS `user_info`;
 CREATE TABLE IF NOT EXISTS `user_info` (
-  `user_id` int(11) NOT NULL auto_increment,
-  `first_name` varchar(64) NOT NULL,
-  `last_name` varchar(64) NOT NULL,
+  `user_id` int(11) NOT NULL AUTO_INCREMENT,
   `first_name` varchar(64) NOT NULL,
   `last_name` varchar(64) NOT NULL,
   `username` varchar(20) NOT NULL,
@@ -16,7 +14,9 @@ CREATE TABLE IF NOT EXISTS `user_info` (
   `latitude` decimal(10,6) ,
   `longitude` decimal(10,6) ,
   `dietary_type` varchar(64) ,
-  `travel_appetite` varchar(64) ,
+  `travel_appetite` int(11),
+  `sms_notif` bit,
+  `email_notif` bit,
   PRIMARY KEY (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -24,16 +24,9 @@ CREATE TABLE IF NOT EXISTS `user_info` (
 -- Dumping data for table `user_info`
 --
 
-INSERT INTO `user_info` (`first_name`, `last_name`, `username`, `number`, `email`, `password`, `address`, `latitude`,`longitude`,`dietary_type`, `travel_appetite`) 
-INSERT INTO `user_info` (`first_name`, `last_name`, `username`, `number`, `email`, `password`, `address`, `latitude`,`longitude`,`dietary_type`, `travel_appetite`) 
-VALUES
-
-('ShengJing', 'Bing', 'SJB123', '+6590229185' , 'contactmakanboleh@gmail.com', 'Password12345!', 'Singapore Marina Bay Sands', 1.283375, 103.860725 , 'na', 'far'),
-('Dancer', 'Adam', 'DA123', '+6590229185', 'dancer@gmail.com', 'Password12345!', 'Singapore Management University', 41.023472, -91.967133 , 'na', 'far');
-
-
-('ShengJing', 'Bing', 'SJB123', '+6590229185' , 'contactmakanboleh@gmail.com', 'Password12345!', 'Singapore Marina Bay Sands', 1.283375, 103.860725 , 'na', 'far'),
-('Dancer', 'Adam', 'DA123', '+6590229185', 'dancer@gmail.com', 'Password12345!', 'Singapore Management University', 41.023472, -91.967133 , 'na', 'far');
+INSERT INTO `user_info` (`user_id`, `first_name`, `last_name`, `username`, `number`, `email`, `password`, `address`, `latitude`, `longitude`, `dietary_type`, `travel_appetite`) VALUES
+(9, 'Sheng Da', 'Tan', 'shengdatan', '92476862', 'shengdatan@gmail.com', '$2b$10$efG2mz/MMdwXckfqkcQph.l5cB.SzTkUdzuw/Sbe.kHcrHe1.0BG2', 'Victoria Street, Singapore Management University, Singapore', 1.296273, 103.850158, '', 0.5),
+(10, 'Adam', 'Tan', 'adamtan', '92354902', 'adamft.2021@scis.smu.edu.sg', '$2b$10$BZK3ZvadKLLcOkRoaEr5ouFB8qu3ZpyaXUyCFjJd9MVkNWzSd6uOG', 'Expo Drive, Singapore Expo, Singapore', 1.333525, 103.959537, 'Halal', 2);
 
 COMMIT;
 
