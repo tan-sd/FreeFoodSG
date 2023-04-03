@@ -347,7 +347,7 @@ def edit(forum_id):
             # forum.title = data['title']
             # forum.description = data['description'] 
             # forum.datetime = data['datetime'] 
-            forum_is_available = 0
+            forum.is_available = 0
 
             #commit changes
             db.session.commit()

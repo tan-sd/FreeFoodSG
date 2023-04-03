@@ -57,7 +57,7 @@
                             >
                         </div>
 
-                        <div class="btn btn-light h-50 deleteBtn fw-semibold" v-if=" this.forumList.data.includes(e_post.forum_id)" @click="removePost(e_post.forum_id)">Delete</div>
+                        <div class="btn btn-light h-50 deleteBtn fw-semibold" v-if=" this.forumList.includes(e_post.forum_id)" @click="removePost(e_post.forum_id)">Delete</div>
                     </div>
                 </div>
 
@@ -254,11 +254,13 @@ export default {
     },
     methods: {
         removePost(forum_id) {
+            var vm = this
             axios.put(`${removePost}/${forum_id}`)
             .then(response => {
                 console.log(response.data)
                 if (response.data.code == 200) {
                     console.log("Successfully removed post.")
+                    vm.update_posts(false)
             }
         })
             .catch(error => {
@@ -270,7 +272,7 @@ export default {
             axios.get(`${filteredResult}/${this.$store.state.user_details.username}`)
             .then(response => {
                 console.log(response.data)
-                this.forumList = response.data
+                this.forumList = response.data.data
                 // this.forumList = response
             })
             .catch(error => {
