@@ -41,7 +41,7 @@ const root = Vue.createApp({
             // retrieve an img from firebase storage
 
             // test reference
-            const testphoto = ref(storage, "cambodia/tuk_tuk.jpg")
+            const testphoto = ref(storage, "tuk_tuk.jpg")
         
             // get download url to get your img
             getDownloadURL(testphoto)
