@@ -208,16 +208,19 @@ output:
 '''
 
 # RETRIEVE SPECIFIC FORUM POST
-@app.route("/search/<int:forum_id>", methods=['GET'])
-def search(forum_id):
-    forum = forum_db.query.filter_by(forum_id=forum_id).first()
-
+@app.route("/search/<string:username>")
+def search(username):
+    forum = forum_db.query.filter_by(username=username).all()
+    result = []
+    for e_post in forum:
+        e_post = e_post.json()
+        result.append(e_post["forum_id"])
     #if forum exists, return forum json
     if forum:
         return jsonify(
             {
                 "code": 200,
-                "data": forum.json()
+                "data": result
             }
         )
     
@@ -338,13 +341,13 @@ def edit(forum_id):
 
         #attempt to edit
         try:
-            data = request.get_json()
+            # data = request.get_json()
 
             #update fields
-            forum.title = data['title']
-            forum.description = data['description'] 
-            forum.datetime = data['datetime'] 
-            forum.is_available = data['is_available']
+            # forum.title = data['title']
+            # forum.description = data['description'] 
+            # forum.datetime = data['datetime'] 
+            forum_is_available = 0
 
             #commit changes
             db.session.commit()
