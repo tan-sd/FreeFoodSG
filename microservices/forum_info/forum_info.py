@@ -208,7 +208,7 @@ output:
 '''
 
 # RETRIEVE SPECIFIC FORUM POST BY USERNAME
-@app.route("/search/<string:username>")
+@app.route("/search/<string:username>", methods=['GET'])
 def search(username):
     forum = forum_db.query.filter_by(username=username).all()
     result = []

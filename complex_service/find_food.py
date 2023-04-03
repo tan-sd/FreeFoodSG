@@ -43,7 +43,7 @@ Output: user details as json
 }
 
 '''
-@app.route("/login", methods=['GET', 'POST'])
+@app.route("/login", methods=['POST'])
 def user_login():
     # check if JSON
     if not request.is_json:
@@ -104,19 +104,10 @@ def verification(user_details):
 Function: register the user and add user info to db
 
 Input: JSON object -> {
-    "user_id": user_id,
-    "first_name": first_name,
-    "last_name": last_name,
-    "username": username,
-    "number": number,
-    "email": email,
-    "password": password,
-    "address": address,
-    "latitude": latitude float,
-    "longitude": longitude float,
-    "dietary_type": ["halal"],
-    "travel_appetite": 2
+    "username" : “greenapple”,
+    "password" :  “password”
 }
+
 
 Output: user details as json 
 {
@@ -141,7 +132,7 @@ Output: user details as json
 }
 
 '''
-@app.route("/user", methods=['GET', 'POST'])
+@app.route("/user", methods=['POST'])
 def user_register():
 
     print('in register function')
@@ -224,11 +215,12 @@ def register(user_details):
     Function: get all available food near the user
 
     Input: JSON object -> {
-        "latitude" : float,
-        "longitude" : float,
+        "latitude": 1.296273,
+        "longitude": 103.850158,
         "dietary_type": ['halal','prawn-free'],
-        "travel_appetite": int
+        "travel_appetite": 1
     }
+
 
     Output: list of all json food objects
     {
