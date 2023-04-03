@@ -72,7 +72,9 @@ def sendClientUpdate(body):
     recipient_email = user['email']
     recipient_name = user['name']
     food_location = food['address']
-    food_name = food['post_name']
+    food_name = food['post_name'].title()
+    print('printing food name')
+    print(food_name)
     food_description = food['description']
     # changed this from allergens
     food_allergens_list = food['diets_available'] #account for list or string input
@@ -89,7 +91,7 @@ def sendClientUpdate(body):
     
     print(f'this is the allergen list after being formatted: {allergens_to_print}')
 
-        # capitalize()00
+     
 
     # food_allergens = food_allergens[:-1]
     food_end_time = food['end_time']

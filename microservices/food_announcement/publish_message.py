@@ -25,6 +25,7 @@ def send_notif ():
     message = json.dumps(request.get_json())
     print(request.get_json())
 
+    print(message)
     sms_notif = request.get_json()['user']['sms_notif']
     email_notif = request.get_json()['user']['email_notif']
 
