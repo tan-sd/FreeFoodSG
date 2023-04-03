@@ -38,7 +38,7 @@
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
                     <!-- HEADER GOES HERE v -->
-                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1, e_buff)">
                         <div class="row vw-100">
                             <!-- IMAGE CAROUSEL -->
                             <div class="col-6 col-md-7 col-lg-8">
@@ -132,7 +132,7 @@
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
                         <!-- HEADER GOES HERE v -->
-                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index)" :id="`accordionList${index+1}`">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index, e_buff)" :id="`accordionList${index+1}`">
                             <div class="row vw-100">
                                 <!-- IMAGE CAROUSEL -->
                                 <div class="col-6 col-md-7 col-lg-8">
@@ -291,9 +291,14 @@
         },
 
         methods: {
-            onPostClick(index) {
+            onPostClick(index, buff_obj) {
                 this.$store.state.foodPostId = index
-                console.log(this.$store.state.foodPostId)
+                // console.log(this.$store.state.foodPostId)
+
+                emitter.emit("zoomHere", {
+                    "lat": buff_obj.latitude, 
+                    "lng": buff_obj.longitude
+                })
             },
             cancelFood() {
                 var vm = this
@@ -305,6 +310,7 @@
                         console.log('Success:', data);
                         vm.get_all_user_food()
                         vm.get_all_food()
+                        emitter.emit('updateFoodlistPosts')
                     })
                     .catch((error) => {
                         console.error('Error:', error);
@@ -579,7 +585,7 @@
         mounted() {
             var vm = this
             emitter.on('updateFoodlistPosts', function(){
-                console.log("EMITTING NOW=========")
+                console.log("EMITTING NOW FROM FOODLIST.VUE=========")
                 vm.get_all_food()
                 vm.get_all_user_food()
             })
