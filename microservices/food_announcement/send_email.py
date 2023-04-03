@@ -73,9 +73,10 @@ def sendClientUpdate(body):
     recipient_name = user['name']
     food_location = food['address']
     food_name = food['post_name'].title()
-    print('printing food name')
-    print(food_name)
+
     food_description = food['description']
+    food_description = food['description'][0].upper() + food['description'][1:]
+    print(food_description)
     # changed this from allergens
     food_allergens_list = food['diets_available'] #account for list or string input
     print(f'this is the initial allergen list: {food_allergens_list}')
