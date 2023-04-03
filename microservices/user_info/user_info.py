@@ -96,45 +96,56 @@ class User(db.Model):
             return {"post_id": Location.post_id, "address": Location.address, "latitude": Location.latitude, "longitude": Location.longitude}
         else:
             return "Method failed because distance larger than travel_appetite"
-        
-@app.route('/')
-def nothing():
-    return 'user homepage'
+
     
 '''CREATE USER PROFILE
 this function create a user account
 input: updated full JSON of new user details, it must have:
 
 {
-    "user_id": user_id,
-    "first_name": first_name,
-    "last_name": last_name,
-    "username": username,
-    "number": number,
-    "email": email,
-    "password": password,
-    "address": address,
-    "latitude": latitude,
-    "longitude": longitude,
-    "dietary_type": dietary_type,
-    "travel_appetite": travel_appetite,
-    "sms_notif": sms_notif,
-    "email_notif": email_notif
+    "user_id": 4,
+    "first_name": "rach",
+    "last_name": "sng",
+    "username": "rachel",
+    "number": 99999999,
+    "email": "email",
+    "password": "password",
+    "address": "Victoria Street, Singapore Management University, Singapore",
+    "latitude": 1.296273,
+    "longitude": 103.850158,
+    "dietary_type": [],
+    "travel_appetite": 0.5,
+    "sms_notif": 1,
+    "email_notif": 1
 }
 
 output: 
 
 {
     "code": 201,
-    "data": new_user.json(),
+    "data": {
+        "address": "Victoria Street, Singapore Management University, Singapore",
+        "dietary_type": "",
+        "email": "email",
+        "email_notif": 1,
+        "first_name": "rach",
+        "last_name": "sng",
+        "latitude": 1.296273,
+        "longitude": 103.850158,
+        "number": "99999999",
+        "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+        "sms_notif": 1,
+        "travel_appetite": 1,
+        "user_id": 11,
+        "username": "rachel"
+    },
     "message": "User created successfully."
-
 }
 
 '''
 
 # to create user info when user first created account
-@app.route("/user/<string:username>", methods=['GET','POST'])
+@app.route("/user/<string:username>", methods=['POST'])
 def create_user(username):
     print(username)
 
@@ -202,21 +213,37 @@ this function checks user's username and password
 input: updated full JSON of new user details, it must have:
 
 {
-    "username": username, 
-    "password": password,
+
+    "username": "rachel",
+    "password": "password"
+
 }
 
 output: 
 
 {
-            "code": 201,
-            "msg": "Login Successfully",
-            "user": user_info_return
+    "code": 201,
+    "msg": "Login Successfully",
+    "user": {
+        "address": "Victoria Street, Singapore Management University, Singapore",
+        "dietary_type": "",
+        "email": "email",
+        "email_notif": 1,
+        "first_name": "rach",
+        "last_name": "sng",
+        "latitude": 1.296273,
+        "longitude": 103.850158,
+        "number": "99999999",
+        "sms_notif": 1,
+        "travel_appetite": 1,
+        "user_id": 11,
+        "username": "rachel"
+    }
 }
 
 '''
 # let user log in 
-@app.route("/login", methods=['POST', 'GET'])
+@app.route("/login", methods=['POST'])
 def login():
     username = request.json.get('username', None)
     password = request.json.get('password', None)
@@ -227,7 +254,6 @@ def login():
     print(username)
     print(password)
 
-    # print(user.password)
     if user == None:
         print("[LOGIN] User signed in with wrong username or password.")
         return jsonify({
@@ -236,7 +262,7 @@ def login():
         }), 404
     
     elif user.username == username and (bcrypt.checkpw(password.encode('utf-8'), user.password.encode('utf-8'))):
-    # elif user.username == username and user.password == password: # <-- ADAM - Uncomment this to test website w/o encryption
+    # elif user.username == username and user.password == password:# <-- ADAM - Uncomment this to test website w/o encryption
         user_info_return = user.json()
         del user_info_return['password']
 
@@ -267,9 +293,67 @@ output:
     }
 }
 
+which is 
+
+{
+    "code": 200,
+    "data": {
+        "user": [
+            {
+                "address": "Victoria Street, Singapore Management University, Singapore",
+                "dietary_type": "",
+                "email": "shengdatan@gmail.com",
+                "email_notif": 1,
+                "first_name": "Sheng Da",
+                "last_name": "Tan",
+                "latitude": 1.296273,
+                "longitude": 103.850158,
+                "number": "92476862",
+                "password": "$2b$10$efG2mz/MMdwXckfqkcQph.l5cB.SzTkUdzuw/Sbe.kHcrHe1.0BG2",
+                "sms_notif": 1,
+                "travel_appetite": 1,
+                "user_id": 9,
+                "username": "shengdatan"
+            },
+            {
+                "address": "Expo Drive, Singapore Expo, Singapore",
+                "dietary_type": "Halal",
+                "email": "adamft.2021@scis.smu.edu.sg",
+                "email_notif": 1,
+                "first_name": "Adam",
+                "last_name": "Tan",
+                "latitude": 1.333525,
+                "longitude": 103.959537,
+                "number": "92354902",
+                "password": "$2b$10$BZK3ZvadKLLcOkRoaEr5ouFB8qu3ZpyaXUyCFjJd9MVkNWzSd6uOG",
+                "sms_notif": 1,
+                "travel_appetite": 2,
+                "user_id": 10,
+                "username": "adamtan"
+            },
+            {
+                "address": "Victoria Street, Singapore Management University, Singapore",
+                "dietary_type": "",
+                "email": "email",
+                "email_notif": 1,
+                "first_name": "rach",
+                "last_name": "sng",
+                "latitude": 1.296273,
+                "longitude": 103.850158,
+                "number": "99999999",
+                "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+                "sms_notif": 1,
+                "travel_appetite": 1,
+                "user_id": 11,
+                "username": "rachel"
+            }
+        ]
+    }
+}
+
 '''
 # to diplay profile of all users
-@app.route("/users")
+@app.route("/users", methods=['GET'])
 def getUserInfo():
     all_user_info = User.query.all()
     if len(all_user_info):
@@ -296,17 +380,27 @@ def getUserInfo():
 
 '''DISPLAY USER PROFILE DETAILS
 this function checks user's username 
-input: it must have:
-
-{
-    "username": username, 
-}
-
+input: username in URL
 output: 
 
 {
-                "code": 200,
-                "data": user.json()
+    "code": 200,
+    "data": {
+        "address": "Victoria Street, Singapore Management University, Singapore",
+        "dietary_type": "",
+        "email": "email",
+        "email_notif": 1,
+        "first_name": "rach",
+        "last_name": "sng",
+        "latitude": 1.296273,
+        "longitude": 103.850158,
+        "number": "99999999",
+        "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+        "sms_notif": 1,
+        "travel_appetite": 1,
+        "user_id": 11,
+        "username": "rachel"
+    }
 }
 
 '''
@@ -335,27 +429,45 @@ def find_user(username):
 this function edits user details, username stays the same
 input: it must have:
 {
-    "user_id": user_id,
-    "first_name": first_name,
-    "last_name": last_name,
-    "username": username,
-    "number": number,
-    "email": email,
-    "password": password,
-    "address": address,
-    "latitude": latitude,
-    "longitude": longitude,
-    "dietary_type": dietary_type,
-    "travel_appetite": travel_appetite,
-    "sms_notif": sms_notif,
-    "email_notif": email_notif
+   
+    "data": {
+        "address": "Victoria Street, Singapore Management University, Singapore",
+        "dietary_type": "",
+        "email": "newemail",
+        "email_notif": 1,
+        "first_name": "rach",   
+        "last_name": "sng",
+        "latitude": 1.296273,
+        "longitude": 103.850158,
+        "number": "99999999",
+        "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+        "sms_notif": 1,
+        "travel_appetite": 1,
+        "user_id": 11,
+        "username": "rachel"
+    }
 }
 
 output: 
 
 {
     "code": 200,
-    "data": user.json()
+    "data": {
+        "address": "Victoria Street, Singapore Management University, Singapore",
+        "dietary_type": "",
+        "email": "newemail",
+        "email_notif": 1,
+        "first_name": "rach",
+        "last_name": "sng",
+        "latitude": 1.296273,
+        "longitude": 103.850158,
+        "number": "99999999",
+        "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+        "sms_notif": 1,
+        "travel_appetite": 1,
+        "user_id": 11,
+        "username": "rachel"
+    }
 }
 
 '''
@@ -368,13 +480,10 @@ def update_by_user_id():
     
 
     if request.get_json():
-        data = request.get_json()
+        data = request.get_json()['data']
         username = data['username']
         user = User.query.filter_by(username=username).first()
         password = user.password
-        print(data)
-        print(username)
-        print(password)
 
         if username:
 
@@ -438,7 +547,7 @@ Input:
 
 {
     "latitude": 1.296568,
-    "longitude": 103.852119,
+    "longitude": 103.852119
 }
 
 Output: 
@@ -446,21 +555,70 @@ Output:
 {
     "code": 200,
     "data": {
-        "user": [info.json() for info in filtered_users]
+        "user": [
+            {
+                "address": "Victoria Street, Singapore Management University, Singapore",
+                "dietary_type": "",
+                "email": "shengdatan@gmail.com",
+                "email_notif": 1,
+                "first_name": "Sheng Da",
+                "last_name": "Tan",
+                "latitude": 1.296273,
+                "longitude": 103.850158,
+                "number": "92476862",
+                "password": "$2b$10$efG2mz/MMdwXckfqkcQph.l5cB.SzTkUdzuw/Sbe.kHcrHe1.0BG2",
+                "sms_notif": 1,
+                "travel_appetite": 1,
+                "user_id": 9,
+                "username": "shengdatan"
+            },
+            {
+                "address": "Expo Drive, Singapore Expo, Singapore",
+                "dietary_type": "Halal",
+                "email": "adamft.2021@scis.smu.edu.sg",
+                "email_notif": 1,
+                "first_name": "Adam",
+                "last_name": "Tan",
+                "latitude": 1.333525,
+                "longitude": 103.959537,
+                "number": "92354902",
+                "password": "$2b$10$BZK3ZvadKLLcOkRoaEr5ouFB8qu3ZpyaXUyCFjJd9MVkNWzSd6uOG",
+                "sms_notif": 1,
+                "travel_appetite": 2,
+                "user_id": 10,
+                "username": "adamtan"
+            },
+            {
+                "address": "Victoria Street, Singapore Management University, Singapore",
+                "dietary_type": "",
+                "email": "newemail",
+                "email_notif": 1,
+                "first_name": "rach",
+                "last_name": "sng",
+                "latitude": 1.296273,
+                "longitude": 103.850158,
+                "number": "99999999",
+                "password": "$2b$10$2xr3mD4TBX0gHAdHvagEFeQlv87YzjNDEvZ7ZqfUSpdWL3.R6JOiC",
+                "sms_notif": 1,
+                "travel_appetite": 1,
+                "user_id": 11,
+                "username": "rachel"
+            }
+        ]
     }
 }
 
 '''
-@app.route("/filter_user", methods=['POST'])
+@app.route("/filter_user", methods=['GET'])
 # search for users that are within the distance
 def filter_user():
     # check input format and data is JSON
-    if request.method =='POST':
+    if request.method =='GET':
         # try:
             # get query info
             data = request.get_json()
-            form_latitude = data.latitude
-            form_longitude = data.longitude
+            form_latitude = data['latitude']
+            form_longitude = data['longitude']
             print("\nReceived lat & long from the form:")
 
             # do the actual checking
@@ -502,133 +660,3 @@ def filter_user():
 
 if __name__ == '__main__':
     app.run(port=1111, debug=True)
-
-
-# # user create account
-# @app.route("/register", methods=['POST', 'GET'])
-# def register_user():
-
-#     if request.method =='POST':
-#         status = False
-#         error_msg = ''
-#         username = request.form.get('username')
-#         name = request.form.get('name')
-#         password = request.form.get('password')
-#         dietary = request.form.get('dietary')
-#         travel_appetite = request.form.get('travel_appetite')
-#         default_address = request.form.get('default_address')
-
-#         # check if user name exists
-        # if user_info.query.filter_by(username=username).first():
-        #     error_msg += 'user alr exists'
-
-        # # here will have all the checking done.
-        # if (len(password)<=11):
-        #     error_msg += 'min length 12'
-        #     # return render_template('register_fail.html', msg = error_msg)
-            
-        # if not re.search("[a-z]", password):
-        #     error_msg += '\n need at least 1 small alphabet'
-        #     # return render_template('register_fail.html', msg = error_msg)
-     
-        # # elif not re.search("[A-Z]", password):
-     
-        # if not re.search("[0-9]", password):
-        #     error_msg += '\n need min 1 number'
-        #     # return render_template('register_fail.html', msg = error_msg)
-      
-        # if not re.search("[_@$]" , password):
-        #     error_msg += '\n need min 1 symbol'
-            # return render_template('register_fail.html', msg = error_msg)
-    
-        # elif re.search("\s" , password):
-        #     error_msg = 'min length 12'
-        #     return render_template('register_fail.html', msg = error_msg)
-   
-        
-        # if error_msg:
-        #     print(error_msg)
-        #     return render_template('register_fail.html', msg = error_msg, dietary =dietary, travel_appetite=travel_appetite)
-
-        # else:
-        #     status = True
-        #     # pw that user keyed in
-        #     keyed_password = request.form.get('password')
-        #     keyed_password = keyed_password.encode('utf-8')
-
-        #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
-        
-        # data = request.get_json()
-        # user = user_info(name, **data)
-
-        # try:
-        #     db.session.add(user)
-        #     db.session.commit()
-        #     db.session.commit()
-        # except:
-        #     return jsonify(
-        #         {
-        #             "code": 500,
-        #             "data": {
-        #                 "name": name
-        #             },
-        #             "message": "An error occurred creating user info."
-        #         }
-        # #     ), 500
-        # if status:
-        #     # db.session.commit()
-        #     return render_template('register_success.html', name=name, username = username, password = password, status = status, dietary=dietary, travel_appetite=travel_appetite, default_address=default_address)
-
-        
-        # else:
-        #     return 'Wrong password...', 400  # 400 Bad Request
-
-# if request.method =='POST':
-#         status = False
-#         # these are the inputs
-#         username = request.form.get('username')
-#         user = user_info.query.filter_by(username=username).first()
-
-#         # pw that user keyed in
-#         keyed_password = request.form.get('password')
-#         keyed_password = keyed_password.encode('utf-8')
-
-#         # pw that is stored in db
-#         password =  user.password
-#         password = password.encode('utf-8')
-#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
-
-#         if bcrypt.checkpw(keyed_password, hashed):
-#             print("login success")
-#             status = True
-#         else:
-#             print("incorrect password")
-
-#         if status:
-#             return render_template('after_login.html', username = username, keyed_password = keyed_password, password = password, hashed = hashed, status = status)
-#         else:
-#             return 'Wrong password...', 400  # 400 Bad Request
-
-# search user by username
-# @app.route("/search/user", methods=['POST', 'GET'])
-# def find_user():
-#     if request.method =='POST':
-#         # these are the inputs
-#         name = request.form.get('name')
-#         latitude = request.form.get('latitude')
-#         longitude = request.form.get('longitude')
-#         form = request.form
-#         user = user_info.query.filter_by(name=name).first()
-#         all = user_info.query.all()
-        
-#         # over here i updating the db lat lng 
-#         user.longitude = longitude
-#         user.latitude = latitude
-#         # here then commit
-#         db.session.commit()
-
-#         if name and user:
-#             return render_template('search_user.html', all=all, name=name, data=user, form=form, longitude=longitude, latitude=latitude)
-#         else:
-#             return 'Please go back and enter a valid name...', 400  # 400 Bad Request
- 

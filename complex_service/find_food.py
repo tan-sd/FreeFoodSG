@@ -13,7 +13,7 @@ this complex service has two main functions
 '''
 
 verify_user_URL = 'http://localhost:1111/login'
-register_user_URL = 'http://localhost:1111/user'
+register_user_URL = 'http://127.0.0.1:1111/user'
 user_URL = 'http://localhost:1111/users'
 nearby_food_user_URL = 'http://localhost:1112/nearby_food_user'
 nearby_food_guest_URL = 'http://localhost:1112/nearby_food_guest'
@@ -104,8 +104,18 @@ def verification(user_details):
 Function: register the user and add user info to db
 
 Input: JSON object -> {
-    "username" : string,
-    "password" : string
+    "user_id": user_id,
+    "first_name": first_name,
+    "last_name": last_name,
+    "username": username,
+    "number": number,
+    "email": email,
+    "password": password,
+    "address": address,
+    "latitude": latitude float,
+    "longitude": longitude float,
+    "dietary_type": ["halal"],
+    "travel_appetite": 2
 }
 
 Output: user details as json 
@@ -236,7 +246,7 @@ def register(user_details):
                 }
     }
     '''
-@app.route("/available_food", methods=['GET'])
+@app.route("/available_food", methods=['POST'])
 def get_available_food():
     
     # Simple check of input format and data of the request are JSON
@@ -273,9 +283,8 @@ def get_available_food():
 # output: list of all nearby food. this is a json with a list
 def filtered_food(location):
     print('\n-----Invoking food_info microservice-----')
-    food_result = invoke_http(nearby_food_user_URL, method='GET', json=location)
+    food_result = invoke_http(nearby_food_user_URL, method='POST', json=location)
     activity_log("food_info") #to put in activity log
-    print('food_result:', food_result)
     code = food_result["code"]
     if code not in range(200, 300):
         activity_log("food_info error") #to put in activity log
@@ -327,7 +336,7 @@ list of all json food objects
 '''
 
 # if there is no user credentials (for guest)
-@app.route("/guest/available_food", methods=['GET'])
+@app.route("/guest/available_food", methods=['POST'])
 def get_available_food2():
     if request.is_json:
         try:
@@ -363,9 +372,8 @@ def get_available_food2():
 def show_available_food(location):
 
     print('\n-----Invoking food microservice-----')
-    food_result = invoke_http(nearby_food_guest_URL, method='GET', json=location)
+    food_result = invoke_http(nearby_food_guest_URL, method='POST', json=location)
     activity_log("food_info") #to put in activity log
-    print('food_result:', food_result)
 
     # Check the food result; if a failure, send it to the error microservice.
     code = food_result["code"]

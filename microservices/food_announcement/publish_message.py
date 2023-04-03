@@ -19,18 +19,39 @@ CORS(app)
 #error_URL = "http://localhost:5004/error"
 
 
-@app.route("/test", methods=['POST'])
-def test():
+@app.route("/send_notif", methods=['POST'])
+
+def send_notif():
     # data = request.get_data()
     message = json.dumps(request.get_json())
-    print(message)
+    print(request.get_json())
 
-    amqp_setup.channel.basic_publish(exchange="notification", routing_key="smth.sms.email.smth", 
+    sms_notif = request.get_json()['user']['sms_notif']
+    email_notif = request.get_json()['user']['email_notif']
+
+    if ((sms_notif == 1) and (email_notif == 1)):
+        print(sms_notif)
+        print(email_notif)
+        key = "smth.sms.email.smth"
+
+    elif (sms_notif == 1):
+        print(sms_notif)
+        print(email_notif)
+        key = "smth.sms.smth"
+        
+    elif (email_notif == 1):
+        print(sms_notif)
+        print(email_notif)
+        key = "smth.email.smth"
+    
+    # key = 'smth.email.smth'
+   
+
+    amqp_setup.channel.basic_publish(exchange="notification", routing_key=key, 
     body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-    success = "the function works"
+    success = {"code":"200", "message":"the function works"}
     return success
-
 
 # Execute this program if it is run as a main script (not by 'import')
 if __name__ == "__main__":

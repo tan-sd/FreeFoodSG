@@ -143,16 +143,18 @@ input: JSON of the new post. it must have:
     "longitude": 103.852119,
     "address": "81 Victoria St, Singapore 188065",
     "description": "long_description",
-    "end_time" : "YYYY-MM-DD HH:MI:SS",
+    "end_time" : "YYYY-MM-DD HH:MM:SS",
     "diets_available": ["prawn-free", "halal", "nut-free"]
 }
 output: JSON of either success or failure of creation
 '''
 @app.route("/create_post", methods=['POST'])
 def create_post():
+    print("Calling create_post ===========")
     #if json, try adding
     if request.is_json:
         data = request.get_json()
+        print(data)
         print("Adding post into database...")
         
         #if successful add
@@ -167,6 +169,10 @@ def create_post():
                 "message": "Post created successfully"
             }
         ), 201
+
+        else:
+            print('got error')
+
         
     else:
         print("Error adding post into database: ")
@@ -179,14 +185,21 @@ def add_to_db(data):
     input: post json
     output: true if successful, json error description if failed
     '''   
+
+    print(' inside add to db ')
     data["post_id"] = create_id()
     data["is_available"] = 1 # to show that post is currently available
     diet = data["diets_available"] # e.g. ["no prawns", "halal", "nuts"]
     del data["diets_available"] # to set up JSON to send into food_table, since it does not have a diets field
 
+
+    print(diet)
+    print(data)
     try:
         # adds entry into food table
         post = food_table(**data)
+
+        print(post)
         db.session.add(post)
         db.session.commit()
 
@@ -198,6 +211,8 @@ def add_to_db(data):
                 db.session.commit()
 
     except Exception as e:
+
+        print(e)
         return jsonify(
             {
                 "code":500,
@@ -336,7 +351,7 @@ Input: user JSON object, it must include:
 }
 Output: array of food post JSON objects that fulfill the criteria
 '''
-@app.route("/nearby_food_user", methods=['GET'])
+@app.route("/nearby_food_user", methods=['POST'])
 def nearby_food_user():
     # check if JSON
     if request.is_json:
@@ -433,7 +448,7 @@ Input: user JSON object, it must include:
 Output: array of food post JSON objects that fulfill the criteria
 
 '''
-@app.route("/nearby_food_guest", methods=['GET'])
+@app.route("/nearby_food_guest", methods=['POST'])
 # search for users that are within the distance
 def nearby_food_guest():
     # check input format and data is JSON

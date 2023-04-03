@@ -64,13 +64,34 @@ def sendClientUpdate(body):
     food = body['food']
     user = body['user']
 
+    print(user)
+    print(food)
+    print(food['address'])
+
     # change accordingly for email
     recipient_email = user['email']
     recipient_name = user['name']
     food_location = food['address']
     food_name = food['post_name']
     food_description = food['description']
-    food_allergens = food['allergens']
+    # changed this from allergens
+    food_allergens_list = food['diets_available'] #account for list or string input
+    print(f'this is the initial allergen list: {food_allergens_list}')
+    # food_allergens = ', '.join(food_allergens_list)
+    allergens_to_print = ''
+    for i in range(len(food_allergens_list)):
+        if i == len(food_allergens_list)-1:
+            food_allergen = food_allergens_list[i]
+            allergens_to_print += food_allergen.title()
+        elif i < len(food_allergens_list):
+            food_allergen = food_allergens_list[i]
+            allergens_to_print += food_allergen.title() + ', '
+    
+    print(f'this is the allergen list after being formatted: {allergens_to_print}')
+
+        # capitalize()00
+
+    # food_allergens = food_allergens[:-1]
     food_end_time = food['end_time']
     
     # msg = f"Dear {recipient_name}, there's food nearby!\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Lat, Long: {food_latitude}, {food_longitude}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}"
@@ -102,7 +123,7 @@ def sendClientUpdate(body):
 
         message = EmailMessage()
 
-        message.set_content(f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
+        message.set_content(f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {allergens_to_print}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
 
         message['To'] = recipient_email
         message['From'] = 'contactmakanboleh@gmail.com'
