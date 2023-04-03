@@ -38,9 +38,6 @@ def post_food():
             post_result = invoke_http(create_post_URL, method='POST', json=request.json)
             print('Post status:', post_result)
             code = post_result["code"]
-            # CHECK OUTPUT
-            # print(jsonify(post_result), post_result["code"])
-            # return jsonify(post_result), post_result["code"]
         
             if code not in range(200, 300):
 
