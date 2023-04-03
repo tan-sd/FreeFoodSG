@@ -209,10 +209,6 @@
                 </div>
                 <!-- Dietary Restrictions END -->
 
-                {{ dietary_res }}
-
-                {{ form_dietary_res }}
-
                 <!-- EMAIL AND SMS NOTIF -->
                 <div class="d-flex justify-content-center mb-3">
                     <div class="form-check mx-2">

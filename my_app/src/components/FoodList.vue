@@ -524,7 +524,7 @@
         computed: {
         },
 
-        async created() {
+        created() {
             this.getLocation();
             this.get_all_food();
             this.get_all_user_food();
