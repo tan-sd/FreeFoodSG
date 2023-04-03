@@ -11,7 +11,6 @@ import json
 
 # INITIALISING APP
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root@localhost:3306/food_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 if os.name == "nt":
@@ -87,8 +86,10 @@ output: list of post JSONs
 '''
 @app.route("/all", methods=['GET'])
 def all():
+    
     posts_data = food_table.query.filter_by(is_available=1).all()
     print("Getting all available posts from database...")
+    
     if posts_data:
         output_list = []
         for post in posts_data:
