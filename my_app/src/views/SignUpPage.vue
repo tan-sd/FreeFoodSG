@@ -1,6 +1,6 @@
 <template>
     <div class="container-fluid bg-dark text-light" id="login-body">
-        <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img">
+        <img src="../assets/images/logos/large_logos/MakanBoleh_logo_stacked_light_large.png" class="logo_img pt-5">
 
         <form class="register-form" style="width: 350px">
             <div class="form-row mt-5">
@@ -8,7 +8,7 @@
                     <div class="col-md-6 mb-3">
                         <div class="small form-floating text-dark">
                             <input v-model="first_name" v-on:keypress="is_letter($event)" type="text" class="form-control" id="first_name_input" placeholder="First Name">
-                            <label for="floatingInput">First Name</label>
+                            <label for="first_name_input">First Name</label>
                         </div>
                         <div id="first_name_signup_invalid" class="small form-floating mt-2 d-none">
                             Please enter your first name.
@@ -17,7 +17,7 @@
                     <div class="col-md-6 mb-3">
                         <div class="small form-floating text-dark">
                             <input v-model="last_name" v-on:keypress="is_letter($event)" type="text" class="form-control" id="last_name_input" placeholder="Last Name">
-                            <label for="floatingInput">Last Name</label>
+                            <label for="last_name_input">Last Name</label>
                         </div>
                         <div id="last_name_signup_invalid" class="small form-floating mt-2 d-none">
                             Please enter your last name.
@@ -28,7 +28,7 @@
                     <div class="small form-floating text-dark">
                         <input v-model="user_name" type="text" class="form-control" id="username_input"
                         placeholder="Username">
-                        <label for="floatingInput">Username</label>
+                        <label for="username_input">Username</label>
                     </div>
                     <div id="username_signup_invalid" class="small form-floating mt-2 d-none">
                     </div>
@@ -58,7 +58,7 @@
                         <span class="input-group-text">+65</span>
                         <div class="small form-floating text-dark">
                             <input v-model="phone_number" type="number" class="form-control" id="phone_number_input" placeholder="Phone Number">
-                            <label for="floatingInputGroup1">Phone Number</label>
+                            <label for="phone_number_input">Phone Number</label>
                         </div>
                     </div>
                     <div id="phone_number_signup_invalid" class="small form-floating mt-2 d-none">
@@ -116,20 +116,20 @@
                 </div>
 
                 <div class="bg-white rounded ps-3 pt-3 pb-3 text-dark">
-                    <label class="small form-label">Travel Appetite</label>
+                    <label class="small form-label">Travel Appetite<br><span class="fst-italic">(ie. How far are you willing to travel?)</span></label>
                     <br>
                     <div class="d-flex justify-content-around">
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value=0.5 checked>
-                            <label class="small form-check-label" for="inlineRadio1">Near</label>
+                            <label class="small form-check-label" for="inlineRadio1">Near (500m)</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value=1>
-                            <label class="small form-check-label" for="inlineRadio2">Medium</label>
+                            <label class="small form-check-label" for="inlineRadio2">Medium (1km)</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value=2>
-                            <label class="small form-check-label" for="inlineRadio3">Far</label>
+                            <label class="small form-check-label" for="inlineRadio3">Far (2km)</label>
                         </div>
                     </div>
                 </div>
@@ -142,10 +142,10 @@
                         <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="sms_noti">
                     </div>
                     <div class="form-check">
-                        <label class="small form-check-label" for="defaultCheck1">
+                        <label class="small form-check-label" for="defaultCheck2">
                             Recieve Email Notification?
                         </label>
-                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="email_noti">
+                        <input class="small form-check-input" type="checkbox" value="" id="defaultCheck2" v-model="email_noti">
                     </div>
                 </div>
             </div>
@@ -447,6 +447,7 @@
         justify-content: center;
         align-items: center;
         flex-direction: column;
+        background-image: linear-gradient(180deg, #264726, #336033);
     }
 
     .logo_img{

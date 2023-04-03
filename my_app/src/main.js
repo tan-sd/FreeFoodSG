@@ -8,6 +8,8 @@ import "../styling/style.css";
 import store from './store';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
+import mitt from 'mitt';
+const emitter = mitt();
 
 /* import the fontawesome core */
 import { library } from '@fortawesome/fontawesome-svg-core'
@@ -16,14 +18,17 @@ import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 
 /* import specific icons */
-import { faBars, faBurger, faCircleArrowRight, faCircleStop, faCow, faHourglassHalf, faLeaf, faLocationDot, faPersonWalking, faPizzaSlice, faPlus, faStarAndCrescent, faUserSecret, faUtensils, faCrosshairs, faXmark, faCircleUser, faComments, faPaperPlane, faImage, faSpinner, faBowlFood, faFaceSadTear } from '@fortawesome/free-solid-svg-icons'
+import { faBars, faBurger, faCircleArrowRight, faCircleStop, faCow, faHourglassHalf, faLeaf, faLocationDot, faPersonWalking, faPizzaSlice, faPlus, faStarAndCrescent, faUserSecret, faUtensils, faCrosshairs, faXmark, faCircleUser, faComments, faPaperPlane, faImage, faSpinner, faBowlFood, faFaceSadTear, faPenToSquare, faHeartCrack } from '@fortawesome/free-solid-svg-icons'
 
 /* add icons to the library */
-library.add(faSpinner, faCircleUser ,faPizzaSlice, faUserSecret, faLocationDot, faStarAndCrescent, faLeaf, faCow, faHourglassHalf, faPlus, faUtensils, faBurger, faBars, faPersonWalking, faCircleArrowRight ,faCircleStop, faCrosshairs, faXmark, faComments, faPaperPlane, faImage, faBowlFood, faFaceSadTear)
+library.add(faSpinner, faCircleUser ,faPizzaSlice, faUserSecret, faLocationDot, faStarAndCrescent, faLeaf, faCow, faHourglassHalf, faPlus, faUtensils, faBurger, faBars, faPersonWalking, faCircleArrowRight ,faCircleStop, faCrosshairs, faXmark, faComments, faPaperPlane, faImage, faBowlFood, faFaceSadTear, faPenToSquare, faHeartCrack)
 
 import "../node_modules/bootstrap/dist/js/bootstrap"
 
 const app = createApp(App);
+
+app.config.globalProperties.emitter = emitter;
+
 app.use(router).use(VueGoogleMaps, {
     load: {
         key: 'AIzaSyB_XNrepzj7pUf2-dp9vSkpAfjXkAB9yHI',

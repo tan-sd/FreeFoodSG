@@ -9,8 +9,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="d-flex justify-content-around mt-3 mb-3">
-                    <button type="button" class="btn btn-main btn-size" data-bs-dismiss="modal" @click="cancelFood">Yes</button>
-                    <button type="button" class="btn btn-main btn-size">No</button>
+                    <button type="button" class="btn btn-main btn-size"
+                    data-bs-dismiss="modal"  
+                    @click="cancelFood">Yes</button>
+                    <button type="button" class="btn btn-main btn-size"
+                    data-bs-dismiss="modal" >No</button>
                 </div>
             </div>
         </div>
@@ -18,7 +21,7 @@
 
     <div class="accordion accordion-flush text-extra-dark bg-extra-light bg-opacity-75" id="food_accordian">
         <!-- HEADER W BUTTONS -->
-        <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="my_buffets.length > 0">
+        <div class="accordion-item bg-dark text-light py-3 m-0 row" v-if="user_food.length > 0">
             <div class="col-6 d-flex justify-content-center">
                 <button class="btn" :class="{'fw-bold btn-main-secondary-fixed': to_display == 'mine', 'btn-main-light-fixed': to_display != 'mine'}" @click="to_display = 'mine' ">My Buffets</button>
             </div>
@@ -31,52 +34,58 @@
         <!-- MY BUFFETS -->
         <div v-if="to_display == 'mine' ">
             <!-- V-FOR MY_BUFFETS STARTS HERE -->
-            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="index">
+            <div class="accordion-item" v-for="(e_buff, index) in user_food" :key="`userfood-${e_buff.post_id}`">
                 <h2 class="accordion-header" :id="`mybuff-flush-heading${index}`">
     
-                <!-- HEADER GOES HERE v -->
-                <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1)">
-                    <div class="row vw-100">
-                        <!-- IMAGE CAROUSEL -->
-                        <div class="col-6 col-md-7 col-lg-8">
-                            <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
-                                <div class="carousel-inner" data-bs-interval="2000">
-                                    <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
-                                        <img :src="e_imgsrc" class="d-block w-100">
+                    <!-- HEADER GOES HERE v -->
+                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#mybuff-flush-collapse${index}`" aria-expanded="false" :aria-controls="`mybuff-flush-collapse${index}`" @click="onPostClick(index+1, e_buff)">
+                        <div class="row vw-100">
+                            <!-- IMAGE CAROUSEL -->
+                            <div class="col-6 col-md-7 col-lg-8">
+                                <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner" data-bs-interval="2000">
+                                        <!-- VFOR IMGS -->
+                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`userfood-${e_buff.post_id}-${img_index}`">
+                                            <img :src="e_imgsrc" class="d-block w-100">
+                                        </div>
+
+                                        <!-- PLACEHOLDER IMG -->
+                                        <div class="carousel-item active" v-if="e_buff.img.length == 0">
+                                            <img :src="placeholder_img_url" class="d-block w-100">
+                                        </div>
+                                    </div>
+        
+                                    <button class="carousel-control-prev" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
+                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
+                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                        <span class="visually-hidden">Next</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- DETAILS -->
+                            <div class="col-6 col-md-5 col-lg-4">
+                                <div class="row">
+                                    <!-- DIET RESTRICTIONS -->
+                                    <div class="col-12">
+                                        <h6>
+                                            <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
+                                                <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
+                                            </i>
+                                        </h6>
+                                    </div>
+
+                                    <!-- TIME LEFT -->
+                                    <div class="col-12">
+                                        <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
                                     </div>
                                 </div>
-    
-                                <button class="carousel-control-prev" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
-                                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Previous</span>
-                                </button>
-                                <button class="carousel-control-next" type="button" :data-bs-target="`#mybuff-foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
-                                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                    <span class="visually-hidden">Next</span>
-                                </button>
                             </div>
                         </div>
-
-                        <!-- DETAILS -->
-                        <div class="col-6 col-md-5 col-lg-4">
-                            <div class="row">
-                                <!-- DIET RESTRICTIONS -->
-                                <div class="col-12">
-                                    <h6>
-                                        <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
-                                            <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
-                                        </i>
-                                    </h6>
-                                </div>
-
-                                <!-- TIME LEFT -->
-                                <div class="col-12">
-                                    <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </button>
+                    </button>
     
                 </h2>
                 <div :id="`mybuff-flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian">
@@ -119,114 +128,129 @@
         <div v-if="to_display == 'other' ">
             <!-- V-FOR BUFFETS STARTS HERE -->
             <div v-if="food.length > 0">
-                <div class="accordion-item" v-for="(e_buff, index) in food" :key="index" id="accordion-list">
+                <div class="accordion-item" v-for="(e_buff, index) in food" :key="`food-${e_buff.post_id}`">
                     <h2 class="accordion-header" :id="`flush-heading${index}`">
         
-                    <!-- HEADER GOES HERE v -->
-                    <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index)" :id="`accordionList${index+1}`">
-                        <div class="row vw-100">
-                            <!-- IMAGE CAROUSEL -->
-                            <div class="col-6 col-md-7 col-lg-8">
-                                <div :id="`foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
-                                    <div class="carousel-inner" data-bs-interval="2000">
-                                        <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`${e_buff.post_id}-${img_index}`">
-                                            <img :src="e_imgsrc" class="d-block w-100">
+                        <!-- HEADER GOES HERE v -->
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" :data-bs-target="`#flush-collapse${index}`" aria-expanded="false" :aria-controls="`flush-collapse${index}`" @click="onPostClick(index, e_buff)" :id="`accordionList${index+1}`">
+                            <div class="row vw-100">
+                                <!-- IMAGE CAROUSEL -->
+                                <div class="col-6 col-md-7 col-lg-8">
+                                    <div :id="`foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
+                                        <div class="carousel-inner" data-bs-interval="2000">
+                                            <!-- VFOR IMGS -->
+                                            <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`food-${e_buff.post_id}-${img_index}`">
+                                                <img :src="e_imgsrc" class="d-block w-100">
+                                            </div>
+
+                                            <!-- PLACEHOLDER IMG -->
+                                            <div class="carousel-item active" v-if="e_buff.img.length == 0">
+                                                <img :src="placeholder_img_url" class="d-block w-100">
+                                            </div>
+                                        </div>
+            
+                                        <button class="carousel-control-prev" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
+                                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Previous</span>
+                                        </button>
+                                        <button class="carousel-control-next" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
+                                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                            <span class="visually-hidden">Next</span>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <!-- DETAILS -->
+                                <div class="col-6 col-md-5 col-lg-4">
+                                    <div class="row">
+                                        <!-- DIET RESTRICTIONS -->
+                                        <div class="col-12">
+                                            <h6>
+                                                <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
+                                                    <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
+                                                </i>
+                                            </h6>
+                                        </div>
+
+                                        <!-- TIME LEFT -->
+                                        <div class="col-12">
+                                            <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
+                                        </div>
+
+                                        <!-- DISTANCE -->
+                                        <div class="col-12" v-if="user_lat">
+                                            <h6><font-awesome-icon icon="fa-solid fa-person-walking" /> {{ e_buff.distance }}</h6>
                                         </div>
                                     </div>
-        
-                                    <button class="carousel-control-prev" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button" :data-bs-target="`#foodlist-img-carousel-${e_buff.post_id}`" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
                                 </div>
                             </div>
-
-                            <!-- DETAILS -->
-                            <div class="col-6 col-md-5 col-lg-4">
-                                <div class="row">
-                                    <!-- DIET RESTRICTIONS -->
-                                    <div class="col-12">
-                                        <h6>
-                                            <i v-for="(e_diet, index) in e_buff.diets_available" :key="index">
-                                                <font-awesome-icon :icon="diet_icons[e_diet]" />&nbsp;
-                                            </i>
-                                        </h6>
-                                    </div>
-
-                                    <!-- TIME LEFT -->
-                                    <div class="col-12">
-                                        <h6><font-awesome-icon icon="fa-solid fa-hourglass-half" /> {{ e_buff.time_left }} </h6>
-                                    </div>
-
-                                    <!-- DISTANCE -->
-                                    <div class="col-12" v-if="user_lat">
-                                        <h6><font-awesome-icon icon="fa-solid fa-person-walking" /> {{ e_buff.distance }}</h6>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </button>
+                        </button>
         
                     </h2>
+
                     <div :id="`flush-collapse${index}`" class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian"  :class="`accordionBody${index+1}`">
                     
-                    <!-- BODY GOES HERE v -->
-                    <div class="accordion-body bg-light-gradient">
-                        <div class="container-fluid">
-                            <div class="row">
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
-                                    </h6>
-                                </div>
-                                <div class="col-12">
-                                    <h6>
-                                        <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
-                                    </h6>
+                        <!-- BODY GOES HERE v -->
+                        <div class="accordion-body bg-light-gradient">
+                            <div class="container-fluid">
+                                <div class="row">
+                                    <div class="col-12">
+                                        <h6>
+                                            <font-awesome-icon icon="fa-solid fa-bowl-food" /> {{ e_buff.post_name }}
+                                        </h6>
+                                    </div>
+                                    <div class="col-12">
+                                        <h6>
+                                            <font-awesome-icon icon="fa-solid fa-location-dot" /> {{ e_buff.address }}
+                                        </h6>
 
-                                    <p>
-                                        {{ e_buff.description }}
-                                    </p>
-                                </div>
-                                <div class="col-12 d-flex justify-content-center align-items-center">
-                                    <div>
-                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                            <button class="btn btn-main">
-                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                            </button>
-                                        </a>
+                                        <p>
+                                            {{ e_buff.description }}
+                                        </p>
+                                    </div>
+                                
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <div>
+                                            <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                                <button class="btn btn-main">
+                                                    <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                                </button>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                            <div class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`">
                             </div>
                         </div>
                     </div>
-            
-                <div class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`">
                 </div>
             </div>
+            <div v-else>
+                <div class="d-flex align-items-center justify-content-center my-auto fst-italic text-dark" style="height: 90vh; font-size: 23px;">
+                    <span class="text-primary"><font-awesome-icon icon="fa-solid fa-heart-crack" /></span>&nbsp;&nbsp;No available food...
+                </div>
             </div>
         </div>
-        <div v-else>
-            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-face-sad-tear" />&nbsp;&nbsp;No available food</div>
-        </div>
-    </div>
     </div>
            
 </template>
 
 
 <script>
-    const get_all_food_URL = "http://localhost:5100/all";
-    const get_all_user_food_URL = "http://localhost:5100/filter_user";
+    const get_all_food_URL = "http://127.0.0.1:5101/guest/available_food";
+    const get_all_user_food_URL = "http://localhost:1112/filter_user";
     const cancel_food_post_URL = "http://localhost:1112/remove";
+    const get_all_food_logged_in_URL = "http://127.0.0.1:5101/available_food"
+
+    import axios from "axios";
 
     // FIREBASE STUFF
     import { initializeApp } from "firebase/app";
     import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage'
+    
+    // MITT STUFF
+    import emitter from '../mitt/mitt.js'
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
@@ -252,42 +276,6 @@
                 pulling_food: true,
                 pulling_my_food: true,
 
-                buffets: [
-                    {
-                        description: 'Food at SOL',
-                        location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                        lat: 1.3267935951952476,
-                        long: 103.67878198117971,
-                        distance: null,
-                        end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                        diet_res: ['halal', 'vegetarian', 'nobeef'],
-                        time_left: '',
-                        img: ['url1', 'url2']
-                    },
-                ],
-
-                my_buffets: [
-                    {
-                        description: 'My Buffet 1',
-                        location: '1 Joo Koon Cir, #13-01 FairPrice Hub, Singapore 629117',
-                        lat: 1.3267935951952476,
-                        long: 103.67878198117971,
-                        end_time: '2023-03-12T11:15:00',     // yyyy-mm-ddThh:mm:ss <- T is only a seperator
-                        diet_res: ['halal', 'vegetarian', 'nobeef'],
-                        time_left: '',
-                    },
-
-                    {
-                        description: 'My Buffet 2',
-                        location: '1 Esplanade Dr, Singapore 038981',
-                        lat: 1.2898355468246039,
-                        long: 103.85527989652236,
-                        end_time: '2023-03-12T22:00:00',
-                        diet_res: ['halal'],
-                        time_left: '',
-                    },
-                ],
-
                 diet_icons: {
                     'halal': 'fa-solid fa-star-and-crescent',
                     'vegetarian': 'fa-solid fa-leaf',
@@ -296,26 +284,36 @@
 
                 curr_focused: 0,
 
-                user_lat: null,
-                user_long: null,
+                user_lat: 1.296168,
+                user_long: 103.8500437,
 
                 to_display: 'other',
                 foodID: null,
+                placeholder_img_url: "https://placehold.co/600x400?text=No+Image"
             }
         },
 
         methods: {
-            onPostClick(index) {
+            onPostClick(index, buff_obj) {
                 this.$store.state.foodPostId = index
-                console.log(this.$store.state.foodPostId)
+                // console.log(this.$store.state.foodPostId)
+
+                emitter.emit("zoomHere", {
+                    "lat": buff_obj.latitude, 
+                    "lng": buff_obj.longitude
+                })
             },
             cancelFood() {
+                var vm = this
                 fetch(`${cancel_food_post_URL}/${this.foodID}`,{
                     method: 'PUT'
                     })
                     .then(response => response.json())
                     .then(data => {
                         console.log('Success:', data);
+                        vm.get_all_user_food()
+                        vm.get_all_food()
+                        emitter.emit('updateFoodlistPosts')
                     })
                     .catch((error) => {
                         console.error('Error:', error);
@@ -324,36 +322,87 @@
             passFoodID(foodID) {
                 this.foodID = foodID
                 console.log(this.foodID)
+                document.querySelector(".modal-backdrop").style.zIndex = 0;
+            },
+            delete_specific_food_post(food_id) {
+                fetch(`${cancel_food_post_URL}/${food_id}`,{
+                    method: 'PUT'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
             },
             get_all_food() {
-                const response = fetch(get_all_food_URL)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("get_all_food() -", response);
-                        if (data.code === 404) {
-                            console.log("get_all_food() - error!");
-                        } else {
-                            this.food = data.data.food
-                            this.pulling_food = false
-                            this.update_buffet_images()
-                            this.update_buffet_distance()
-                            this.update_buffet_time_left()
-                    }
-                })
-                    .catch(error => {
-                        console.log("get_all_food() error -", error);
+                console.log(`=== [START] get_all_food() ===`)
+
+                var vm = this
+                var is_loggedin = this.$store.state.isAuthenticated
+
+                if (is_loggedin) {
+                    // USER IS LOGGED IN
+                    axios.post(get_all_food_logged_in_URL, {
+                        "latitude": this.user_lat,
+                        "longitude":this.user_long,
+                        "travel_appetite": this.$store.state.user_details.travel_appetite,
+                        "dietary_type": (this.$store.state.user_details.dietary_type)=="" ? [] : (this.$store.state.user_details.dietary_type).split(",")
                     })
+                    .then(function(response) {
+                        console.log("RESPONSE OBJ: ", response.data.data.food_result.data.posts)
+                        vm.food = response.data.data.food_result.data.posts
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                    .catch(function(error) {
+                        console.log("get_all_food() error: ", error)
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                } else {
+                    // WHEN USER NOT LOGGED IN
+                    axios.post(get_all_food_URL, {
+                        "latitude": this.user_lat,
+                        "longitude":this.user_long
+                    })
+                    .then(function(response) {
+                        vm.food = response.data.data.food_result.data.posts
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                    .catch(function(error) {
+                        console.log("get_all_food() error: ", error)
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                }
             },
 
             get_all_user_food() {
+                console.log(`=== [START] get_all_user_food() ===`)
+
                 const response = fetch(`${get_all_user_food_URL}/${this.$store.state.user_details.username}`)
                     .then(response => response.json())
                     .then(data => {
                         console.log("get_all_user_food() response: ", response);
                         if (data.code === 404) {
                             console.log("get_all_user_food() - error!");
+                            this.pulling_my_food = false
+                            this.update_buffet_images()
+                            this.update_buffet_distance()
+                            this.update_buffet_time_left()
                         } else {
-                            this.user_food = data.data
+                            this.user_food = data
                             this.pulling_my_food = false
                             this.update_buffet_images()
                             this.update_buffet_distance()
@@ -368,7 +417,14 @@
                     return
                 }
 
+                // BREAK IF NOT ON HOME PAGE
+                if (this.$route.fullPath != "/") {
+                    return
+                }
+
                 let curr_time = new Date();
+
+                var temp_food = []
 
                 for (let e_buff of this.food) {
                     // UPDATES TIME_LEFT
@@ -379,7 +435,16 @@
                     let sec_left = Math.floor( (Math.max(end_time-curr_time, 0)) / 1000 % 60 );
 
                     e_buff.time_left = `${hr_left}hr ${min_left}min ${sec_left}s`;
+
+                    if ((hr_left + min_left + sec_left) != 0) {
+                        temp_food.push(e_buff)
+                    } else {
+                        this.delete_specific_food_post(e_buff.post_id)
+                    }
                 }
+
+                this.food = temp_food
+                temp_food = []
 
                 for (let e_buff of this.user_food) {
                     // UPDATES TIME_LEFT
@@ -390,7 +455,15 @@
                     let sec_left = Math.floor( (Math.max(end_time-curr_time, 0)) / 1000 % 60 );
 
                     e_buff.time_left = `${hr_left}hr ${min_left}min ${sec_left}s`;
+
+                    if ((hr_left + min_left + sec_left) != 0) {
+                        temp_food.push(e_buff)
+                    } else {
+                        this.delete_specific_food_post(e_buff.post_id)
+                    }
                 }
+
+                this.user_food = temp_food
 
                 setTimeout(this.update_buffet_time_left, 1000)
             },
@@ -474,6 +547,8 @@
                 
                 this.user_lat = position.coords.latitude
                 this.user_long =  position.coords.longitude
+                this.get_all_food()
+                this.get_all_user_food()
                 this.update_buffet_distance()
 
                 console.log(`=== [END] update_user_latlong() ===`)
@@ -482,6 +557,9 @@
             getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(this.update_user_latlong);
+                } else {
+                    this.user_lat = 1.296168
+                    this.user_long = 103.8500437
                 }
             },
 
@@ -503,9 +581,7 @@
                 return deg * (Math.PI/180)
             },
 
-            return_buffet_imgs_arr(food_id){
-                console.log(`=== [START] return_buffet_imgs_arr(${food_id}) ===`)
-                
+            return_buffet_imgs_arr(food_id) {
                 // retrieve a list of imges from firebase storage
                 var to_return = []
 
@@ -539,10 +615,16 @@
             },
         },
 
-        computed: {
+        mounted() {
+            var vm = this
+            emitter.on('updateFoodlistPosts', function(){
+                console.log("EMITTING NOW FROM FOODLIST.VUE=========")
+                vm.get_all_food()
+                vm.get_all_user_food()
+            })
         },
 
-        async created() {
+        created() {
             this.getLocation();
             this.get_all_food();
             this.get_all_user_food();
@@ -600,4 +682,5 @@
         background-color: #FFC23F !important;
         color: #1e2e1e;
     }
+
 </style>
