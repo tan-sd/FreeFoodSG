@@ -96,7 +96,10 @@ class User(db.Model):
             return {"post_id": Location.post_id, "address": Location.address, "latitude": Location.latitude, "longitude": Location.longitude}
         else:
             return "Method failed because distance larger than travel_appetite"
-
+        
+@app.route('/')
+def nothing():
+    return 'user homepage'
     
 '''CREATE USER PROFILE
 this function create a user account
@@ -615,11 +618,11 @@ Output:
 }
 
 '''
-@app.route("/filter_user", methods=['GET'])
+@app.route("/filter_user", methods=['POST'])
 # search for users that are within the distance
 def filter_user():
     # check input format and data is JSON
-    if request.method =='GET':
+    if request.method =='POST':
         # try:
             # get query info
             data = request.get_json()
@@ -666,3 +669,133 @@ def filter_user():
 
 if __name__ == '__main__':
     app.run(port=1111, debug=True)
+
+
+# # user create account
+# @app.route("/register", methods=['POST', 'GET'])
+# def register_user():
+
+#     if request.method =='POST':
+#         status = False
+#         error_msg = ''
+#         username = request.form.get('username')
+#         name = request.form.get('name')
+#         password = request.form.get('password')
+#         dietary = request.form.get('dietary')
+#         travel_appetite = request.form.get('travel_appetite')
+#         default_address = request.form.get('default_address')
+
+#         # check if user name exists
+        # if user_info.query.filter_by(username=username).first():
+        #     error_msg += 'user alr exists'
+
+        # # here will have all the checking done.
+        # if (len(password)<=11):
+        #     error_msg += 'min length 12'
+        #     # return render_template('register_fail.html', msg = error_msg)
+            
+        # if not re.search("[a-z]", password):
+        #     error_msg += '\n need at least 1 small alphabet'
+        #     # return render_template('register_fail.html', msg = error_msg)
+     
+        # # elif not re.search("[A-Z]", password):
+     
+        # if not re.search("[0-9]", password):
+        #     error_msg += '\n need min 1 number'
+        #     # return render_template('register_fail.html', msg = error_msg)
+      
+        # if not re.search("[_@$]" , password):
+        #     error_msg += '\n need min 1 symbol'
+            # return render_template('register_fail.html', msg = error_msg)
+    
+        # elif re.search("\s" , password):
+        #     error_msg = 'min length 12'
+        #     return render_template('register_fail.html', msg = error_msg)
+   
+        
+        # if error_msg:
+        #     print(error_msg)
+        #     return render_template('register_fail.html', msg = error_msg, dietary =dietary, travel_appetite=travel_appetite)
+
+        # else:
+        #     status = True
+        #     # pw that user keyed in
+        #     keyed_password = request.form.get('password')
+        #     keyed_password = keyed_password.encode('utf-8')
+
+        #     hashed = bcrypt.hashpw(keyed_password, bcrypt.gensalt(5)) 
+        
+        # data = request.get_json()
+        # user = user_info(name, **data)
+
+        # try:
+        #     db.session.add(user)
+        #     db.session.commit()
+        #     db.session.commit()
+        # except:
+        #     return jsonify(
+        #         {
+        #             "code": 500,
+        #             "data": {
+        #                 "name": name
+        #             },
+        #             "message": "An error occurred creating user info."
+        #         }
+        # #     ), 500
+        # if status:
+        #     # db.session.commit()
+        #     return render_template('register_success.html', name=name, username = username, password = password, status = status, dietary=dietary, travel_appetite=travel_appetite, default_address=default_address)
+
+        
+        # else:
+        #     return 'Wrong password...', 400  # 400 Bad Request
+
+# if request.method =='POST':
+#         status = False
+#         # these are the inputs
+#         username = request.form.get('username')
+#         user = user_info.query.filter_by(username=username).first()
+
+#         # pw that user keyed in
+#         keyed_password = request.form.get('password')
+#         keyed_password = keyed_password.encode('utf-8')
+
+#         # pw that is stored in db
+#         password =  user.password
+#         password = password.encode('utf-8')
+#         hashed = bcrypt.hashpw(password, bcrypt.gensalt(5)) 
+
+#         if bcrypt.checkpw(keyed_password, hashed):
+#             print("login success")
+#             status = True
+#         else:
+#             print("incorrect password")
+
+#         if status:
+#             return render_template('after_login.html', username = username, keyed_password = keyed_password, password = password, hashed = hashed, status = status)
+#         else:
+#             return 'Wrong password...', 400  # 400 Bad Request
+
+# search user by username
+# @app.route("/search/user", methods=['POST', 'GET'])
+# def find_user():
+#     if request.method =='POST':
+#         # these are the inputs
+#         name = request.form.get('name')
+#         latitude = request.form.get('latitude')
+#         longitude = request.form.get('longitude')
+#         form = request.form
+#         user = user_info.query.filter_by(name=name).first()
+#         all = user_info.query.all()
+        
+#         # over here i updating the db lat lng 
+#         user.longitude = longitude
+#         user.latitude = latitude
+#         # here then commit
+#         db.session.commit()
+
+#         if name and user:
+#             return render_template('search_user.html', all=all, name=name, data=user, form=form, longitude=longitude, latitude=latitude)
+#         else:
+#             return 'Please go back and enter a valid name...', 400  # 400 Bad Request
+ 

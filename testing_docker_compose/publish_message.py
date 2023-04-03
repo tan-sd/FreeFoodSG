@@ -20,7 +20,7 @@ CORS(app)
 
 
 @app.route("/send_notif", methods=['POST'])
-def send_notif ():
+def send_sms ():
     # data = request.get_data()
     message = json.dumps(request.get_json())
     print(request.get_json())
@@ -32,24 +32,22 @@ def send_notif ():
         print(sms_notif)
         print(email_notif)
         key = "smth.sms.email.smth"
-
     elif (sms_notif == 1):
         print(sms_notif)
         print(email_notif)
         key = "smth.sms.smth"
-        
     elif (email_notif == 1):
         print(sms_notif)
         print(email_notif)
         key = "smth.email.smth"
     
-    # key = 'smth.email.smth'
+
    
 
     amqp_setup.channel.basic_publish(exchange="notification", routing_key=key, 
     body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-    success = {"code":"200", "message":"the function works"}
+    success = "the function works"
     return success
 
 # Execute this program if it is run as a main script (not by 'import')

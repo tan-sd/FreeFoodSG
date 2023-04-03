@@ -21,7 +21,7 @@ CORS(app)
 create_post_URL = 'http://127.0.0.1:1112/create_post'
 user_URL = "http://127.0.0.1:1111/profile"
 
-publish_msg_URL = "http://127.0.0.1:5100/test"
+publish_msg_URL = "http://127.0.0.1:5100/send_notif"
 
 '''DOCUMENTATION HERE
 User posts a new food post
@@ -55,14 +55,6 @@ def post_food():
             post_result = invoke_http(create_post_URL, method='POST', json=request.json)
             print('Post status:', post_result)
             code = post_result["code"]
-            # CHECK OUTPUT
-            # print(jsonify(post_result), post_result["code"])
-            # return jsonify(post_result), post_result["code"]
-
-            print('CHECK POST RESULT')
-            # print(post_result['data']['post'])
-            print(data)
-            
         
             if code not in range(200, 300):
 
@@ -70,7 +62,7 @@ def post_food():
                 return {
                     "code": 500,
                     "data": {"post_result": post_result},
-                    "message": "Post creation failure sent for error handling."
+                    "message": "Error creating post."
                 }
 
             # when it is successful send user details + food details
@@ -83,11 +75,16 @@ def post_food():
             username = user_result['data']['username']
             number = user_result['data']['number']
             email = user_result['data']['email']
+            email_notif = user_result['data']['email_notif']
+            sms_notif = user_result['data']['sms_notif']
 
             user = {
+
                 "name": username,
                 "number":number,
-                "email":email
+                "email":'rrachelsng@gmail.com',
+                "email_notif": email_notif,
+                "sms_notif": sms_notif
             }
 
             output = {

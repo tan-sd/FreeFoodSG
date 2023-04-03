@@ -104,8 +104,18 @@ def verification(user_details):
 Function: register the user and add user info to db
 
 Input: JSON object -> {
-    "username" : string,
-    "password" : string
+    "user_id": user_id,
+    "first_name": first_name,
+    "last_name": last_name,
+    "username": username,
+    "number": number,
+    "email": email,
+    "password": password,
+    "address": address,
+    "latitude": latitude float,
+    "longitude": longitude float,
+    "dietary_type": ["halal"],
+    "travel_appetite": 2
 }
 
 Output: user details as json 
