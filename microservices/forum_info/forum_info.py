@@ -207,7 +207,7 @@ output:
 
 '''
 
-# RETRIEVE SPECIFIC FORUM POST
+# RETRIEVE SPECIFIC FORUM POST BY USERNAME
 @app.route("/search/<string:username>")
 def search(username):
     forum = forum_db.query.filter_by(username=username).all()
@@ -232,6 +232,27 @@ def search(username):
         }
     ), 404
 
+# RETRIEVE SPECIFIC FORUM POST BY FORUM_ID
+@app.route("/search_id/<int:forum_id>", methods=['GET'])
+def search_id(forum_id):
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
+
+    #if forum exists, return forum json
+    if forum:
+        return jsonify(
+            {
+                "code": 200,
+                "data": forum.json()
+            }
+        )
+    
+    #else, return error message
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Post not found."
+        }
+    ), 404
 
 '''CREATE FORUM POST
 this function creates post
