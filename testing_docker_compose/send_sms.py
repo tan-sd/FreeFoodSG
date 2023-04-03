@@ -85,7 +85,7 @@ def sendClientUpdate(body):
 
 if __name__ == "__main__":
     print("\nThis is " + os.path.basename(__file__), end='')
-    print(f": monitoring routing key '{monitor_binding_key}' in exchange '{amqp_setup.exchangename}' ...".format(
+    print(": monitoring routing key '{}' in exchange '{}' ...".format(
         monitor_binding_key, amqp_setup.exchangename))
     receive_sms()
 
