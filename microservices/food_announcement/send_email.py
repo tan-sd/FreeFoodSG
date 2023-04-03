@@ -76,12 +76,20 @@ def sendClientUpdate(body):
     food_description = food['description']
     # changed this from allergens
     food_allergens_list = food['diets_available'] #account for list or string input
-    
+    print(f'this is the initial allergen list: {food_allergens_list}')
     # food_allergens = ', '.join(food_allergens_list)
-    food_allergens = ''
-    for food in food_allergens_list:
-        food_allergens += food + ', '
-        # capitalize()
+    allergens_to_print = ''
+    for i in range(len(food_allergens_list)):
+        if i == len(food_allergens_list)-1:
+            food_allergen = food_allergens_list[i]
+            allergens_to_print += food_allergen.title()
+        elif i < len(food_allergens_list):
+            food_allergen = food_allergens_list[i]
+            allergens_to_print += food_allergen.title() + ', '
+    
+    print(f'this is the allergen list after being formatted: {allergens_to_print}')
+
+        # capitalize()00
 
     # food_allergens = food_allergens[:-1]
     food_end_time = food['end_time']
@@ -115,7 +123,7 @@ def sendClientUpdate(body):
 
         message = EmailMessage()
 
-        message.set_content(f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
+        message.set_content(f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {allergens_to_print}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team')
 
         message['To'] = recipient_email
         message['From'] = 'contactmakanboleh@gmail.com'
