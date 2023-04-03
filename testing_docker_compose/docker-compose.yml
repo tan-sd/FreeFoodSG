@@ -1,0 +1,170 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+
+services:
+
+  # vue-app:
+  #   build:
+  #     context: ./my_app
+  #     dockerfile: my_app.Dockerfile
+  #   ports:
+  #     - "8080:8080"
+ 
+  ###################################
+  # User: The user_info microservice
+  ###################################
+  user_info:
+    build:
+      context: ./
+      dockerfile: user.Dockerfile
+    image: rachelsng/user_info
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/user_info
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1111:1111"
+ 
+  #######################################################
+  # food_info: The food_info microservice
+  #######################################################
+  food_info:
+    build:
+      context: ./
+      dockerfile: food.Dockerfile
+    image: rachelsng/food_info
+    restart: always
+    environment:
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/food_info
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1112:1112"
+
+  ####################################
+  # RabbitMQ: The messaging broker   
+  ####################################
+  rabbitmq:
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  #################################################
+  # send_sms: The send_sms microservice
+  #################################################
+  send_sms:
+    build:
+      context: ./
+      dockerfile: send_sms.Dockerfile
+    image: rachelsng/send_sms
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+
+  #################################################
+  # send_email: The send_email microservice
+  #################################################
+  send_email:
+    build:
+      context: ./
+      dockerfile: send_email.Dockerfile
+    image: rachelsng/send_email
+    restart: always
+    depends_on:
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  #################################################
+  # Activity Log: The Activity Log microservice
+  #################################################
+  # activity_log:
+  #   build:
+  #     context: ./
+  #     dockerfile: activity_log.Dockerfile
+  #   image: rachelsng/activity_log:esd
+  #   restart: always
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     rabbit_host: rabbitmq
+  #     rabbit_port: 5672
+  #     PYTHONUNBUFFERED: 1
+
+  ###################################
+  # Error: The Error microservice
+  ###################################
+  # error:
+  #   build:
+  #     context: ./
+  #     dockerfile: error.Dockerfile
+  #   image: rachelsng/error:esd
+  #   restart: always
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     rabbit_host: rabbitmq
+  #     rabbit_port: 5672
+  #     PYTHONUNBUFFERED: 1
+
+  ###############################################
+  # forum_info: The forum_info microservice
+  ###############################################
+  forum_info:
+    build:
+      context: ./
+      dockerfile: forum.Dockerfile
+    image: rachelsng/forum_info
+    restart: always
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/forum_info
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1113:1113"
+
+  ###############################################
+  # food_management: The food_management microservice
+  ###############################################
+  food_management:
+    build:
+      context: ./
+      dockerfile: complex.Dockerfile
+    image: rachelsng/complex
+    restart: always
+    depends_on:
+      - user_info
+      - food_info
+      - forum_info
+      - send_sms
+      - send_email
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      verify_user_URL: 'http://user_info:1111/login'
+      register_user_URL: 'http://user_info:1111/user'
+      user_URL: 'http://user_info:1111/users'
+      food_URL: 'http://food_info:1112/nearby_food_user'
+      nearby_food_URL: 'http://food_info:1112/nearby_food_guest'
+      post_URL: 'http://forum_info:1112/create_post'
+      forum_URL: 'http://forum_info:1113/all'
+      create_forum_URL: 'http://forum_info:1113'
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5100:5100"
