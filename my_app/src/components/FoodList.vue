@@ -44,8 +44,14 @@
                             <div class="col-6 col-md-7 col-lg-8">
                                 <div :id="`mybuff-foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
                                     <div class="carousel-inner" data-bs-interval="2000">
+                                        <!-- VFOR IMGS -->
                                         <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`userfood-${e_buff.post_id}-${img_index}`">
                                             <img :src="e_imgsrc" class="d-block w-100">
+                                        </div>
+
+                                        <!-- PLACEHOLDER IMG -->
+                                        <div class="carousel-item active" v-if="e_buff.img.length == 0">
+                                            <img :src="placeholder_img_url" class="d-block w-100">
                                         </div>
                                     </div>
         
@@ -132,8 +138,14 @@
                                 <div class="col-6 col-md-7 col-lg-8">
                                     <div :id="`foodlist-img-carousel-${e_buff.post_id}`" class="carousel slide" data-bs-ride="carousel">
                                         <div class="carousel-inner" data-bs-interval="2000">
+                                            <!-- VFOR IMGS -->
                                             <div class="carousel-item" :class="(img_index==0) ? 'active' : ''" v-for="(e_imgsrc, img_index) in e_buff.img" :key="`food-${e_buff.post_id}-${img_index}`">
                                                 <img :src="e_imgsrc" class="d-block w-100">
+                                            </div>
+
+                                            <!-- PLACEHOLDER IMG -->
+                                            <div class="carousel-item active" v-if="e_buff.img.length == 0">
+                                                <img :src="placeholder_img_url" class="d-block w-100">
                                             </div>
                                         </div>
             
@@ -231,6 +243,9 @@
     // FIREBASE STUFF
     import { initializeApp } from "firebase/app";
     import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage'
+    
+    // import mitt from 'mitt';
+    // const emitter = mitt();
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
@@ -269,6 +284,7 @@
 
                 to_display: 'other',
                 foodID: null,
+                placeholder_img_url: "https://placehold.co/600x400?text=No+Image"
             }
         },
 
@@ -307,6 +323,7 @@
                 });
             },
             get_all_food() {
+                console.log(`=== [START] get_all_food() ===`)
                 const response = fetch(get_all_food_URL)
                     .then(response => response.json())
                     .then(data => {
@@ -331,6 +348,8 @@
             },
 
             get_all_user_food() {
+                console.log(`=== [START] get_all_user_food() ===`)
+
                 const response = fetch(`${get_all_user_food_URL}/${this.$store.state.user_details.username}`)
                     .then(response => response.json())
                     .then(data => {
@@ -552,7 +571,12 @@
             },
         },
 
-        computed: {
+        mounted() {
+            // const thisInstance = this
+            // emitter.on('updateFoodlistPosts', function(){
+            //     thisInstance.get_all_food()
+            //     thisInstance.get_all_user_food()
+            // })
         },
 
         created() {
