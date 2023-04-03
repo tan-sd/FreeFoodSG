@@ -306,8 +306,7 @@ input: it must have:
     "description": "description1",
     "forum_id": 1,
     "is_available": 0,
-    "title": "title1",
-    "username": "SJB123"
+  
         
 }
 
@@ -328,23 +327,19 @@ output:
 '''
 
 # EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
-@app.route("/edit/<int:forum_id>", methods=['PUT'])
-def edit(forum_id):
+@app.route("/edit/<string:username>", methods=['PUT'])
+def edit(username):
     
-    forum = forum_db.query.filter_by(forum_id=forum_id).first()
+    forum = forum_db.query.filter_by(username=username).all()
 
     #check if post exists
     if forum:
 
         #attempt to edit
         try:
-            data = request.get_json()
 
             #update fields
-            forum.title = data['title']
-            forum.description = data['description'] 
-            forum.datetime = data['datetime'] 
-            forum.is_available = data['is_available']
+            forum.is_available = 0
 
             #commit changes
             db.session.commit()

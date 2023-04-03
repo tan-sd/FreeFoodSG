@@ -203,7 +203,7 @@ def create_user(username):
                 "data": {
                     "name": username
                 },
-                "message": "An error occured creating the user."
+                "message": "An error occurred creating the user."
             }
         ), 500
     
