@@ -8,7 +8,7 @@ CORS(app)
 
 forum_URL = 'http://localhost:1115/all'
 create_forum_URL = 'http://localhost:1115'
-find_forum_URL = 'http://localhost:1115/search/'
+find_forum_URL = 'http://localhost:1115/search_id/'
 user_URL = 'http://localhost:1111/profile/'
 notification_URL = 'http://localhost:5100/send_notif' 
 
@@ -208,7 +208,7 @@ def create_comment():
         result = push_new_comment(comment_details)
         #invoke forum info to get forum information
         forum_id = result["data"]["data"]["forum_id"]
-        url = find_forum_URL + str(forum_id)
+        url = find_forum_URL + str(forum_id)  
         forum_json = invoke_http(url,method='GET')
 
         print("Forum Json: ", forum_json)
