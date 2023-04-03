@@ -201,7 +201,8 @@ def create_comment():
 
         # do the actual work
         result = push_new_comment(comment_details)
-
+        forum_id = result["data"]["data"]["forum_result"]["data"]["forum_id"]
+        print(forum_id)
         return jsonify(result['data']), result["code"]
 
     except Exception as e:
