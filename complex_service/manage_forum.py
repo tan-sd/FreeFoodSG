@@ -6,11 +6,11 @@ from invoke_activity import activity_log
 app = Flask(__name__)
 CORS(app)
 
-forum_URL = 'http://localhost:1113/all'
-create_forum_URL = 'http://localhost:1113'
-find_forum_URL = 'http://localhost:1113/search/'
-user_URL = 'http://localhost:1111/profile/'
-notification_URL = 'http://localhost:5100/send_notif' 
+forum_URL = 'http://127.0.0.1:1113/all'
+create_forum_URL = 'http://127.0.0.1:1113'
+find_forum_URL = 'http://127.0.0.1:1113/search/'
+user_URL = 'http://127.0.0.1:1111/profile/'
+notification_URL = 'http://127.0.0.1:5100/send_notif' 
 
 '''
 
@@ -200,16 +200,21 @@ def create_comment():
     try:
         print("Valid JSON passed, running create_comment()")
         comment_details = request.get_json()
-        # print("\nReceived post details in JSON:", comment_details)
+        print("\nReceived post details in JSON:", comment_details)
 
         print("'\n-----Invoking forum microservice-----'")
         # invoke forum info to push to DB
         result = push_new_comment(comment_details)
+        print(result)
         #invoke forum info to get forum information
         forum_id = result["data"]["data"]["forum_id"]
         url = find_forum_URL + str(forum_id)
         forum_json = invoke_http(url,method='GET')
+        print('this is forum_json')
+        print(forum_json)
         username = forum_json["data"]["username"]
+        print(' username of poster is')
+        print(username)
         forum_info = forum_json["data"]
         print("'\n-----Username Retrieved-----'")
 
@@ -219,11 +224,14 @@ def create_comment():
         user_json = invoke_http(username_URL,method='GET')
         print("'\n-----User information retrieved-----'")
 
+
+        print('user json below')
+        print(user_json)
         #invoke notification
         #prepare information for notification service
         json_to_send = {
             "post": forum_info,
-            "commment": comment_details,
+            "comment": comment_details,
             "user":{
                 "name":username,
                 "number": user_json["data"]["number"],
@@ -231,13 +239,16 @@ def create_comment():
                 "sms_notif": user_json["data"]["sms_notif"],
                 "email_notif":user_json["data"]["email_notif"]
 
-            }
+            },
+            "post_type": "forum"
         }
 
         #invoke notification
         print("'\n-----Invoking notification microservice-----'")
         success = invoke_http(notification_URL,method='POST',json=json_to_send)
         print(success)
+
+        print(json_to_send)
         return jsonify(result['data']), result["code"]
 
     except Exception as e:
@@ -261,6 +272,9 @@ def push_new_comment(comment_details):
     create_comment_result = invoke_http(url, method='POST', json = comment_details)
     activity_log("forum") #to put in activity log
 
+    print(url)
+    print('checkout create comment')
+    print(create_comment_result)
     # If a failure, send it to the error microservice
     code = create_comment_result["code"]
     
