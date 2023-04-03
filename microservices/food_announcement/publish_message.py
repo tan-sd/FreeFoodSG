@@ -23,12 +23,14 @@ CORS(app)
 def test():
     # data = request.get_data()
     message = json.dumps(request.get_json())
+    print('inside test route')
     print(message)
+    print(type(message))
 
     amqp_setup.channel.basic_publish(exchange="notification", routing_key="smth.sms.email.smth", 
     body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-    success = "the function works"
+    success = {"code":"200", "message":"the function works"}
     return success
 
 

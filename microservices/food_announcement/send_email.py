@@ -64,13 +64,26 @@ def sendClientUpdate(body):
     food = body['food']
     user = body['user']
 
+    print(user)
+    print(food)
+    print(food['address'])
+
     # change accordingly for email
     recipient_email = user['email']
     recipient_name = user['name']
     food_location = food['address']
     food_name = food['post_name']
     food_description = food['description']
-    food_allergens = food['allergens']
+    # changed this from allergens
+    food_allergens_list = food['diets_available'] #account for list or string input
+    
+    # food_allergens = ', '.join(food_allergens_list)
+    food_allergens = ''
+    for food in food_allergens_list:
+        food_allergens += food + ', '
+        # capitalize()
+
+    # food_allergens = food_allergens[:-1]
     food_end_time = food['end_time']
     
     # msg = f"Dear {recipient_name}, there's food nearby!\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Lat, Long: {food_latitude}, {food_longitude}\nBuffet Description: {food_description}\nAllergens: {food_allergens}\nBuffet End Timing: {food_end_time}"
