@@ -12,7 +12,6 @@ CREATE TABLE IF NOT EXISTS `forum_table` (
   `username` varchar(64) NOT NULL,
   `title` varchar(64),
   `description` varchar(1000) NULL,
-  `is_available` bit,
   `datetime` datetime,
 
   PRIMARY KEY (`forum_id`)
@@ -36,11 +35,11 @@ CREATE TABLE IF NOT EXISTS `comments_table` (
   FOREIGN KEY (`forum_id`) REFERENCES forum_table(`forum_id`)
 );
 
-INSERT INTO `forum_table` (`username`, `title`, `description`, `is_available`, `datetime`) 
+INSERT INTO `forum_table` (`username`, `title`, `description`, `datetime`) 
 VALUES
-('SJB123', 'title1', 'description1', 1 , '2021-01-01 15:10:10'),
-('SJB123', 'title2', 'description2', 1,  '2021-01-01 15:10:10'),
-('SJB123', 'title3', 'description3', 1, '2022-01-01 15:10:10');
+('SJB123', 'title1', 'description1', '2021-01-01 15:10:10'),
+('SJB123', 'title2', 'description2', '2021-01-01 15:10:10'),
+('SJB123', 'title3', 'description3', '2022-01-01 15:10:10');
 COMMIT;
 SELECT * FROM forum_table;
 

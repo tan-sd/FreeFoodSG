@@ -28,16 +28,14 @@ class forum_db(db.Model):
     username = db.Column(db.VARCHAR(64), nullable=False)
     title =  db.Column(db.VARCHAR(64), nullable=False)
     description = db.Column(db.VARCHAR(1000))
-    is_available = db.Column(db.Integer(), nullable=False)
     datetime = db.Column(db.DateTime(19), nullable=False)
     
 
-    def __init__(self, forum_id, username, title, description, is_available, datetime):
+    def __init__(self, forum_id, username, title, description,datetime):
         self.forum_id = forum_id
         self.username = username
         self.title = title
         self.description = description
-        self.is_available = is_available
         self.datetime = datetime
 
 
@@ -47,7 +45,6 @@ class forum_db(db.Model):
             'username': self.username,
             'title': self.title,
             'description': self.description,
-            'is_available' : self.is_available,
             'datetime': self.datetime
         }
         return forum
@@ -74,6 +71,10 @@ class comments_table(db.Model):
             'datetime': self.datetime
         }
         return forum
+    
+@app.route("/")
+def test():
+    return 'welcome to forum page'
 
 ''' SHOW ALL FORUM POSTS WITH COMMENTS
 this function show all posts
@@ -97,14 +98,13 @@ output:
                     {
                         "comment": "comment1",
                         "commentor_username": "SJB123",
-                        "datetime": "Mon, 03 Apr 2023 15:51:48 GMT",
+                        "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
                         "forum_id": 1
                     }
                 ],
                 "datetime": "Fri, 01 Jan 2021 15:10:10 GMT",
                 "description": "description1",
                 "forum_id": 1,
-                "is_available": 1,
                 "title": "title1",
                 "username": "SJB123"
             },
@@ -113,14 +113,13 @@ output:
                     {
                         "comment": "comment1",
                         "commentor_username": "DA123",
-                        "datetime": "Mon, 03 Apr 2023 15:51:48 GMT",
+                        "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
                         "forum_id": 2
                     }
                 ],
                 "datetime": "Fri, 01 Jan 2021 15:10:10 GMT",
                 "description": "description2",
                 "forum_id": 2,
-                "is_available": 1,
                 "title": "title2",
                 "username": "SJB123"
             },
@@ -129,7 +128,6 @@ output:
                 "datetime": "Sat, 01 Jan 2022 15:10:10 GMT",
                 "description": "description3",
                 "forum_id": 3,
-                "is_available": 1,
                 "title": "title3",
                 "username": "SJB123"
             }
@@ -139,11 +137,11 @@ output:
 
 '''
 
-# SHOW ALL FORUM POSTS (only available ones)
+# SHOW ALL FORUM POSTS
 @app.route("/all", methods=['GET'])
 def all():
 
-    forum_list = forum_db.query.filter_by(is_available=1).all()
+    forum_list = forum_db.query.all()
     comments_list = comments_table.query.all()
     output = []
     comments = [comment.json() for comment in comments_list]
@@ -151,12 +149,40 @@ def all():
     comments_obj = {}
     for comment in comments:
         id = comment['forum_id']
+
+        #       {
+        #   "1": [
+        #     {
+        #       "comment": "comment2",
+        #       "commentor_username": "SJB123",
+        #       "datetime": "Wed, 01 Jan 2020 15:10:10 GMT",
+        #       "forum_id": 1
+        #     },
+        #     {
+        #       "comment": "comment1",
+        #       "commentor_username": "SJB123",
+        #       "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
+        #       "forum_id": 1
+        #     }
+        #   ],
+        #   "2": [
+        #     {
+        #       "comment": "comment1",
+        #       "commentor_username": "DA123",
+        #       "datetime": "Tue, 21 Mar 2023 09:46:49 GMT",
+        #       "forum_id": 2
+        #     }
+        #   ]
+        # }
+
         if comments_obj.get(id) == None:
             comments_obj[id] = [comment]
         else:
             comments_obj[id].append(comment)
+    
+    all_posts = forum_db.query.all()
 
-    for e_post in forum_list:
+    for e_post in all_posts:
         e_post = e_post.json()
         e_id = e_post['forum_id']
 
@@ -200,8 +226,7 @@ output:
         "description": "description1",
         "forum_id": 1,
         "title": "title1",
-        "username": "SJB123",
-        "is_available": 1,
+        "username": "SJB123"
     }
 }
 
@@ -238,8 +263,7 @@ input: it must have:
     "username": "tommy",
     "title": "free french fries",
     "description": "I had a party just now! You are welcome to join.",
-    "datetime": "2021-01-01 15:10:10",
-    "is_available": 1,
+    "datetime": "2021-01-01 15:10:10"
 }
 
 output: 
@@ -251,8 +275,7 @@ output:
         "description": "I had a party just now! You are welcome to join.",
         "forum_id": 4,
         "title": "free french fries",
-        "username": "tommy",
-        "is_available": 1,
+        "username": "tommy"
     },
     "message": "Post created successfully."
 }
@@ -296,18 +319,84 @@ def create():
     ), 201
 
 
+'''DELETE FORUM POST
+this function deletes the entire post + comments (later)
+input: it must have:
+
+nothing
+
+output: 
+
+{
+    "code": 201,
+    "data": {
+        "datetime": "Fri, 01 Jan 2021 15:10:10 GMT",
+        "description": "I had a party just now! You are welcome to join.",
+        "forum_id": 4,
+        "title": "free french fries",
+        "username": "tommy"
+    },
+    "message": "Post successfully deleted."
+}
+
+'''
+
+# DELETE A FORUM POST
+@app.route("/delete/<int:forum_id>", methods=['DELETE'])
+def delete(forum_id):
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
+
+    #check if post exists
+    if forum:
+
+        #attempt to delete post from db
+        try:
+            db.session.delete(forum)
+            db.session.commit()
+
+        #if post cannot be deleted, return error message
+        except Exception as e:
+             return jsonify(
+            {
+                "code": 500,
+                "data": {
+                    "forum_id": forum_id
+                },
+                "message": "An error occurred when deleting the post. System Error Message: " + str(e)
+            }
+        ), 500
+
+        #if no errors, return success message
+        return jsonify(
+            {
+                "code": 201,
+                "data": forum.json(),
+                "message":"Post successfully deleted."
+            }
+        ), 201
+        
+    #else, notify that the post doesn't exist
+    return jsonify(
+        {
+            "code": 404,
+            "data": {
+                "forum_id": forum_id
+            },
+            "message": "Post not found."
+        }
+    )
+
 
 '''EDIT FORUM POST
-this function puts edit post to unavailable
+this function deletes the entire post + comments (later)
 input: it must have:
 
 {
-    "datetime": "2021-01-01 15:10:10",
-    "description": "description1",
-    "forum_id": 1,
-    "is_available": 0,
-    "title": "title1",
-    "username": "SJB123"
+        "datetime": "2021-01-01 15:10:10",
+        "description": "I had a party just now! You are welcome to join.",
+        "forum_id": 4,
+        "title": "free hamburger",
+        "username": "tommy"
         
 }
 
@@ -317,14 +406,14 @@ output:
     "code": 200,
     "data": {
         "datetime": "Fri, 01 Jan 2021 15:10:10 GMT",
-        "description": "description1",
-        "forum_id": 1,
-        "is_available": 0,
-        "title": "title1",
-        "username": "SJB123"
+        "description": "I had a party just now! You are welcome to join.",
+        "forum_id": 4,
+        "title": "free hamburger",
+        "username": "tommy"
     },
-    "message": "Post edited successfully. See above for updated forum post details."
+    "message": "Post edited successfully. See above for updated post details."
 }
+
 '''
 
 # EDIT A POST (SEND A JSON WITH UPDATED PARTICULARS)
@@ -332,6 +421,7 @@ output:
 def edit(forum_id):
     
     forum = forum_db.query.filter_by(forum_id=forum_id).first()
+    print(forum.json())
 
     #check if post exists
     if forum:
@@ -344,18 +434,16 @@ def edit(forum_id):
             forum.title = data['title']
             forum.description = data['description'] 
             forum.datetime = data['datetime'] 
-            forum.is_available = data['is_available']
 
             #commit changes
             db.session.commit()
-            print("Post edited successfully!")
 
             #if no errors, return success message
             return jsonify(
                 {
                     "code": 200,
                     "data": forum.json(),
-                    "message": "Post edited successfully. See above for updated forum post details."
+                    "message": "Post edited successfully. See above for updated post details."
                 }
             ), 200
         
@@ -381,6 +469,7 @@ def edit(forum_id):
             "message": "Post not found."
         }
     ), 404
+
 
 
 # FOR COMMENTS ROUTES
@@ -573,4 +662,4 @@ def create_comment():
         ), 404
 
 if __name__ == '__main__':
-    app.run(port=1115, debug=True)
+    app.run(port=1113, debug=True)
