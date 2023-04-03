@@ -227,7 +227,9 @@
                 </div>
             </div>
             <div v-else>
-                <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-heart-crack" />&nbsp;&nbsp;No available food</div>
+                <div class="d-flex align-items-center justify-content-center my-auto fst-italic text-dark" style="height: 90vh; font-size: 23px;">
+                    <span class="text-primary"><font-awesome-icon icon="fa-solid fa-heart-crack" /></span>&nbsp;&nbsp;No available food...
+                </div>
             </div>
         </div>
     </div>
@@ -244,8 +246,8 @@
     import { initializeApp } from "firebase/app";
     import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage'
     
-    // import mitt from 'mitt';
-    // const emitter = mitt();
+    // MITT STUFF
+    import emitter from '../mitt/mitt.js'
 
     const firebaseConfig = {
         apiKey: "AIzaSyA2QXxpg-1ODMfSKKKGdWLrKnDVi1yWFr8",
@@ -294,12 +296,15 @@
                 console.log(this.$store.state.foodPostId)
             },
             cancelFood() {
+                var vm = this
                 fetch(`${cancel_food_post_URL}/${this.foodID}`,{
                     method: 'PUT'
                     })
                     .then(response => response.json())
                     .then(data => {
                         console.log('Success:', data);
+                        vm.get_all_user_food()
+                        vm.get_all_food()
                     })
                     .catch((error) => {
                         console.error('Error:', error);
@@ -572,11 +577,12 @@
         },
 
         mounted() {
-            // const thisInstance = this
-            // emitter.on('updateFoodlistPosts', function(){
-            //     thisInstance.get_all_food()
-            //     thisInstance.get_all_user_food()
-            // })
+            var vm = this
+            emitter.on('updateFoodlistPosts', function(){
+                console.log("EMITTING NOW=========")
+                vm.get_all_food()
+                vm.get_all_user_food()
+            })
         },
 
         created() {
