@@ -294,6 +294,18 @@
                 console.log(this.foodID)
                 document.querySelector(".modal-backdrop").style.zIndex = 0;
             },
+            delete_specific_food_post(food_id) {
+                fetch(`${cancel_food_post_URL}/${food_id}`,{
+                    method: 'PUT'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+                .catch((error) => {
+                    console.error('Error:', error);
+                });
+            },
             get_all_food() {
                 const response = fetch(get_all_food_URL)
                     .then(response => response.json())
@@ -352,6 +364,8 @@
 
                 let curr_time = new Date();
 
+                var temp_food = []
+
                 for (let e_buff of this.food) {
                     // UPDATES TIME_LEFT
                     let end_time = new Date(e_buff.end_time);
@@ -361,7 +375,16 @@
                     let sec_left = Math.floor( (Math.max(end_time-curr_time, 0)) / 1000 % 60 );
 
                     e_buff.time_left = `${hr_left}hr ${min_left}min ${sec_left}s`;
+
+                    if ((hr_left + min_left + sec_left) != 0) {
+                        temp_food.push(e_buff)
+                    } else {
+                        this.delete_specific_food_post(e_buff.post_id)
+                    }
                 }
+
+                this.food = temp_food
+                temp_food = []
 
                 for (let e_buff of this.user_food) {
                     // UPDATES TIME_LEFT
@@ -372,7 +395,15 @@
                     let sec_left = Math.floor( (Math.max(end_time-curr_time, 0)) / 1000 % 60 );
 
                     e_buff.time_left = `${hr_left}hr ${min_left}min ${sec_left}s`;
+
+                    if ((hr_left + min_left + sec_left) != 0) {
+                        temp_food.push(e_buff)
+                    } else {
+                        this.delete_specific_food_post(e_buff.post_id)
+                    }
                 }
+
+                this.user_food = temp_food
 
                 setTimeout(this.update_buffet_time_left, 1000)
             },
@@ -582,4 +613,5 @@
         background-color: #FFC23F !important;
         color: #1e2e1e;
     }
+
 </style>
