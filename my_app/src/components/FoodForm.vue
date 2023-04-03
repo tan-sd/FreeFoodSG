@@ -187,7 +187,7 @@ const storage = getStorage(app);
         //Continue wo errors
         var vm = this
 
-        axios.post("http://localhost:1112/create_post", {
+        axios.post("http://127.0.0.1:5102/post", {
             "username": this.$store.state.user_details.username,
             "post_name": this.post_title,
             "latitude": this.post_lat,
@@ -200,7 +200,7 @@ const storage = getStorage(app);
         .then(function (response) {
             console.log("Success: ", response)
             console.log(`=== [END] submit_new_post() ===`)
-            var generated_post_id = response.data.data.post.post_id
+            var generated_post_id = response.data.data.Post_result.data.post.post_id
 
             vm.upload_img(generated_post_id)
             emitter.emit("updateFoodlistPosts")

@@ -238,9 +238,12 @@
 
 
 <script>
-    const get_all_food_URL = "http://localhost:1112/all";
+    const get_all_food_URL = "http://127.0.0.1:5101/guest/available_food";
     const get_all_user_food_URL = "http://localhost:1112/filter_user";
     const cancel_food_post_URL = "http://localhost:1112/remove";
+    const get_all_food_logged_in_URL = "http://127.0.0.1:5101/available_food"
+
+    import axios from "axios";
 
     // FIREBASE STUFF
     import { initializeApp } from "firebase/app";
@@ -281,8 +284,8 @@
 
                 curr_focused: 0,
 
-                user_lat: null,
-                user_long: null,
+                user_lat: 1.296168,
+                user_long: 103.8500437,
 
                 to_display: 'other',
                 foodID: null,
@@ -335,27 +338,54 @@
             },
             get_all_food() {
                 console.log(`=== [START] get_all_food() ===`)
-                const response = fetch(get_all_food_URL)
-                    .then(response => response.json())
-                    .then(data => {
-                        console.log("get_all_food() -", response);
-                        if (data.code === 404) {
-                            console.log("get_all_food() - error!");
-                            this.pulling_food = false
-                            this.update_buffet_images()
-                            this.update_buffet_distance()
-                            this.update_buffet_time_left()
-                        } else {
-                            this.food = data.data.food
-                            this.pulling_food = false
-                            this.update_buffet_images()
-                            this.update_buffet_distance()
-                            this.update_buffet_time_left()
-                    }
-                })
-                    .catch(error => {
-                        console.log("get_all_food() error -", error);
+
+                var vm = this
+                var is_loggedin = this.$store.state.isAuthenticated
+
+                if (is_loggedin) {
+                    // USER IS LOGGED IN
+                    axios.post(get_all_food_logged_in_URL, {
+                        "latitude": this.user_lat,
+                        "longitude":this.user_long,
+                        "travel_appetite": this.$store.state.user_details.travel_appetite,
+                        "dietary_type": (this.$store.state.user_details.dietary_type)=="" ? [] : (this.$store.state.user_details.dietary_type).split(",")
                     })
+                    .then(function(response) {
+                        console.log("RESPONSE OBJ: ", response.data.data.food_result.data.posts)
+                        vm.food = response.data.data.food_result.data.posts
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                    .catch(function(error) {
+                        console.log("get_all_food() error: ", error)
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                } else {
+                    // WHEN USER NOT LOGGED IN
+                    axios.post(get_all_food_URL, {
+                        "latitude": this.user_lat,
+                        "longitude":this.user_long
+                    })
+                    .then(function(response) {
+                        vm.food = response.data.data.food_result.data.posts
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                    .catch(function(error) {
+                        console.log("get_all_food() error: ", error)
+                        vm.pulling_food = false
+                        vm.update_buffet_images()
+                        vm.update_buffet_distance()
+                        vm.update_buffet_time_left()
+                    })
+                }
             },
 
             get_all_user_food() {
@@ -517,6 +547,8 @@
                 
                 this.user_lat = position.coords.latitude
                 this.user_long =  position.coords.longitude
+                this.get_all_food()
+                this.get_all_user_food()
                 this.update_buffet_distance()
 
                 console.log(`=== [END] update_user_latlong() ===`)
@@ -525,6 +557,9 @@
             getLocation() {
                 if (navigator.geolocation) {
                     navigator.geolocation.getCurrentPosition(this.update_user_latlong);
+                } else {
+                    this.user_lat = 1.296168
+                    this.user_long = 103.8500437
                 }
             },
 
@@ -546,9 +581,7 @@
                 return deg * (Math.PI/180)
             },
 
-            return_buffet_imgs_arr(food_id){
-                console.log(`=== [START] return_buffet_imgs_arr(${food_id}) ===`)
-                
+            return_buffet_imgs_arr(food_id) {
                 // retrieve a list of imges from firebase storage
                 var to_return = []
 
