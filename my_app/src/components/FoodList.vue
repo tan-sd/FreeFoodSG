@@ -9,8 +9,11 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="d-flex justify-content-around mt-3 mb-3">
-                    <button type="button" class="btn btn-main btn-size" data-bs-dismiss="modal" @click="cancelFood">Yes</button>
-                    <button type="button" class="btn btn-main btn-size">No</button>
+                    <button type="button" class="btn btn-main btn-size"
+                    data-bs-dismiss="modal"  
+                    @click="cancelFood">Yes</button>
+                    <button type="button" class="btn btn-main btn-size"
+                    data-bs-dismiss="modal" >No</button>
                 </div>
             </div>
         </div>
@@ -193,28 +196,28 @@
                                             {{ e_buff.description }}
                                         </p>
                                     </div>
-                                </div>
-                                <div class="col-12 d-flex justify-content-center align-items-center">
-                                    <div>
-                                        <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
-                                            <button class="btn btn-main">
-                                                <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
-                                            </button>
-                                        </a>
+                                
+                                    <div class="col-12 d-flex justify-content-center align-items-center">
+                                        <div>
+                                            <a :href="`https://www.google.com/maps/dir/${ this.user_lat },${ this.user_long }/${ e_buff.latitude },${ e_buff.longitude }`" target="_blank">
+                                                <button class="btn btn-main">
+                                                    <font-awesome-icon icon="fa-solid fa-circle-arrow-right" />&nbsp;&nbsp;Route to Buffet
+                                                </button>
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-            
-                        <div class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`">
+                            <div class="accordion-collapse collapse" :aria-labelledby="`flush-heading${index}`" data-bs-parent="#food_accordian" :data-index="`${index+1}`" :id="`flush-collapse${index}`">
+                            </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div v-else>
+                <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-heart-crack" />&nbsp;&nbsp;No available food</div>
             </div>
         </div>
-        <div v-else>
-            <div class="d-flex align-items-center justify-content-center my-auto fw-bold btn-main-secondary-fixed" style="height: 90vh; font-size: 23px;"><font-awesome-icon icon="fa-solid fa-heart-crack" />&nbsp;&nbsp;No available food</div>
-        </div>
-    </div>
     </div>
            
 </template>
@@ -289,6 +292,7 @@
             passFoodID(foodID) {
                 this.foodID = foodID
                 console.log(this.foodID)
+                document.querySelector(".modal-backdrop").style.zIndex = 0;
             },
             get_all_food() {
                 const response = fetch(get_all_food_URL)
