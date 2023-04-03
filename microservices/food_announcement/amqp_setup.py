@@ -30,30 +30,57 @@ channel.exchange_declare(exchange=exchangename, exchange_type=exchangetype, dura
 # Here can be a place to set up all queues needed by the microservices,
 # - instead of setting up the queues using RabbitMQ UI.
 
-############   sms queue    #############
-#declare sms queue
-queue_name = 'sms'
+############   sms_food queue    #############
+# declare sms_food queue
+queue_name = 'sms_food'
 channel.queue_declare(queue=queue_name, durable=True)
     # 'durable' makes the queue survive broker restarts
 
 #bind Activity_Log queue
-channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.sms.#') 
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.sms.food.#') 
     # bind the queue to the exchange via the key
     # 'routing_key=#' => any routing_key would be matched
-print("sms queue set up")
+print("sms_food queue set up")
 
-############   email queue    #############
-#delcare email queue
-queue_name = 'email'
+
+############   sms_forum queue    #############
+# declare sms_forum queue
+queue_name = 'sms_forum'
 channel.queue_declare(queue=queue_name, durable=True)
     # 'durable' makes the queue survive broker restarts
 
 #bind Activity_Log queue
-channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.email.#') 
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.sms.forum.#') 
     # bind the queue to the exchange via the key
     # 'routing_key=#' => any routing_key would be matched
-print("email queue set up")
+print("sms_forum queue set up")
+
+
+############   email_food queue    #############
+# declare email_food queue
+queue_name = 'email_food'
+channel.queue_declare(queue=queue_name, durable=True)
+    # 'durable' makes the queue survive broker restarts
+
+#bind Activity_Log queue
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.email.food.#') 
+    # bind the queue to the exchange via the key
+    # 'routing_key=#' => any routing_key would be matched
+print("email_food queue set up")
     
+
+############   email_forum queue    #############
+# declare email_forum queue
+queue_name = 'email_forum'
+channel.queue_declare(queue=queue_name, durable=True)
+    # 'durable' makes the queue survive broker restarts
+
+#bind Activity_Log queue
+channel.queue_bind(exchange=exchangename, queue=queue_name, routing_key='#.email.forum.#') 
+    # bind the queue to the exchange via the key
+    # 'routing_key=#' => any routing_key would be matched
+print("email_forum queue set up")
+
 
 """
 This function in this module sets up a connection and a channel to a local AMQP broker,

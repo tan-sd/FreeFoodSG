@@ -22,32 +22,47 @@ CORS(app)
 @app.route("/send_notif", methods=['POST'])
 def send_sms ():
     # data = request.get_data()
-    message = json.dumps(request.get_json())
+    msg_json = request.get_json()
+    message_to_publish = json.dumps(request.get_json())
     print(request.get_json())
+
+    post_type = msg_json['post_type']
 
     sms_notif = request.get_json()['user']['sms_notif']
     email_notif = request.get_json()['user']['email_notif']
 
-    if ((sms_notif == 1) and (email_notif == 1)):
-        print(sms_notif)
-        print(email_notif)
-        key = "smth.sms.email.smth"
-    elif (sms_notif == 1):
-        print(sms_notif)
-        print(email_notif)
-        key = "smth.sms.smth"
-    elif (email_notif == 1):
-        print(sms_notif)
-        print(email_notif)
-        key = "smth.email.smth"
-    
-
+    if post_type == "food":
+        if ((sms_notif == 1) and (email_notif == 1)):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.sms.food.email.food.smth"
+        elif (sms_notif == 1):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.sms.food.smth"
+        elif (email_notif == 1):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.email.food.smth"
+    elif post_type == "forum":
+        if ((sms_notif == 1) and (email_notif == 1)):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.sms.forum.email.forum.smth"
+        elif (sms_notif == 1):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.sms.forum.smth"
+        elif (email_notif == 1):
+            print(sms_notif)
+            print(email_notif)
+            key = "smth.email.forum.smth"
    
 
     amqp_setup.channel.basic_publish(exchange="notification", routing_key=key, 
-    body=message, properties=pika.BasicProperties(delivery_mode = 2)) 
+    body=message_to_publish, properties=pika.BasicProperties(delivery_mode = 2)) 
 
-    success = "the function works"
+    success = {"code":131, "message":"the function works u fk but pls check the output"}
     return success
 
 # Execute this program if it is run as a main script (not by 'import')
