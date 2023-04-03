@@ -380,12 +380,7 @@ def getUserInfo():
 
 '''DISPLAY USER PROFILE DETAILS
 this function checks user's username 
-input: it must have:
-
-{
-    "username": 'rachel', 
-}
-
+input: username in URL
 output: 
 
 {
@@ -434,7 +429,7 @@ def find_user(username):
 this function edits user details, username stays the same
 input: it must have:
 {
-    "code": 200,
+   
     "data": {
         "address": "Victoria Street, Singapore Management University, Singapore",
         "dietary_type": "",
@@ -489,7 +484,7 @@ def update_by_user_id():
         print(data)
         username = data['username']
         user = User.query.filter_by(username=username).first()
-        
+        password = user.password
 
         if username:
 
@@ -499,7 +494,7 @@ def update_by_user_id():
                 user.last_name = data['last_name']
                 user.number = data['number']
                 user.email = data['email']
-                user.password = data['password']
+                user.password = password
                 user.address = data['address']
                 user.latitude = data['latitude']
                 user.longitude = data['longitude']

@@ -351,7 +351,7 @@ Input: user JSON object, it must include:
 }
 Output: array of food post JSON objects that fulfill the criteria
 '''
-@app.route("/nearby_food_user", methods=['GET'])
+@app.route("/nearby_food_user", methods=['POST'])
 def nearby_food_user():
     # check if JSON
     if request.is_json:
@@ -448,7 +448,7 @@ Input: user JSON object, it must include:
 Output: array of food post JSON objects that fulfill the criteria
 
 '''
-@app.route("/nearby_food_guest", methods=['GET'])
+@app.route("/nearby_food_guest", methods=['POST'])
 # search for users that are within the distance
 def nearby_food_guest():
     # check input format and data is JSON
