@@ -234,6 +234,7 @@
 
 <script>
     import axios from 'axios'
+    import router from '@/router';
 
     export default{
         data() {
@@ -334,16 +335,19 @@
             },
 
             submit_new_user_details() {
+                console.log(`=== [START] submit_new_user_details() ===`)
+
                 var to_check = [
                     this.form_first_name,
                     this.form_last_name,
                     this.form_username,
                     this.form_number,
                     this.form_address,
-                    this.form_dietary_res,
                     this.form_email,
                     this.form_travel_appetite
                 ]
+
+                console.log(to_check)
 
                 for (var e_var of to_check) {
                     if (e_var.length == 0) {
@@ -363,14 +367,15 @@
                     email_notif: (this.form_email_notif ? 1 : 0),
                     sms_notif: (this.form_sms_notif ? 1 : 0),
                     latitude: (this.form_lat == '') ? this.lat : this.form_lat,
-                    longitude: (this.form_lng == '') ? this.lng : this.form_lng
+                    longitude: (this.form_lng == '') ? this.lng : this.form_lng,
+                    user_id: this.$store.state.user_details.user_id
                 }
 
-                console.log(new_user_deets)
+                console.log("new user deets", new_user_deets)
 
                 var vm = this
 
-                axios.put("http://localhost:1111/profile/update", new_user_deets)
+                axios.put("http://127.0.0.1:1111/profile/update", new_user_deets)
                 .then(function(response) {
                     console.log(response)
                     vm.$store.state.user_details = new_user_deets
@@ -390,7 +395,12 @@
         },
 
         created() {
-            this.update_user_details()
+            
+            if (!(this.$store.state.isAuthenticated)) {
+                router.push({path: '/login'})
+            } else {
+                this.update_user_details()
+            }
         }
     }
 </script>

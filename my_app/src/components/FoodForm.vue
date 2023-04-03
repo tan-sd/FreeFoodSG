@@ -198,12 +198,13 @@ const storage = getStorage(app);
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success: ", response)
-            console.log(`=== [END] submit_new_post() ===`)
+            console.log("Success Horsey: ", response)
+
             var generated_post_id = response.data.data.Post_result.data.post.post_id
 
             vm.upload_img(generated_post_id)
             emitter.emit("updateFoodlistPosts")
+            console.log(`=== [END] submit_new_post() ===`)
         })
         .catch(function(error) {
             console.log(error)

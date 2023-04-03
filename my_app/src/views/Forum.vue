@@ -149,12 +149,15 @@ import axios from 'axios';
             this.loading_post_button = true
             var vm = this
 
-            axios.post("http://localhost:1115/create", {
+            var submit_params = {
                 "username": this.$store.state.user_details.username,
                 "title": this.create_post_title,
                 "description": this.create_post_desc,
-                "datetime": new Date()
-            })
+                "datetime": (new Date()).toISOString().split(".")[0],
+                "is_available": 1
+            }
+
+            axios.post("http://127.0.0.1:5103/create_post", submit_params)
             .then(function (response) {
                 console.log(response)
                 document.getElementById("forum_create_close_btn").click()
@@ -214,7 +217,7 @@ import axios from 'axios';
             }
 
             // ELSE SUBMIT COMMENT
-            axios.post("http://localhost:1115/create_comment", {
+            axios.post("http://127.0.0.1:5103/create_comment", {
                 "forum_id": forumid,
                 "commentor_username": this.$store.state.user_details.username,
                 "comment": comment,

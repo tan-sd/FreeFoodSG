@@ -116,20 +116,20 @@
                 </div>
 
                 <div class="bg-white rounded ps-3 pt-3 pb-3 text-dark">
-                    <label class="small form-label">Travel Appetite</label>
+                    <label class="small form-label">Travel Appetite<br><span class="fst-italic">(ie. How far are you willing to travel?)</span></label>
                     <br>
                     <div class="d-flex justify-content-around">
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio1" value=0.5 checked>
-                            <label class="small form-check-label" for="inlineRadio1">Near</label>
+                            <label class="small form-check-label" for="inlineRadio1">Near (500m)</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio2" value=1>
-                            <label class="small form-check-label" for="inlineRadio2">Medium</label>
+                            <label class="small form-check-label" for="inlineRadio2">Medium (1km)</label>
                         </div>
                         <div class="form-check form-check-inline">
                             <input v-model="travel_appetite" class="small form-check-input" type="radio" name="inlineRadioOptions" id="inlineRadio3" value=2>
-                            <label class="small form-check-label" for="inlineRadio3">Far</label>
+                            <label class="small form-check-label" for="inlineRadio3">Far (2km)</label>
                         </div>
                     </div>
                 </div>

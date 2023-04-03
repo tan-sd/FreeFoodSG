@@ -480,7 +480,7 @@ def update_by_user_id():
     
 
     if request.get_json():
-        data = request.get_json()['data']
+        data = request.get_json()
         username = data['username']
         user = User.query.filter_by(username=username).first()
         password = user.password

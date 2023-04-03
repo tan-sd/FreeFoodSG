@@ -6,9 +6,9 @@ from invoke_activity import activity_log
 app = Flask(__name__)
 CORS(app)
 
-forum_URL = 'http://localhost:1113/all'
-create_forum_URL = 'http://localhost:1113'
-find_forum_URL = 'http://localhost:1113/search/'
+forum_URL = 'http://localhost:1115/all'
+create_forum_URL = 'http://localhost:1115'
+find_forum_URL = 'http://localhost:1115/search/'
 user_URL = 'http://localhost:1111/profile/'
 notification_URL = 'http://localhost:5100/send_notif' 
 
@@ -90,6 +90,7 @@ return {
 '''
 @app.route("/create_post", methods=['POST'])
 def create_forum_post():
+    print("create_post route accessed! ==============")
     if request.is_json:
         try:
             post_details = request.get_json()
@@ -209,6 +210,9 @@ def create_comment():
         forum_id = result["data"]["data"]["forum_id"]
         url = find_forum_URL + str(forum_id)
         forum_json = invoke_http(url,method='GET')
+
+        print("Forum Json: ", forum_json)
+
         username = forum_json["data"]["username"]
         forum_info = forum_json["data"]
         print("'\n-----Username Retrieved-----'")
@@ -216,8 +220,9 @@ def create_comment():
         #invoke user info to get user information 
         print("'\n-----Invoking user microservice-----'")
         username_URL = user_URL + username
-        user_json = invoke_http(username_URL,method='GET')
+        user_json = invoke_http(username_URL, method='GET')
         print("'\n-----User information retrieved-----'")
+        print("User Info: ", user_json)
 
         #invoke notification
         #prepare information for notification service
