@@ -44,7 +44,7 @@ def send_notif():
         elif (email_notif == 1):
             print(sms_notif)
             print(email_notif)
-            key = "smth.email.food.smth"
+            key = "email.food"
     elif post_type == "forum":
         if ((sms_notif == 1) and (email_notif == 1)):
             print(sms_notif)
@@ -57,7 +57,7 @@ def send_notif():
         elif (email_notif == 1):
             print(sms_notif)
             print(email_notif)
-            key = "smth.email.forum.smth"
+            key = "email.forum"
    
 
     amqp_setup.channel.basic_publish(exchange="notification", routing_key=key, 

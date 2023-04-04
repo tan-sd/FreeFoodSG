@@ -154,7 +154,6 @@ def create_post():
     #if json, try adding
     if request.is_json:
         data = request.get_json()
-        print(data)
         print("Adding post into database...")
         
         #if successful add
@@ -170,8 +169,6 @@ def create_post():
             }
         ), 201
 
-        else:
-            print('got error')
 
         
     else:
