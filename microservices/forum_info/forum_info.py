@@ -514,8 +514,6 @@ def show_comments(forum_id):
     ), 404
 
 
-
-
 '''create comment on a specific post
 this function create comments
 input: it must have:
