@@ -180,7 +180,7 @@
         
                 <!-- Travel Appetite -->
                 <div class="form-floating mb-2">
-                    <input type="text" v-model="form_travel_appetite" class="form-control">
+                    <input type="number" v-model="form_travel_appetite" class="form-control">
                     <label for="floatingInput">Travel Appetite (km)</label>
                 </div>
         
@@ -201,7 +201,7 @@
                     </div>
         
                     <div class="form-check mx-2">
-                        <input class="form-check-input" type="checkbox" value="no beef" id="user-foodform-nobeef-checkbox" v-model="form_dietary_res">
+                        <input class="form-check-input" type="checkbox" value="nobeef" id="user-foodform-nobeef-checkbox" v-model="form_dietary_res">
                         <label class="form-check-label" for="user-foodform-nobeef-checkbox">
                             <font-awesome-icon icon="fa-solid fa-cow" />&nbsp;No Beef
                         </label>

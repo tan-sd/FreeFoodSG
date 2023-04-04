@@ -99,16 +99,16 @@
                     <label class="small form-label">Dietary Type</label>
                     <div class="d-flex justify-content-around">
                         <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="Halal" v-model="dietary_type">
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox1" value="halal" v-model="dietary_type">
                             <label class="small form-check-label" for="inlineCheckbox1">Halal</label>
                             </div>
                             <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="Vegetarian"
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox2" value="vegetarian"
                             v-model="dietary_type">
                             <label class="small form-check-label" for="inlineCheckbox2">Vegetarian</label>
                             </div>
                             <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="No beef"
+                            <input class="form-check-input" type="checkbox" id="inlineCheckbox3" value="nobeef"
                             v-model="dietary_type">
                             <label class="small form-check-label" for="inlineCheckbox3">No beef</label>
                         </div>
@@ -137,13 +137,13 @@
                     <label class="small form-label">Notifications</label>
                     <div class="form-check">
                         <label class="small form-check-label" for="defaultCheck1">
-                            Recieve SMS Notification?
+                            Receive SMS Notification?
                         </label>
                         <input class="small form-check-input" type="checkbox" value="" id="defaultCheck1" v-model="sms_noti">
                     </div>
                     <div class="form-check">
                         <label class="small form-check-label" for="defaultCheck2">
-                            Recieve Email Notification?
+                            Receive Email Notification?
                         </label>
                         <input class="small form-check-input" type="checkbox" value="" id="defaultCheck2" v-model="email_noti">
                     </div>
