@@ -180,7 +180,7 @@
         
                 <!-- Travel Appetite -->
                 <div class="form-floating mb-2">
-                    <input type="text" v-model="form_travel_appetite" class="form-control">
+                    <input type="number" v-model="form_travel_appetite" class="form-control">
                     <label for="floatingInput">Travel Appetite (km)</label>
                 </div>
         

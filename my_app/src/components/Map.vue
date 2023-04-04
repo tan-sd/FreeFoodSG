@@ -67,8 +67,9 @@
     // MITT STUFF
     import emitter from '../mitt/mitt.js'
 
-    const food_info_url = 'http://localhost:1112/all'
+    const food_info_guest_url = 'http://127.0.0.1:5101/guest/available_food'
     const get_user_info_url = 'http://localhost:1111/profile'
+    const get_all_food_logged_in_URL = "http://127.0.0.1:5101/available_food"
     // const guest_url = 'http://localhost:1112/nearby_food'
     export default {
         inheritAttrs: true,
@@ -108,14 +109,17 @@
             // Adam, will need you to use this function and pass the values from FoodList.vue line 167 to the panTo() function
             // the values should be in the form of a JSON object, can refer to line 143 in this vue file.
             re_center() {
-                const map = this.$refs.map
+                const map = this.$store.state.mapobj
                 map.panTo(this.currentLocation)
                 this.zoomValue = 14
             },
             re_center_custom(latlng) {
                 console.log(`=== [START] re_center_custom(lat: ${latlng.lat}, lng: ${latlng.lng}) ===`)
 
-                const map = this.$refs.map
+                const map = this.$store.state.mapobj
+
+                console.log("MAP: ", map)
+
                 map.panTo({
                     "lat": latlng.lat,
                     "lng": latlng.lng 
@@ -144,27 +148,31 @@
             // Output: all food posts will be stored from markers[1] onwards
             // '''
             async get_nearest_food() {
-                // return all regardless of user or guest
-                axios.get(`${food_info_url}`, {
-                        latitude: this.markers[0].position.lat,
-                        longitude: this.markers[0].position.lng
-                })
+                var data_to_pass = {}
+
+                // return GUEST
+                if (!(this.$store.state.isAuthenticated)) {
+
+                    data_to_pass = {
+                            "latitude": this.markers[0].position.lat,
+                            "longitude": this.markers[0].position.lng
+                    }
+    
+                    axios.post(food_info_guest_url, data_to_pass)
                     .then(response => {
-                        // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
-                        // console.log(response.data.data.food)
-                        var foods = response.data.data.food
+                        var foods = response.data.data.food_result.data.posts
                         this.markers = [this.markers[0] ]
                         // store each food JSON in the markers array
                         for (let i = 0; i<foods.length; i++) {
                             this.markers.push({
-                                            position: {
-                                                lat: foods[i].latitude,
-                                                lng: foods[i].longitude,
-                                            },
-                                            post_id: foods[i].post_id,
-                                            icon: require("../assets/images/flaticon/food.png"),
-                                            scaledSize: {width: 45, height: 45}
-                                        })
+                                position: {
+                                    lat: foods[i].latitude,
+                                    lng: foods[i].longitude,
+                                },
+                                post_id: foods[i].post_id,
+                                icon: require("../assets/images/flaticon/food.png"),
+                                scaledSize: {width: 45, height: 45}
+                            })
                         }
                         console.log("All markers created!")
                     })
@@ -173,66 +181,40 @@
                         console.log(error.response.data.code == 404)
                         document.getElementById("errors").innerHTML = error.response.data.msg
                     });
-                // check if user is a guest
-                // if (!this.$store.state.isAuthenticated) {
-                //     console.log("It's a guest user! Calling food post for guest.")
-                //     axios.get(`${guest_url}`, {
-                //         latitude: this.markers[0].position.lat,
-                //         longitude: this.markers[0].position.lng
-                // })
-                //     .then(response => {
-                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
-                //         // console.log(response.data.data.food)
-                //         var foods = response.data.data.food
-                //         // store each food JSON in the markers array
-                //         for (let i = 0; i<foods.length; i++) {
-                //             this.markers.push({
-                //                             position: {
-                //                                 lat: foods[i].latitude,
-                //                                 lng: foods[i].longitude,
-                //                             },
-                //                             post_id: foods[i].post_id,
-                //                             icon: require("../assets/images/flaticon/food.png")
-                //                         })
-                //         }
-                //         console.log("All markers created!")
-                //     })
-                //     .catch(error => {
-                //         console.log(error.message);
-                //         console.log(error.response.data.code == 404)
-                //         document.getElementById("errors").innerHTML = error.response.data.msg
-                //     });
-                // } else {
-                //     console.log("It's a registered user! Calling food post for user.")
-                //     axios.get(`${food_info_url}`, {
-                //         latitude: this.markers[0].position.lat,
-                //         longitude: this.markers[0].position.lng,
-                //         travel_appetite: this.$store.state.user_details.travel_appetite
-                // })
-                //     .then(response => {
-                //         // this response stores the JSON returned as {"code", "data": {"data": {"food"}}}
-                //         // console.log(response.data.data.food)
-                //         var foods = response.data.data.food
-                //         // store each food JSON in the markers array
-                //         for (let i = 0; i<foods.length; i++) {
-                //             this.markers.push({
-                //                             position: {
-                //                                 lat: foods[i].latitude,
-                //                                 lng: foods[i].longitude,
-                //                             },
-                //                             post_id: foods[i].post_id,
-                //                             icon: require("../assets/images/flaticon/food.png")
-                //                         })
-                //         }
-                //         console.log("All markers created!")
-                //     })
-                //     .catch(error => {
-                //         console.log(error.message);
-                //         console.log(error.response.data.code == 404)
-                //         document.getElementById("errors").innerHTML = error.response.data.msg
-                //     });
-                console.log(this.markers[0].position.lat)
-                
+                }
+                // return LOGGED IN USER
+                else {
+                    data_to_pass = {
+                        "latitude": this.markers[0].position.lat,
+                        "longitude": this.markers[0].position.lng,
+                        "travel_appetite": this.$store.state.user_details.travel_appetite,
+                        "dietary_type": (this.$store.state.user_details.dietary_type)=="" ? [] : (this.$store.state.user_details.dietary_type).split(",")
+                    }
+    
+                    axios.post(get_all_food_logged_in_URL, data_to_pass)
+                    .then(response => {
+                        var foods = response.data.data.food_result.data.posts
+                        this.markers = [this.markers[0] ]
+                        // store each food JSON in the markers array
+                        for (let i = 0; i<foods.length; i++) {
+                            this.markers.push({
+                                position: {
+                                    lat: foods[i].latitude,
+                                    lng: foods[i].longitude,
+                                },
+                                post_id: foods[i].post_id,
+                                icon: require("../assets/images/flaticon/food.png"),
+                                scaledSize: {width: 45, height: 45}
+                            })
+                        }
+                        console.log("All markers created!")
+                    })
+                    .catch(error => {
+                        console.log(error.message);
+                        console.log(error.response.data.code == 404)
+                        document.getElementById("errors").innerHTML = error.response.data.msg
+                    });
+                }    
             }
         },
         mounted() {
@@ -245,11 +227,13 @@
                 this.currentLocation.lat = position.coords.latitude;
                 this.currentLocation.lng = position.coords.longitude;
                 this.get_user_info(this.$store.state.user_details.username)
+                console.log("Getting food post information from dB")
+                this.get_nearest_food()
+                console.log("Got food post information from dB")
+
+                this.$store.state.mapobj = this.$refs.map
             });
             console.log("Got user's current location")
-            console.log("Getting food post information from dB")
-            this.get_nearest_food()
-            console.log("Got food post information from dB")
 
             var vm = this
             emitter.on('updateFoodlistPosts', function(){
