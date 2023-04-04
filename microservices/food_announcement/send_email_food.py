@@ -72,6 +72,8 @@ def sendClientUpdate(body):
     print('printing food name')
     print(food_name)
     food_description = food['description']
+    food_description = food['description'][0].upper() + food['description'][1:]
+    print(food_description)
     # changed this from allergens
     food_allergens_list = food['diets_available'] #account for list or string input
     print(f'this is the initial allergen list: {food_allergens_list}')
@@ -88,7 +90,7 @@ def sendClientUpdate(body):
     print(f'this is the allergen list after being formatted: {allergens_to_print}')
     
     
-    msg = f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {allergens_to_print}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team'
+    msg = f'Hello {recipient_name}!\n\nThere is a new food offering near your default location!\nSee the posting details below,\n\nBuffet name: {food_name}\nBuffet Address: {food_location}\nBuffet Description: {food_description}\nAllergens: {allergens_to_print}\nBuffet End Timing: {food_end_time}\n\nThis is a automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh Team'
 
     """Shows basic usage of the Gmail API.
     Lists the user's Gmail labels.

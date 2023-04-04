@@ -66,7 +66,8 @@ def sendClientUpdate(body):
     user = body['user']
 
     # user info
-    recipient_email = user['email']
+    # recipient_email = user['email']
+    recipient_email = 'rrachelsng@gmail.com'
     recipient_name = user['name']
 
     # comment info
@@ -81,7 +82,7 @@ def sendClientUpdate(body):
     # post_datetime = post["datetime"]
 
     ## edit the body of the message here ##
-    msg = f'Dear {recipient_name},\n\nUser {commenter_name} has commented on your post: {post_title}!\n\n{commenter_name} commented:\n{comment_content}\n- {comment_datetime}.\n\nThis is an automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh'
+    msg = f'Dear {recipient_name},\n\nUser {commenter_name} has commented on your post: {post_title}!\n\n{commenter_name} commented:\n{comment_content}\nTime Commented: {comment_datetime}.\n\nThis is an automated message, please do not reply to this thread.\n\nHappy Eating,\nMakanBoleh'
 
 
     """Shows basic usage of the Gmail API.

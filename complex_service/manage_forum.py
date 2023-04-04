@@ -12,56 +12,20 @@ find_forum_URL = 'http://localhost:1115/search_id/'
 user_URL = 'http://localhost:1111/profile/'
 notification_URL = 'http://localhost:5100/send_notif' 
 
-'''
-
-Function: display all posts in forum + with comments
-
-Input: nothing
-
-Output: 
-
-return {
-        "code": 201,
-        "data": {
-            "forum_result": 
-                {
-                "code": 200,
-                "data": {
-                    "forum": [forum.json() for forum in forum_list]
-                }
-            }
-        }
-    }
-    
-'''
-
-@app.route("/posts", methods=['GET'])
-def get_forum_posts():
-
-    result = invoke_http(forum_URL, method='GET')
-    activity_log("forum_info") #to put in activity log
-    code = result["code"]
-    if code not in range(200, 300):
-        activity_log("forum_info_error")
-        return {
-            "code": 500,
-            "data": {"forum_result": result},
-            "message": "Retrieve forum failure sent for error handling."
-        }
-    
-    return {
-        "code": 201,
-        "data": {
-            "forum_result": result
-        }
-    }
-
 
 '''
 
 Function: to create a post in forum
 
-Input: post details
+Input: 
+
+{          
+    "username": "tommy",
+    "title": "free french fries",
+    "description": "I had a party just now! You are welcome to join.",
+    "datetime": "2021-01-01 15:10:10",
+    "is_available": 1,
+}
 
 Output: 
 
@@ -155,10 +119,10 @@ def create_post(post_details):
 Function: create comments
 
 Input: {
-    forum_id: <int>,
-    commentor_username: <string>,
-    comment: <string>,
-    datetime: <string>
+    forum_id: 1,
+    commentor_username: "SJB123",
+    comment: "This is a coment",
+    datetime: "2021-01-01 15:10:10"
 }
 
 Output: 
@@ -201,11 +165,12 @@ def create_comment():
     try:
         print("Valid JSON passed, running create_comment()")
         comment_details = request.get_json()
-        # print("\nReceived post details in JSON:", comment_details)
+        print("\nReceived post details in JSON:", comment_details)
 
         print("'\n-----Invoking forum microservice-----'")
         # invoke forum info to push to DB
         result = push_new_comment(comment_details)
+        print(result)
         #invoke forum info to get forum information
         forum_id = result["data"]["data"]["forum_id"]
         url = find_forum_URL + str(forum_id)  
@@ -214,6 +179,8 @@ def create_comment():
         print("Forum Json: ", forum_json)
 
         username = forum_json["data"]["username"]
+        print(' username of poster is')
+        print(username)
         forum_info = forum_json["data"]
         print("'\n-----Username Retrieved-----'")
 
@@ -224,11 +191,14 @@ def create_comment():
         print("'\n-----User information retrieved-----'")
         print("User Info: ", user_json)
 
+
+        print('user json below')
+        print(user_json)
         #invoke notification
         #prepare information for notification service
         json_to_send = {
             "post": forum_info,
-            "commment": comment_details,
+            "comment": comment_details,
             "user":{
                 "name":username,
                 "number": user_json["data"]["number"],
@@ -236,13 +206,16 @@ def create_comment():
                 "sms_notif": user_json["data"]["sms_notif"],
                 "email_notif":user_json["data"]["email_notif"]
 
-            }
+            },
+            "post_type": "forum"
         }
 
         #invoke notification
         print("'\n-----Invoking notification microservice-----'")
         success = invoke_http(notification_URL,method='POST',json=json_to_send)
         print(success)
+
+        print(json_to_send)
         return jsonify(result['data']), result["code"]
 
     except Exception as e:
@@ -266,6 +239,9 @@ def push_new_comment(comment_details):
     create_comment_result = invoke_http(url, method='POST', json = comment_details)
     activity_log("forum") #to put in activity log
 
+    print(url)
+    print('checkout create comment')
+    print(create_comment_result)
     # If a failure, send it to the error microservice
     code = create_comment_result["code"]
     

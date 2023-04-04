@@ -208,7 +208,7 @@ output:
 '''
 
 # RETRIEVE SPECIFIC FORUM POST BY USERNAME
-@app.route("/search/<string:username>")
+@app.route("/search/<string:username>", methods=['GET'])
 def search(username):
     forum = forum_db.query.filter_by(username=username).all()
     result = []
@@ -330,8 +330,7 @@ input: it must have:
     "description": "description1",
     "forum_id": 1,
     "is_available": 0,
-    "title": "title1",
-    "username": "SJB123"
+  
         
 }
 
@@ -355,19 +354,15 @@ output:
 @app.route("/edit/<int:forum_id>", methods=['PUT'])
 def edit(forum_id):
     
-    forum = forum_db.query.filter_by(forum_id=forum_id).first()
+    forum = forum_db.query.filter_by(forum_id=forum_id).all()
 
     #check if post exists
     if forum:
 
         #attempt to edit
         try:
-            # data = request.get_json()
 
             #update fields
-            # forum.title = data['title']
-            # forum.description = data['description'] 
-            # forum.datetime = data['datetime'] 
             forum.is_available = 0
 
             #commit changes
@@ -517,8 +512,6 @@ def show_comments(forum_id):
             "message": "There are no comments."
         }
     ), 404
-
-
 
 
 '''create comment on a specific post
