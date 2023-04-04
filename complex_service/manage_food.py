@@ -26,17 +26,19 @@ publish_msg_URL = "http://127.0.0.1:5100/send_notif"
 '''DOCUMENTATION HERE
 User posts a new food post
 input(json): 
+
 {
-    post_id = type int
-    username = type varchar
-    post_name = type varchar
-    latitude = type float, precision 6
-    longitude = type float, precision 6
-    address = type varchar
-    description = type varchar
-    is_available = type bit or integer, 0 is false, 1 is true
-    end_time = type varchar, in YYYY-MM-DD HH:MM:SS format
+    "username": "actual_username",
+    "post_name": "actual_postname",
+    "latitude": 1.296568,
+    "longitude": 103.852119,
+    "address": "81 Victoria St, Singapore 188065",
+    "description": "long_description",
+    "end_time" : "YYYY-MM-DD HH:MM:SS",
+    "diets_available": ["prawn-free", "halal", "nut-free"]
+    "is_available": 1
 }
+
 output(json):
 {
     code: type int <- tells you the server code, 404 if error
@@ -44,7 +46,7 @@ output(json):
 }
 
 '''
-@app.route("/post", methods=['POST', 'GET'])
+@app.route("/post", methods=['POST'])
 def post_food():
     print('\n-----Invoking food_info microservice-----')
 
@@ -80,7 +82,7 @@ def post_food():
 
                 "name": username,
                 "number":number,
-                "email":'rrachelsng@gmail.com',
+                "email":email,
                 "email_notif": email_notif,
                 "sms_notif": sms_notif
             }
