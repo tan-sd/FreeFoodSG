@@ -57,7 +57,7 @@
                             >
                         </div>
 
-                        <div class="btn btn-light h-50 deleteBtn fw-semibold" v-if=" this.forumList.includes(e_post.forum_id)" @click="removePost(e_post.forum_id)">Delete</div>
+                        <div class="btn btn-main-dark-fixed h-50 fw-semibold" v-if=" this.forumList.includes(e_post.forum_id)" @click="removePost(e_post.forum_id)"><font-awesome-icon icon="fa-solid fa-trash" /></div>
                     </div>
                 </div>
 
@@ -320,6 +320,7 @@ export default {
                 document.getElementById("forum_create_close_btn").click()
                 vm.update_posts(true)
                 vm.clear_form()
+                vm.listOfPost()
                 vm.loading_post_button = false
             })
             .catch(function(error) {
