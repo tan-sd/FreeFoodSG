@@ -186,18 +186,7 @@ def register(user_details):
 
     code = creation_result["code"]
 
-    # DO ERROR MS!
     if code not in range(200, 300):
-
-    #     # Inform the error microservice
-    #     print('\n\n-----Invoking error microservice as order fails-----')
-    #     invoke_http(error_URL, method="POST", json=verification_result)
-    #     # - reply from the invocation is not used; 
-    #     # continue even if this invocation fails
-    #     print("Order status ({:d}) sent to the error microservice:".format(
-    #         code), verification_result)
-
-    #     # 7. Return error
         activity_log("user_info error")
         return {
             "code": 500,
