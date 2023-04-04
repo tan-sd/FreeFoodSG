@@ -354,7 +354,7 @@ output:
 @app.route("/edit/<int:forum_id>", methods=['PUT'])
 def edit(forum_id):
     
-    forum = forum_db.query.filter_by(forum_id=forum_id).all()
+    forum = forum_db.query.filter_by(forum_id=forum_id).first()
 
     #check if post exists
     if forum:
