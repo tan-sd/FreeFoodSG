@@ -55,8 +55,8 @@ class activity_table(db.Model):
 def create_log():
     '''
     this is the overarching function which creates a log and adds into database
-    input: {"ms_invoked": "microservice_name"} OR
-    input: {"ms_invoked": "microservice_name_error"}
+    input: {"log_info": "microservice_name"} OR
+    input: {"log_info": "microservice_name_error"}
     output: technically none 
     '''
     #check if not json
