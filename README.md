@@ -74,6 +74,11 @@ Please ensure your machine has the prerequisites required for MakanBoleh
 * MAMP (Mac Users): https://www.mamp.info/en/mac/
 * Docker Desktop: https://www.docker.com/products/docker-desktop/
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<br/>
+<br/>
+
 ## Installation
 
 ### Clone
