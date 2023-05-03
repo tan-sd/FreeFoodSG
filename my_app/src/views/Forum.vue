@@ -152,7 +152,7 @@
 
         <button
             class="btn btn-main-fixed post-btn"
-            data-bs-toggle="modal"
+            :data-bs-toggle="isAuthenticated ? `modal` : ''" 
             :data-bs-target="isAuthenticated ? `#new-comment` : ``"
             @click="redirect_to_login()"
         >
@@ -257,7 +257,7 @@ export default {
             var vm = this
             axios.put(`${removePost}/${forum_id}`)
             .then(response => {
-                console.log(response.data)
+                // console.log(response.data)
                 if (response.data.code == 200) {
                     console.log("Successfully removed post.")
                     vm.update_posts(false)
@@ -268,10 +268,10 @@ export default {
             })
         },
         listOfPost() {
-            console.log(this.$store.state.user_details)
+            // console.log(this.$store.state.user_details)
             axios.get(`${filteredResult}/${this.$store.state.user_details.username}`)
             .then(response => {
-                console.log(response.data)
+                // console.log(response.data)
                 this.forumList = response.data.data
                 // this.forumList = response
             })
@@ -314,7 +314,7 @@ export default {
                 "is_available": 1
             }
 
-            axios.post("http://127.0.0.1:5103/create_post", submit_params)
+            axios.post("http://localhost:5103/create_post", submit_params)
             .then(function (response) {
                 console.log(response)
                 document.getElementById("forum_create_close_btn").click()
@@ -335,8 +335,7 @@ export default {
                 this.loading_posts = true;
             }
 
-            axios
-                .get("http://localhost:1115/all")
+            axios.get("http://localhost:1115/all")
                 .then((response) => {
                     let response_data = response.data.data.forum;
 
@@ -389,7 +388,6 @@ export default {
             })
             .then(function (response) {
                 console.log(response)
-
                     vm.update_posts(false);
                     return true;
                 })

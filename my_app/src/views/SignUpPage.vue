@@ -225,7 +225,7 @@
             },
             register_user() {
 
-                console.log(this.travel_appetite)
+                // console.log(this.travel_appetite)
                 // const salt = bcrypt.genSaltSync(10)
                 // var hashed_password = bcrypt.hashSync(this.password, salt)
 
@@ -340,7 +340,7 @@
                     };
                     this.errors += 1
                 } else {
-                    console.log(this.phone_number.toString()[0])
+                    // console.log(this.phone_number.toString()[0])
                     phone_number.classList = 'form-control is-valid';
                     phone_number_invalid.classList.add("d-none");
                 }
@@ -389,20 +389,20 @@
                         "email_notif": this.email_noti
                     };
 
-                    console.log(this.$refs.gmap_autocomplete.$refs.input.value)
+                    // console.log(this.$refs.gmap_autocomplete.$refs.input.value)
 
                     fetch(`https://maps.googleapis.com/maps/api/geocode/json?address=${this.$refs.gmap_autocomplete.$refs.input.value}&key=AIzaSyB_XNrepzj7pUf2-dp9vSkpAfjXkAB9yHI`)
                     .then((response) => {
                         return response.json();
                     }).then(jsonData => {
-                        console.log(jsonData.results[0].geometry.location); // {lat: 45.425152, lng: -75.6998028}
+                        // console.log(jsonData.results[0].geometry.location); // {lat: 45.425152, lng: -75.6998028}
                         json_data['latitude'] = jsonData.results[0].geometry.location.lat
                         json_data['longitude'] = jsonData.results[0].geometry.location.lng
-                        console.log(json_data)
+                        // console.log(json_data)
 
-                        console.log(json_data)
+                        // console.log(json_data)
 
-                        console.log(`${register_user_URL}/${this.user_name}`)
+                        // console.log(`${register_user_URL}/${this.user_name}`)
 
                         axios.post(`${register_user_URL}/${this.user_name}`,
                         json_data

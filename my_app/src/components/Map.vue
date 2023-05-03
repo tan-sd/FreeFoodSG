@@ -75,7 +75,7 @@
         inheritAttrs: true,
         methods: {
             get_user_info(username) {
-                console.log(`${get_user_info_url}/${username}`)
+                // console.log(`${get_user_info_url}/${username}`)
                 const response = fetch(`${get_user_info_url}/${username}`)
                     .then(response => response.json())
                     .then(data => {
@@ -84,21 +84,21 @@
                             console.log("get_user_info() - error!");
                         } else {
                             this.user_appetite = data.data.travel_appetite
-                            console.log(this.user_appetite)
+                            // console.log(this.user_appetite)
                         }
                     })
             },
             toggleAccordion(index) {
                 this.$store.state.markerId = index
-                console.log(this.$store.state.markerId)
-                console.log(`#accordionList${index}`)
+                // console.log(this.$store.state.markerId)
+                // console.log(`#accordionList${index}`)
                 const selectedAccordion = document.querySelector(`#accordionList${index}`)
-                console.log(selectedAccordion)
+                // console.log(selectedAccordion)
                 selectedAccordion.setAttribute('aria-expanded',"true")
                 selectedAccordion.classList.remove('collapsed')
 
                 const selectedAccordionBody = document.querySelector(`.accordionBody${index}`)
-                console.log(selectedAccordionBody)
+                // console.log(selectedAccordionBody)
                 selectedAccordionBody.classList.add('show')
                 // const accordionElement = this.$refs.index
                 // accordionElement.classList.toggle('active')

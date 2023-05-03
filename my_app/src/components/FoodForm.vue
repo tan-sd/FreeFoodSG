@@ -1,6 +1,6 @@
 <template>
   <div>
-    <button class="btn btn-main" data-bs-toggle="modal" :data-bs-target="isAuthenticated ? `#new-foodpost` : ``" @click="reroute_to_login()"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
+    <button type="button" class="btn btn-main" :data-bs-toggle="isAuthenticated ? `modal` : ''" :data-bs-target="isAuthenticated ? `#new-foodpost` : ``" @click="reroute_to_login()"><font-awesome-icon icon="fa-solid fa-utensils" /> Share Food</button>
     
     <div class="modal fade" id="new-foodpost" tabindex="-1" aria-labelledby="modal-title-foodform" aria-hidden="true">
       <div class="modal-dialog">
@@ -198,7 +198,7 @@ const storage = getStorage(app);
             "diets_available": this.diet_res
         })
         .then(function (response) {
-            console.log("Success Horsey: ", response)
+            console.log("Success: ", response)
 
             var generated_post_id = response.data.data.Post_result.data.post.post_id
 

@@ -321,7 +321,7 @@
             },
             passFoodID(foodID) {
                 this.foodID = foodID
-                console.log(this.foodID)
+                // console.log(this.foodID)
                 document.querySelector(".modal-backdrop").style.zIndex = 0;
             },
             delete_specific_food_post(food_id) {
@@ -390,6 +390,7 @@
 
             get_all_user_food() {
                 console.log(`=== [START] get_all_user_food() ===`)
+                // console.log(this.$store.state.user_details.username)
 
                 const response = fetch(`${get_all_user_food_URL}/${this.$store.state.user_details.username}`)
                     .then(response => response.json())

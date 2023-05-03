@@ -1,0 +1,452 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+  pgdata: 
+  kongadata:
+
+# networks:
+#   kong-net:
+#     driver: bridge
+
+services:
+  ####################################
+  # Vue: Front-end
+  ####################################  
+  vue-app:
+    build:
+      context: ./my_app
+      dockerfile: my_app.Dockerfile
+    container_name: my_app
+    image: rachelsng/my_app
+    # depends_on:
+    #   - user_info
+    #   - food_info
+    #   - forum_info
+    #   - activity_log
+    #   - find_food
+    #   - manage_food
+    #   - manage_forum
+    #   - rabbitmq
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./my_app:/usr/src/app/my_app
+      - /usr/src/app/my_app/node_modules
+    # command: /bin.sh -c "npm run serve"
+
+  ###################################
+  # User: The user_info microservice
+  ###################################
+  user_info:
+    build:
+      context: ./
+      dockerfile: user.Dockerfile
+    container_name: user_info
+    image: rachelsng/user_info
+    restart: always
+    # networks:
+    #   - kong-net
+    environment:
+      dbURL: 'mysql+mysqlconnector://is213@host.docker.internal:3306/user_info'
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1111:1111"
+ 
+  #######################################################
+  # food_info: The food_info microservice
+  #######################################################
+  food_info:
+    build:
+      context: ./
+      dockerfile: food.Dockerfile
+    container_name: food_info
+    image: rachelsng/food_info
+    restart: always
+    # networks:
+    #   - kong-net
+    environment:
+      dbURL: 'mysql+mysqlconnector://is213@host.docker.internal:3306/food_db'
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1112:1112"
+
+    # telesqldb-service:
+    #   image: mysql:latest
+    #   restart: always
+    #   hostname: telesqldb
+      # volumes:
+      #   - telesqldb_data:/var/lib/mysql
+      # environment:
+        # MYSQL_ROOT_PASSWORD: 1234
+        # MYSQL_USER: a
+        # MYSQL_PASSWORD: 1234
+        # MYSQL_DATABASE: telesessiondb
+      # networks:
+      #   - tele-mysql-net
+
+  ###############################################
+  # forum_info: The forum_info microservice
+  ###############################################
+  forum_info:
+    build:
+      context: ./
+      dockerfile: forum.Dockerfile
+    container_name: forum_info
+    image: rachelsng/forum_info
+    restart: always
+    # networks:
+    #   - kong-net
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      dbURL: 'mysql+mysqlconnector://is213@host.docker.internal:3306/forum_db'
+      PYTHONUNBUFFERED: 1
+      # TZ: Asia/Kuala_Lumpur
+    # command: ['mysqld', '--character-set-server=utf8mb4', '--collation-server=utf8mb4_unicode_ci','--default-time-zone=+09:00']
+
+    ports:
+      - "1115:1115"
+
+  ###############################################
+  # activity_log: The activity_log microservice
+  ###############################################
+  activity_log:
+    build:
+      context: ./
+      dockerfile: activity_log.Dockerfile
+    container_name: activity_log
+    image: rachelsng/activity_log
+    restart: always
+    # networks:
+    #   - kong-net
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+      dbURL: mysql+mysqlconnector://is213@host.docker.internal:3306/activity_db
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "1114:1114"
+
+  ###############################################
+  # find_food: The find_food microservice
+  ###############################################
+  find_food:
+    build:
+      context: ./
+      dockerfile: find_food.Dockerfile 
+    container_name: find_food
+    image: rachelsng/find_food 
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      - user_info
+      - food_info
+      # - invokes
+      # - invoke_activity
+    environment:
+      user_food_URL: http://food_info:1112/nearby_food_user
+      guest_food_URL: http://food_info:1112/nearby_food_guest
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5101:5101"
+      
+  ###############################################
+  # manage_food: The manage_food microservice
+  ###############################################
+  manage_food:
+    build:
+      context: ./
+      dockerfile: manage_food.Dockerfile 
+    container_name: manage_food
+    image: rachelsng/manage_food 
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      - food_info
+      - user_info
+      # - invokes
+      # - invoke_activity
+    environment:
+      user_URL: "http://user_info:1111/profile"
+      create_food_post_URL: "http://food_info:1112/create_post"
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5102:5102"
+
+  ###############################################
+  # manage_forum: The manage_forum microservice
+  ###############################################
+  manage_forum:
+    build:
+      context: ./
+      dockerfile: manage_forum.Dockerfile 
+    container_name: manage_forum
+    image: rachelsng/manage_forum
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      - forum_info
+      - user_info
+      - publish_message
+      # - invokes
+      # - invoke_activity
+    environment:
+      notification_URL: http://publish_message:5100/send_notif
+      create_URL: http://forum_info:1115/create
+      create_comment_URL: http://forum_info:1115/create_comment
+      find_URL: http://forum_info:1115/search_id
+      user_URL: http://user_info:1111/profile
+      PYTHONUNBUFFERED: 1
+    ports:
+      - "5103:5103"
+
+  ####################################
+  # RabbitMQ: The messaging broker   
+  ####################################
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:3-management
+    hostname: rabbitmq
+    restart: always
+    # networks:
+    #   - kong-net
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes: 
+      - rabbitmq_data:/var/lib/rabbitmq
+
+  ###################################
+  # publish_message.py
+  ###################################
+  publish_message:
+    build:
+      context: ./
+      dockerfile: publish_message.Dockerfile
+    container_name: publish_message
+    image: rachelsng/publish_message
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      # - amqp_setup
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  # send_email_food.py
+  ###################################
+  send_email_food:
+    build:
+      context: ./
+      dockerfile: send_email_food.Dockerfile
+    container_name: send_email_food
+    image: rachelsng/send_email_food
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      # - amqp_setup
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  # send_email_forum.py
+  ###################################
+  send_email_forum:
+    build:
+      context: ./
+      dockerfile: send_email_forum.Dockerfile
+    container_name: send_email_forum
+    image: rachelsng/send_email_forum
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      # - amqp_setup
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  # send_sms_food.py
+  ###################################
+  send_sms_food:
+    build:
+      context: ./
+      dockerfile: send_sms_food.Dockerfile
+    container_name: send_sms_food
+    image: rachelsng/send_sms_food
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      # - amqp_setup
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  # send_sms_forum.py
+  ###################################
+  send_sms_forum:
+    build:
+      context: ./
+      dockerfile: send_sms_forum.Dockerfile
+    container_name: send_sms_forum
+    image: rachelsng/send_sms_forum
+    restart: always
+    # networks:
+    #   - kong-net
+    depends_on:
+      # - amqp_setup
+      - rabbitmq
+    environment:
+      rabbit_host: rabbitmq
+      rabbit_port: 5672
+      PYTHONUNBUFFERED: 1
+
+  ###################################
+  # amqp_setup.py -- don't start
+  # ###################################
+  # amqp_setup:
+  #   build:
+  #     context: ./
+  #     dockerfile: amqp_setup.Dockerfile
+  #   container_name: amqp_setup
+  #   image: rachelsng/amqp_setup
+  #   restart: always
+  #   # networks:
+  #   #   - kong-net
+  #   depends_on:
+  #     - rabbitmq
+  #   environment:
+  #     rabbit_host: rabbitmq
+  #     rabbit_port: 5672
+  #     PYTHONUNBUFFERED: 1
+
+  #######################################
+  # Postgres: The database used by Kong
+  # #######################################
+  # kong-database:
+  #   image: postgres:9.6
+  #   restart: always
+  #   networks:
+  #     - kong-net
+  #   environment:
+  #     POSTGRES_DB: kong
+  #     POSTGRES_USER: kong
+  #     POSTGRES_PASSWORD: password
+  #   ports:
+  #     - "5432:5432"
+  #   healthcheck:
+  #     test: ["CMD", "pg_isready", "-U", "kong"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   volumes:
+  #     - pgdata:/var/lib/postgresql/data
+
+  # #######################################
+  # # Kong database migration
+  # #######################################
+  # kong-migration:
+  #   image: kong:2.0.4
+  #   command: "kong migrations bootstrap"
+  #   restart: on-failure
+  #   networks:
+  #     - kong-net
+  #   environment:
+  #     KONG_DATABASE: postgres
+  #     KONG_PG_HOST: kong-database
+  #     KONG_PG_USER: kong
+  #     KONG_PG_PASSWORD: password
+  #   depends_on:
+  #     - kong-database
+
+  # #######################################
+  # # Kong: The API Gateway
+  # #######################################
+  # kong:
+  #   image: kong:2.0.4
+  #   restart: always
+  #   networks:
+  #     - kong-net
+  #   environment:
+  #     KONG_DATABASE: postgres
+  #     KONG_PG_HOST: kong-database
+  #     KONG_PG_USER: kong
+  #     KONG_PG_PASSWORD: password
+  #     KONG_PROXY_LISTEN: 0.0.0.0:8000
+  #     KONG_ADMIN_LISTEN: 0.0.0.0:8001
+  #   depends_on:
+  #     - kong-migration
+  #   ports:
+  #     - "8000:8000"
+  
+  # #######################################
+  # # Konga: Kong GUI
+  # #######################################
+  # konga:
+  #   image: pantsel/konga
+  #   restart: always
+  #   networks:
+  #       - kong-net
+  #   environment:
+  #     DB_ADAPTER: postgres
+  #     DB_HOST: kong-database
+  #     DB_USER: kong
+  #     DB_PASSWORD: password
+  #     DB_DATABASE: konga_db
+  #   depends_on:
+  #     - kong
+  #   ports:
+  #     - "1337:1337"
+  #   volumes:
+  #     - kongadata:/app/kongadata
+
+  ###################################
+  # invokes.py
+  ###################################
+  # invokes:
+  #   build:
+  #     context: ./
+  #     dockerfile: invokes.Dockerfile
+  #   container_name: invokes
+  #   image: rachelsng/invokes
+  #   restart: always
+    # networks:
+    #   - kong-net
+    # environment:
+    #   PYTHONUNBUFFERED: 1
+
+  ###################################
+  # invoke_activity.py
+  ###################################
+  # invoke_activity:
+  #   build:
+  #     context: ./
+  #     dockerfile: invoke_activity.Dockerfile
+  #   depends_on:
+  #     - activity_log
+  #   container_name: invoke_activity
+  #   image: rachelsng/invoke_activity
+  #   restart: always
+    # networks:
+    #   - kong-net
+    # environment:
+    #   PYTHONUNBUFFERED: 1

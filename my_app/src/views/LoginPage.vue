@@ -110,7 +110,7 @@
                     .then(response => {
                         // this response will give all user details
                         // store this to session or sth
-                        console.log(response.data.user.username)
+                        // console.log(response.data.user.username)
                         this.$store.state.user_details = response.data.user
                         this.$store.state.username = response.data.user.username
                         this.$store.state.isAuthenticated = true

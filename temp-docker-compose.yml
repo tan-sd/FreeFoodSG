@@ -1,0 +1,43 @@
+version: "3.8"
+
+volumes:
+  rabbitmq_data:
+  pgdata: 
+  kongadata:
+
+networks:
+  kong-net:
+    driver: bridge
+
+services:
+  food_info:
+      build:
+        context: ./
+        dockerfile: food.Dockerfile
+      container_name: food_info
+      image: rachelsng/food_info
+      restart: always
+      networks:
+        - kong-net
+      environment:
+        # dbURL: 'mysql+mysqlconnector://is213@host.docker.internal:3306/food_db'
+        MYSQL_ROOT_PASSWORD: 1234
+        MYSQL_USER: a
+        MYSQL_PASSWORD: 1234
+        MYSQL_DATABASE: fooddb
+        MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+        PYTHONUNBUFFERED: 1
+      ports:
+        - 1112:1112
+
+  foodinfood-service:
+    image: mysql:latest
+    restart: always
+    hostname: foodinfodb
+    environment:
+      MYSQL_ROOT_PASSWORD: 1234
+      MYSQL_USER: a
+      MYSQL_PASSWORD: 1234
+      MYSQL_DATABASE: fooddb
+    networks:
+      - kong-net

@@ -347,7 +347,7 @@
                     this.form_travel_appetite
                 ]
 
-                console.log(to_check)
+                // console.log(to_check)
 
                 for (var e_var of to_check) {
                     if (e_var.length == 0) {
