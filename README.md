@@ -71,7 +71,7 @@
 ## Prerequisites
 Please ensure your machine has the prerequisites required for MakanBoleh
 * WAMP (Windows User): https://www.wampserver.com/en/
-* MAMP (Mac Users): https://www.mamp.info/en/mac/
+* MAMP (Mac User): https://www.mamp.info/en/mac/
 * Docker Desktop: https://www.docker.com/products/docker-desktop/
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -95,6 +95,7 @@ Clone the github repository to your local machine by typing in the terminal `git
 1. Turn on Docker Desktop
 2. On the terminal, type `cd makan-boleh`
 3. Then `docker compose up`
+4. Once container has been built and ran, you can access MakanBoleh through `http://localhost:8080`
 
 ### Test Account
 | **Username**       | **iloveesd** |
