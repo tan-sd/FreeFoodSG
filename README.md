@@ -59,7 +59,7 @@
 | Ang Keng Boon         | kbang.2021 | kbang.2021@scis.smu.edu.sg    |
 | Muhammad Faez Bin Abdul Latiff | muhammadal.2021  | faezlatiff0706@gmail.com|
 | Sng Yue Wei, Rachel            | rachel.sng.2021  | rrachelsng@gmail.com    |
-| Adam Tan          | adam.tan.2021  |  adam.tan.2021@scis.smu.edu.sg   |
+| Adam Tan          | adam.tan.2021  |  adamft.2021@scis.smu.edu.sg   |
 | Seth Yap Zi Qi            | seth.yap.2021  | seth.yap.2021@scis.smu.edu.sg   |
 
 
