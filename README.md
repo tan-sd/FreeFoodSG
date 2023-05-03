@@ -99,14 +99,14 @@ Clone the github repository to your local machine by typing in the terminal `git
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <br/>
-<br/>        |
+<br/>
 
 ## API Documentations
-<a href='https://docs.google.com/document/d/1rcwscbMF9YDxRCl7xgJOnmwe-a4l3_Y2pBSY2JJV-xk/edit?usp=sharing'>FoodInfo API</a>
-<a href='https://docs.google.com/document/d/1SiL-nAZGWvSLyYBr0qHcx1SPB6T_fvILyldV88--p_k/edit?usp=sharing'>UserInfo API</a>
-<a href='https://docs.google.com/document/d/1JjyuweIMLZUxryOB_myYrGjy_7T0CKj6pkzmQwBIxKE/edit?usp=sharing'>ManageForum API</a>
-<a href='https://docs.google.com/document/d/19xZsvWSiL8xJQJ24d46SP0UV9PYQkdYDaqvmw0iBgIs/edit?usp=sharing'>FindFood API</a>
-<a href='https://docs.google.com/document/d/1eoJdZa1_9Lzpfskz_SwqR_2HTqOayMGp46h_-Q5Uet4/edit?usp=sharing'>ManageFood API</a>
-<a href='https://docs.google.com/document/d/18bd7cptYZtRFWiYMjcIRoYCyZaP-1_UyFL95OAGsNJs/edit?usp=sharing'>Forum API</a>
+* <a href='https://docs.google.com/document/d/1rcwscbMF9YDxRCl7xgJOnmwe-a4l3_Y2pBSY2JJV-xk/edit?usp=sharing'>FoodInfo API</a>
+* <a href='https://docs.google.com/document/d/1SiL-nAZGWvSLyYBr0qHcx1SPB6T_fvILyldV88--p_k/edit?usp=sharing'>UserInfo API</a>
+* <a href='https://docs.google.com/document/d/1JjyuweIMLZUxryOB_myYrGjy_7T0CKj6pkzmQwBIxKE/edit?usp=sharing'>ManageForum API</a>
+* <a href='https://docs.google.com/document/d/19xZsvWSiL8xJQJ24d46SP0UV9PYQkdYDaqvmw0iBgIs/edit?usp=sharing'>FindFood API</a>
+* <a href='https://docs.google.com/document/d/1eoJdZa1_9Lzpfskz_SwqR_2HTqOayMGp46h_-Q5Uet4/edit?usp=sharing'>ManageFood API</a>
+* <a href='https://docs.google.com/document/d/18bd7cptYZtRFWiYMjcIRoYCyZaP-1_UyFL95OAGsNJs/edit?usp=sharing'>Forum API</a>
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
